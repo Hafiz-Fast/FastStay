@@ -296,6 +296,7 @@ const InfoRow: React.FC<{ icon: string; label: string; value: React.ReactNode }>
 const HostelDetailsPage: React.FC = () => {
   const [hostel, setHostel] = useState<HostelDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -413,6 +414,20 @@ const HostelDetailsPage: React.FC = () => {
 
   const handleBack = () => { navigate(`/student/home?user_id=${userId}`); };
 
+  const handlePrevImage = () => {
+    if (!hostel) return;
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? hostel.images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    if (!hostel) return;
+    setCurrentImageIndex((prev) =>
+      prev === hostel.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
   const ratingBreakdown = useMemo(() => {
     if (!hostel || hostel.ratings.length === 0) return null;
     const c = hostel.ratings.length;
@@ -454,8 +469,20 @@ const HostelDetailsPage: React.FC = () => {
       <div className={styles.headerImage}>
         {hostel.images.length > 0 ? (
           <>
-            <img src={hostel.images[0].p_PhotoLink} alt={hostel.p_name} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-            {hostel.images.length > 1 && <div className={styles.imageCounter}><i className="fa-solid fa-images"></i> {hostel.images.length} photos</div>}
+            <img src={hostel.images[currentImageIndex].p_PhotoLink} alt={`${hostel.p_name} - ${currentImageIndex + 1}`} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            {hostel.images.length > 1 && (
+              <>
+                <button className={styles.sliderArrowLeft} onClick={handlePrevImage} aria-label="Previous image">
+                  <i className="fa-solid fa-chevron-left"></i>
+                </button>
+                <button className={styles.sliderArrowRight} onClick={handleNextImage} aria-label="Next image">
+                  <i className="fa-solid fa-chevron-right"></i>
+                </button>
+                <div className={styles.imageCounter}>
+                  <i className="fa-solid fa-images"></i> {currentImageIndex + 1} / {hostel.images.length}
+                </div>
+              </>
+            )}
           </>
         ) : (
           <div className={styles.noImagePlaceholder}>
@@ -500,7 +527,7 @@ const HostelDetailsPage: React.FC = () => {
               <InfoRow icon="fa-solid fa-door-open" label="Total Rooms" value={hostel.basic.p_NumRooms} />
               <InfoRow icon="fa-solid fa-layer-group" label="Total Floors" value={hostel.basic.p_NumFloors} />
               <InfoRow icon="fa-solid fa-droplet" label="Water Timing" value={`${hostel.basic.p_WaterTimings} hrs/day`} />
-              <InfoRow icon="fa-solid fa-broom" label="Cleaning Frequency" value={`Every ${hostel.basic.p_CleanlinessTenure} day(s)`} />
+              <InfoRow icon="fa-solid fa-broom" label="Cleaning Tenure" value={`Every ${hostel.basic.p_CleanlinessTenure} day(s)`} />
               <InfoRow icon="fa-solid fa-wrench" label="Issue Resolving" value={`Within ${hostel.basic.p_IssueResolvingTenure} day(s)`} />
             </div>
             <div className={styles.featureTags}>
@@ -508,26 +535,6 @@ const HostelDetailsPage: React.FC = () => {
               <BooleanBadge value={hostel.basic.p_MessProvide} trueLabel="Mess Provided" falseLabel="No Mess" />
               <BooleanBadge value={hostel.basic.p_GeezerFlag} trueLabel="Geyser Available" falseLabel="No Geyser" />
             </div>
-          </section>
-        )}
-
-        {/* ═══════════════════ ROOM TYPES ═══════════════════ */}
-        {hostel.rooms.length > 0 && (
-          <section className={styles.box}>
-            <h2><i className="fa-solid fa-bed"></i> Room Types & Rent</h2>
-            <div className={styles.roomGrid}>
-              {hostel.rooms.map((room, index) => (
-                <div key={index} className={styles.roomCard}>
-                  <h3>{room.type}</h3>
-                  <p><i className="fa-solid fa-money-bill"></i> <b>{room.rent.toLocaleString()} PKR</b> / month</p>
-                </div>
-              ))}
-            </div>
-            {hostel.expenses?.p_isIncludedInRoomCharges && (
-              <div className={styles.includedTag}>
-                <i className="fa-solid fa-check-circle"></i> All utilities included in room charges
-              </div>
-            )}
           </section>
         )}
 

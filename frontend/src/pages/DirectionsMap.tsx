@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Map, { Marker, Source, Layer } from "react-map-gl/mapbox";
 import mapboxgl from "mapbox-gl";
@@ -110,15 +110,9 @@ export default function DirectionsMap() {
       }
     : null;
 
-  const handleBack = () => {
-    if (hostelId) {
-      navigate(
-        `/student/hostel-details?id=${hostelId}&user_id=${userId}`
-      );
-    } else {
-      navigate(-1);
-    }
-  };
+  const handleBack = useCallback(() => {
+      navigate(`/student/hostelDetails?id=${hostelId}&user_id=${userId}`);
+    }, [navigate, hostelId, userId]);
 
   return (
     <div className={styles.wrapper}>

@@ -215,7 +215,7 @@
 .statDivider {
   width: 1px;
   height: 30px;
-  background: #e0d6c9;
+  margin-left: 10px;
 }
 
 /* ─── Route Steps ─── */

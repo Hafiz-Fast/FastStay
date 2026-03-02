@@ -161,15 +161,15 @@ const ViewRooms: React.FC = () => {
         if (picsRes?.data) {
           if (Array.isArray(picsRes.data)) {
             picsData = picsRes.data.map((pic: any) => ({
-              p_PhotoLink: pic.p_PhotoLink || pic.photolink || pic.p_photolink,
-              p_RoomNo: pic.p_RoomNo !== undefined ? pic.p_RoomNo : null,
-              p_RoomSeaterNo: pic.p_RoomSeaterNo || pic.seaterno || 0
+              p_PhotoLink: pic.p_PhotoLink ?? pic.p_photolink ?? pic.photolink,
+              p_RoomNo: pic.p_RoomNo !== undefined ? pic.p_RoomNo : (pic.p_roomno !== undefined ? pic.p_roomno : null),
+              p_RoomSeaterNo: pic.p_RoomSeaterNo ?? pic.p_roomseaterno ?? pic.seaterno ?? 0
             }));
           } else if (picsRes.data.p_PhotoLink) {
             picsData = [{
               p_PhotoLink: picsRes.data.p_PhotoLink,
-              p_RoomNo: picsRes.data.p_RoomNo || null,
-              p_RoomSeaterNo: picsRes.data.p_RoomSeaterNo || 0
+              p_RoomNo: picsRes.data.p_RoomNo !== undefined ? picsRes.data.p_RoomNo : null,
+              p_RoomSeaterNo: picsRes.data.p_RoomSeaterNo ?? 0
             }];
           }
         }
@@ -178,18 +178,28 @@ const ViewRooms: React.FC = () => {
         // Process rooms
         let fetchedRooms: Room[] = [];
         if (roomsRes.data.success && roomsRes.data.result && Array.isArray(roomsRes.data.result)) {
-          fetchedRooms = roomsRes.data.result.map((room: any, index: number) => ({
-            p_RoomNo: (parseInt(room.p_FloorNo || 1) * 100) + index + 1,
-            p_FloorNo: room.p_FloorNo || 1,
-            p_SeaterNo: room.p_SeaterNo || 1,
-            p_BedType: room.p_BedType || "Single",
-            p_WashroomType: room.p_WashroomType || "Attached",
-            p_CupboardType: room.p_CupboardType || "PerPerson",
-            p_RoomRent: room.p_RoomRent || 0,
-            p_isVentilated: room.p_isVentilated || false,
-            p_isCarpet: room.p_isCarpet || false,
-            p_isMiniFridge: room.p_isMiniFridge || false
-          }));
+          // Debug: log raw room data to find the actual key for room number
+          console.log("Raw rooms response keys:", Object.keys(roomsRes.data.result[0] || {}));
+          console.log("Raw first room data:", JSON.stringify(roomsRes.data.result[0]));
+
+          fetchedRooms = roomsRes.data.result.map((room: any, index: number) => {
+            // The backend does NOT return p_RoomNo — fallback to index+1
+            const roomNo = room.p_roomno ?? room.p_RoomNo ?? room.roomno ?? room.p_room_no ?? room.room_no ?? room.RoomNo ?? room.roomNo ?? (index + 1);
+            console.log("Room mapping - raw keys:", Object.keys(room), "resolved roomNo:", roomNo);
+
+            return {
+              p_RoomNo: roomNo,
+              p_FloorNo: room.p_floorno ?? room.p_FloorNo ?? room.floorno ?? room.p_FloorNo ?? 1,
+              p_SeaterNo: room.p_seaterno ?? room.p_SeaterNo ?? room.seaterno ?? room.p_SeaterNo ?? 1,
+              p_BedType: room.p_bedtype || room.p_BedType || room.bedtype || room.p_BedType || "Single",
+              p_WashroomType: room.p_washroomtype || room.p_WashroomType || room.washroomtype || room.p_WashroomType || "Attached",
+              p_CupboardType: room.p_cupboardtype || room.p_CupboardType || room.cupboardtype || room.p_CupboardType || "PerPerson",
+              p_RoomRent: room.p_roomrent ?? room.p_RoomRent ?? room.roomrent ?? room.p_RoomRent ?? 0,
+              p_isVentilated: room.p_isventilated ?? room.p_isVentilated ?? room.isventilated ?? room.p_isVentilated ?? false,
+              p_isCarpet: room.p_iscarpet ?? room.p_isCarpet ?? room.iscarpet ?? room.p_isCarpet ?? false,
+              p_isMiniFridge: room.p_isminifridge ?? room.p_isMiniFridge ?? room.isminifridge ?? room.p_isMiniFridge ?? false
+            };
+          });
 
           fetchedRooms.sort((a: Room, b: Room) => {
             if (a.p_SeaterNo !== b.p_SeaterNo) return a.p_SeaterNo - b.p_SeaterNo;
@@ -246,18 +256,21 @@ const ViewRooms: React.FC = () => {
   const getRoomPics = useCallback((room: Room): string[] => {
     if (!roomPics.length) return [];
     const roomPicsList: string[] = [];
+
+    // 1. Specific room pics (p_RoomNo matches exactly)
     const roomSpecific = roomPics
-      .filter(pic => pic.p_RoomNo === (room.p_RoomNo / 100))
+      .filter(pic => pic.p_RoomNo === room.p_RoomNo)
       .map(pic => pic.p_PhotoLink);
     roomPicsList.push(...roomSpecific);
+
+    // 2. Shared seater pics (p_RoomNo is null, p_RoomSeaterNo matches)
     const sharedSeater = roomPics
       .filter(pic => pic.p_RoomNo === null && pic.p_RoomSeaterNo === room.p_SeaterNo)
       .map(pic => pic.p_PhotoLink);
     roomPicsList.push(...sharedSeater);
+
     return [...new Set(roomPicsList)];
   }, [roomPics]);
-
-  const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80";
 
   const nextPic = useCallback((roomNo: number) => {
     const room = filteredRooms.find(r => r.p_RoomNo === roomNo);
@@ -313,9 +326,9 @@ const ViewRooms: React.FC = () => {
     return `PKR ${amount.toLocaleString()}`;
   }, []);
 
-  const getRoomImage = useCallback((room: Room): string => {
+  const getRoomImage = useCallback((room: Room): string | null => {
     const pics = getRoomPics(room);
-    return pics.length > 0 ? pics[0] : DEFAULT_IMAGE;
+    return pics.length > 0 ? pics[0] : null;
   }, [getRoomPics]);
 
   // --- Memoized stats ---
@@ -347,50 +360,60 @@ const ViewRooms: React.FC = () => {
     return filteredRooms.map((room) => {
       const roomPicsList = getRoomPics(room);
       const currentIndex = roomPicIndices[room.p_RoomNo] || 0;
-      const currentImage = roomPicsList.length > 0
-        ? roomPicsList[currentIndex]
-        : DEFAULT_IMAGE;
 
       return (
         <div key={room.p_RoomNo} className={styles.roomCard}>
           <div className={styles.cardImage}>
-            <img
-              src={currentImage}
-              alt={`Room ${room.p_RoomNo}`}
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = DEFAULT_IMAGE;
-              }}
-            />
-            {roomPicsList.length > 1 && (
+            {roomPicsList.length > 0 ? (
               <>
-                <button
-                  className={`${styles.sliderBtn} ${styles.prevBtn}`}
-                  onClick={(e) => { e.stopPropagation(); prevPic(room.p_RoomNo); }}
-                >
-                  <i className="fa-solid fa-chevron-left"></i>
-                </button>
-                <button
-                  className={`${styles.sliderBtn} ${styles.nextBtn}`}
-                  onClick={(e) => { e.stopPropagation(); nextPic(room.p_RoomNo); }}
-                >
-                  <i className="fa-solid fa-chevron-right"></i>
-                </button>
-                <div className={styles.sliderDots}>
-                  {roomPicsList.map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={`${styles.dot} ${idx === currentIndex ? styles.activeDot : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setRoomPicIndices(prev => ({ ...prev, [room.p_RoomNo]: idx }));
-                      }}
-                    />
-                  ))}
-                </div>
+                <img
+                  src={roomPicsList[currentIndex]}
+                  alt={`Room ${room.p_RoomNo}`}
+                  loading="lazy"
+                  decoding="async"
+                />
+                {roomPicsList.length > 1 && (
+                  <>
+                    <button
+                      className={`${styles.sliderBtn} ${styles.prevBtn}`}
+                      onClick={(e) => { e.stopPropagation(); prevPic(room.p_RoomNo); }}
+                    >
+                      <i className="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button
+                      className={`${styles.sliderBtn} ${styles.nextBtn}`}
+                      onClick={(e) => { e.stopPropagation(); nextPic(room.p_RoomNo); }}
+                    >
+                      <i className="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <div className={styles.sliderDots}>
+                      {roomPicsList.map((_, idx) => (
+                        <span
+                          key={idx}
+                          className={`${styles.dot} ${idx === currentIndex ? styles.activeDot : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRoomPicIndices(prev => ({ ...prev, [room.p_RoomNo]: idx }));
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
+            ) : (
+              <div className={styles.noPicsPlaceholder} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '200px',
+                background: '#f0f0f0',
+                color: '#999'
+              }}>
+                <i className="fa-solid fa-image" style={{ fontSize: '2rem', marginBottom: '8px' }}></i>
+                <p style={{ margin: 0 }}>Pic not Available</p>
+              </div>
             )}
             <div className={styles.cardBadges}>
               <span className={`${styles.seaterBadge} ${
@@ -598,7 +621,7 @@ const ViewRooms: React.FC = () => {
               <select value={filters.bedType} onChange={(e) => handleFilterChange("bedType", e.target.value)}>
                 <option value="all">All Bed Types</option>
                 <option value="Bed">Single Bed</option>
-                <option value="Matress">Matress</option>
+                <option value="Mattress">Mattress</option>
               </select>
             </div>
             <div className={styles.filterGroup}>
@@ -668,16 +691,34 @@ const ViewRooms: React.FC = () => {
 
             <div className={styles.modalContent}>
               <div className={styles.modalImage}>
-                <img
-                  src={getRoomImage(selectedRoom)}
-                  alt={`Room ${selectedRoom.p_RoomNo}`}
-                  loading="lazy"
-                  decoding="async"
-                />
-                {getRoomPics(selectedRoom).length > 1 && (
-                  <div className={styles.picCountIndicator}>
-                    <i className="fa-solid fa-images"></i>
-                    {getRoomPics(selectedRoom).length} photos available
+                {getRoomImage(selectedRoom) ? (
+                  <>
+                    <img
+                      src={getRoomImage(selectedRoom)!}
+                      alt={`Room ${selectedRoom.p_RoomNo}`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {getRoomPics(selectedRoom).length > 1 && (
+                      <div className={styles.picCountIndicator}>
+                        <i className="fa-solid fa-images"></i>
+                        {getRoomPics(selectedRoom).length} photos available
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '250px',
+                    background: '#f0f0f0',
+                    color: '#999',
+                    borderRadius: '8px'
+                  }}>
+                    <i className="fa-solid fa-image" style={{ fontSize: '2.5rem', marginBottom: '10px' }}></i>
+                    <p style={{ margin: 0, fontSize: '1.1rem' }}>Pic not Available</p>
                   </div>
                 )}
               </div>
