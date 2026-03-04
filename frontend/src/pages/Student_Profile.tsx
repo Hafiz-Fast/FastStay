@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/StudentProfile.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface StudentDetails {
   userid: number;
@@ -48,17 +50,7 @@ const setCache = (key: string, data: any) => {
 
 const SkeletonLoader: React.FC = () => (
   <div className={styles.pageWrapper}>
-    <nav className={styles.navbar}>
-      <div className={styles.logo}>
-        <i className="fa-solid fa-building-user"></i> FastStay
-      </div>
-      <div className={styles.navLinks}>
-        <span className={styles.navLinkItem}>Home</span>
-        <span className={`${styles.navLinkItem} ${styles.active}`}>My Profile</span>
-        <span className={styles.navLinkItem}>Suggestions</span>
-        <span className={styles.navLinkItem}>Logout</span>
-      </div>
-    </nav>
+    <div className={styles.skeletonNavbar} />
     <div className={styles.container}>
       <div className={styles.pageHeader}>
         <div>
@@ -96,13 +88,11 @@ const SkeletonLoader: React.FC = () => (
 );
 
 const StudentProfile: React.FC = () => {
+  const userId = useAuthGuard();
   const [student, setStudent] = useState<StudentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  const queryParams = useMemo(() => new URLSearchParams(window.location.search), []);
-  const userId = queryParams.get("user_id");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -171,8 +161,9 @@ const StudentProfile: React.FC = () => {
   }, [navigate, userId]);
 
   const handleRetry = useCallback(() => {
+    sessionStorage.removeItem(`student_profile_${userId}`);
     window.location.reload();
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return <SkeletonLoader />;
@@ -181,28 +172,7 @@ const StudentProfile: React.FC = () => {
   if (error) {
     return (
       <div className={styles.pageWrapper}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-building-user"></i> FastStay
-          </div>
-          <div className={styles.navLinks}>
-            <a href={`/student/home?user_id=${userId}`} className={styles.navLinkItem}>
-              Home
-            </a>
-            <a
-              href={`/student/profile?user_id=${userId}`}
-              className={`${styles.navLinkItem} ${styles.active}`}
-            >
-              My Profile
-            </a>
-            <Link to={`/student/suggestions?user_id=${userId}`} className={styles.navLinkItem}>
-              Suggestions
-            </Link>
-            <a href="/" className={styles.navLinkItem}>
-              Logout
-            </a>
-          </div>
-        </nav>
+        <Navbar userId={userId} styles={styles} />
         <div className={styles.errorContainer}>
           <i className="fa-solid fa-circle-exclamation"></i>
           <h3>Unable to load profile</h3>
@@ -217,29 +187,7 @@ const StudentProfile: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-building-user"></i> FastStay
-        </div>
-        <div className={styles.navLinks}>
-          <a href={`/student/home?user_id=${userId}`} className={styles.navLinkItem}>
-            Home
-          </a>
-          <a
-            href={`/student/profile?user_id=${userId}`}
-            className={`${styles.navLinkItem} ${styles.active}`}
-          >
-            My Profile
-          </a>
-          <Link to={`/student/suggestions?user_id=${userId}`} className={styles.navLinkItem}>
-            Suggestions
-          </Link>
-          <a href="/" className={styles.navLinkItem}>
-            Logout
-          </a>
-        </div>
-      </nav>
+      <Navbar userId={userId} styles={styles} />
 
       <div className={styles.container}>
         {/* Page Header */}

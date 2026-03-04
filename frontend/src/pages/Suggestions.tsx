@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/Suggestions.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface Hostel {
   p_hostelid: number;
@@ -107,6 +109,8 @@ const SkeletonCards: React.FC = () => (
 );
 
 const Suggestions: React.FC = () => {
+  const userId = useAuthGuard();
+
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [improvements, setImprovements] = useState("");
   const [defects, setDefects] = useState("");
@@ -117,8 +121,6 @@ const Suggestions: React.FC = () => {
   const [recommendations, setRecommendations] = useState<Hostel[]>([]);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
 
-  const queryParams = useMemo(() => new URLSearchParams(window.location.search), []);
-  const userId = queryParams.get("user_id") || '';
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -335,7 +337,9 @@ const Suggestions: React.FC = () => {
 
             <div className={styles.locationInfo}>
               <i className="fa-solid fa-location-dot"></i>
-              <span>Block {hostel.p_blockno}, House {hostel.p_houseno}</span>
+              <span>
+                Block {hostel.p_blockno}, House {hostel.p_houseno}
+              </span>
             </div>
 
             <div className={styles.statsGrid}>
@@ -360,23 +364,11 @@ const Suggestions: React.FC = () => {
               </div>
 
               <div className={styles.statItem}>
-                <i className="fa-solid fa-road"></i>
+                <i className="fa-solid fa-building"></i>
                 <div>
-                  <span className={styles.statLabel}>Distance</span>
+                  <span className={styles.statLabel}>Total Rooms</span>
                   <span className={styles.statValue}>
-                    {hostel.distance_from_university !== -1
-                      ? `${hostel.distance_from_university} km`
-                      : "N/A"}
-                  </span>
-                </div>
-              </div>
-
-              <div className={styles.statItem}>
-                <i className="fa-solid fa-door-open"></i>
-                <div>
-                  <span className={styles.statLabel}>Rooms Left</span>
-                  <span className={styles.statValue}>
-                    {formatRooms(hostel.available_rooms)}
+                    {formatRooms(hostel.p_numrooms)}
                   </span>
                 </div>
               </div>
@@ -418,35 +410,14 @@ const Suggestions: React.FC = () => {
   return (
     <div className={styles.pageWrapper}>
       {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-building-user"></i> FastStay
-        </div>
-        <div className={styles.navLinks}>
-          <a href={`/student/home?user_id=${userId}`} className={styles.navLinkItem}>
-            Home
-          </a>
-          <a href={`/student/profile?user_id=${userId}`} className={styles.navLinkItem}>
-            My Profile
-          </a>
-          <Link
-            to={`/student/suggestions?user_id=${userId}`}
-            className={`${styles.navLinkItem} ${styles.active}`}
-          >
-            Suggestions
-          </Link>
-          <a href="/" className={styles.navLinkItem}>
-            Logout
-          </a>
-        </div>
-      </nav>
+      <Navbar userId={userId} styles={styles} />
 
       {/* MAIN CONTENT */}
       <div className={styles.mainContainer}>
         {/* Header Section */}
         <div className={styles.headerSection}>
           <h1 className={styles.pageTitle}>
-            <i className="fa-solid fa-lightbulb"></i> Personalized Suggestions
+            <i className="fa-solid fa-lightbulb"></i> Personalized Recommendations
           </h1>
           <p className={styles.pageSubtitle}>
             AI-powered hostel recommendations based on your preferences
@@ -462,20 +433,20 @@ const Suggestions: React.FC = () => {
             </div>
             <div className={styles.profileSummaryGrid}>
               <div className={styles.profileSummaryItem}>
-                <span className={styles.summaryLabel}>Department</span>
-                <span className={styles.summaryValue}>{profile.p_Department}</span>
+                <span className={styles.summaryLabel}>RoomateCount</span>
+                <span className={styles.summaryValue}>{profile.p_RoomateCount}</span>
               </div>
               <div className={styles.profileSummaryItem}>
-                <span className={styles.summaryLabel}>Semester</span>
-                <span className={styles.summaryValue}>{profile.p_Semester}</span>
-              </div>
-              <div className={styles.profileSummaryItem}>
-                <span className={styles.summaryLabel}>Mess Required</span>
-                <span className={styles.summaryValue}>{profile.p_isMess ? "Yes" : "No"}</span>
+                <span className={styles.summaryLabel}>UniDistance</span>
+                <span className={styles.summaryValue}>{profile.p_UniDistance} km</span>
               </div>
               <div className={styles.profileSummaryItem}>
                 <span className={styles.summaryLabel}>Bed Type</span>
                 <span className={styles.summaryValue}>{profile.p_BedType}</span>
+              </div>
+              <div className={styles.profileSummaryItem}>
+                <span className={styles.summaryLabel}>Mess Required</span>
+                <span className={styles.summaryValue}>{profile.p_isMess ? "Yes" : "No"}</span>
               </div>
             </div>
           </div>

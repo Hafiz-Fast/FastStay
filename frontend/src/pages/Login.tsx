@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import styles from "../styles/Login.module.css";
 import { useGoogleLogin } from "@react-oauth/google";
+import { setAuthenticatedUser } from "../utils/auth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -44,6 +45,9 @@ const Login: React.FC = () => {
         email,
         password,
       });
+
+      // Store authenticated user ID before redirecting
+      setAuthenticatedUser(String(response.data.user_id));
 
       if (response.data.usertype === "Hostel Manager") {
         window.location.href = `/manager/dashboard?user_id=${response.data.user_id}`;
@@ -109,7 +113,6 @@ const Login: React.FC = () => {
             >
               <i className="fa-brands fa-google"></i> Login with Google
             </button>
-
 
             <p className={styles.bottomText}>
               Don’t have an account?

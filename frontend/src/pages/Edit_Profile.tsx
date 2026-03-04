@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/EditProfile.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface StudentDetails {
   userid: number;
@@ -48,17 +50,7 @@ const setCache = (key: string, data: any) => {
 
 const SkeletonLoader: React.FC = () => (
   <div className={styles.pageWrapper}>
-    <nav className={styles.navbar}>
-      <div className={styles.logo}>
-        <i className="fa-solid fa-building-user"></i> FastStay
-      </div>
-      <div className={styles.navLinks}>
-        <span className={styles.navLinkItem}>Home</span>
-        <span className={styles.navLinkItem}>My Profile</span>
-        <span className={styles.navLinkItem}>Suggestions</span>
-        <span className={styles.navLinkItem}>Logout</span>
-      </div>
-    </nav>
+    <div className={styles.skeletonNavbar} />
     <div className={styles.container}>
       <div className={styles.skeletonTitle} />
       <div className={styles.skeletonSubtitle} />
@@ -90,6 +82,7 @@ const SkeletonLoader: React.FC = () => (
 );
 
 const EditProfile: React.FC = () => {
+  const userId = useAuthGuard();
   const [student, setStudent] = useState<StudentDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -97,8 +90,6 @@ const EditProfile: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
-  const queryParams = useMemo(() => new URLSearchParams(window.location.search), []);
-  const userId = queryParams.get("user_id");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -165,7 +156,7 @@ const EditProfile: React.FC = () => {
       if (type === "checkbox") {
         newValue = (e.target as HTMLInputElement).checked;
       } else if (type === "number") {
-        newValue = value === '' ? 0 : parseInt(value, 10);
+        newValue = value === '' ? '' : parseFloat(value);
       }
 
       return {
@@ -231,13 +222,18 @@ const EditProfile: React.FC = () => {
     navigate(`/student/profile?user_id=${userId}`);
   }, [navigate, userId]);
 
+  const handleRetry = useCallback(() => {
+    sessionStorage.removeItem(`edit_profile_${userId}`);
+    window.location.reload();
+  }, [userId]);
+
   // Memoize form values to prevent unnecessary re-renders
   const formValues = useMemo(() => ({
     department: student?.p_Department || "",
     batch: student?.p_Batch || "",
     semester: student?.p_Semester || "",
     roommateCount: student?.p_RoomateCount || 1,
-    uniDistance: student?.p_UniDistance || 2,
+    uniDistance: student?.p_UniDistance !== undefined ? student.p_UniDistance : "",
     isAcRoom: student?.p_isAcRoom || false,
     bedType: student?.p_BedType || "Bed",
     washroomType: student?.p_WashroomType || "RoomAttached",
@@ -248,31 +244,25 @@ const EditProfile: React.FC = () => {
     return <SkeletonLoader />;
   }
 
+  if (error && !student) {
+    return (
+      <div className={styles.pageWrapper}>
+        <Navbar userId={userId} styles={styles} />
+        <div className={styles.errorContainer}>
+          <i className="fa-solid fa-circle-exclamation"></i>
+          <h3>Unable to load profile</h3>
+          <p>{error}</p>
+          <button onClick={handleRetry} className={styles.retryButton}>
+            <i className="fa-solid fa-rotate-right"></i> Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-building-user"></i> FastStay
-        </div>
-        <div className={styles.navLinks}>
-          <a href={`/student/home?user_id=${userId}`} className={styles.navLinkItem}>
-            Home
-          </a>
-          <Link
-            to={`/student/profile?user_id=${userId}`}
-            className={styles.navLinkItem}
-          >
-            My Profile
-          </Link>
-          <Link to={`/student/suggestions?user_id=${userId}`} className={styles.navLinkItem}>
-            Suggestions
-          </Link>
-          <Link to="/" className={styles.navLinkItem}>
-            Logout
-          </Link>
-        </div>
-      </nav>
+      <Navbar userId={userId} styles={styles} />
 
       <div className={styles.container}>
         <h2 className={styles.pageTitle}>
@@ -357,7 +347,7 @@ const EditProfile: React.FC = () => {
             </h3>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="roommateCount">Roommate Count</label>
+                <label htmlFor="roommateCount">Number of roommates</label>
                 <select
                   id="roommateCount"
                   name="p_RoomateCount"
@@ -385,6 +375,7 @@ const EditProfile: React.FC = () => {
                   min="1"
                   max="20"
                   step="0.5"
+                  placeholder="Enter distance"
                   disabled={saving}
                   aria-label="Preferred distance from university in kilometers"
                 />
@@ -424,7 +415,7 @@ const EditProfile: React.FC = () => {
               </div>
             </div>
             <div className={styles.formRow}>
-              <div className={styles.formGroup} style={{marginLeft: '4px'}}>
+              <div className={styles.formGroup} style={{ marginLeft: '4px' }}>
                 <label className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
@@ -438,7 +429,7 @@ const EditProfile: React.FC = () => {
                   AC Room Required
                 </label>
               </div>
-              <div className={styles.formGroup} style={{marginLeft: '4px'}}>
+              <div className={styles.formGroup} style={{ marginLeft: '4px' }}>
                 <label className={styles.checkboxLabel}>
                   <input
                     type="checkbox"

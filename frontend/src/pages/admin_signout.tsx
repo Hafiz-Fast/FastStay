@@ -1,17 +1,20 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { clearAuthenticatedUser } from "../utils/auth";
 
 const LogoutConfirm: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const from = searchParams.get("from") || "/";
 
   const handleCancel = () => {
-    navigate("/admin"); // Go back to dashboard
+    navigate(from);
   };
 
   const handleLogout = () => {
-    console.log("User clicked Sign Out – stay on same page");
+    clearAuthenticatedUser();
+    sessionStorage.clear();
     navigate("/");
-    // Later you can clear tokens and redirect to login page
   };
 
   return (
@@ -42,11 +45,11 @@ const LogoutConfirm: React.FC = () => {
         ></i>
 
         <p style={{ fontSize: "24px", fontWeight: "600", marginBottom: "5px" }}>
-          Confirm Logout
+          Confirm Sign out
         </p>
 
         <p style={{ fontSize: "14px", color: "#6a5446", marginBottom: "22px" }}>
-          Are you sure you want to sign out from FastStay Admin?
+          Are you sure you want to Sign out from FastStay?
         </p>
 
         <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
@@ -62,7 +65,7 @@ const LogoutConfirm: React.FC = () => {
               fontWeight: "500",
             }}
           >
-            Sign Out
+            Sign out
           </button>
 
           <button

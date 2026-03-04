@@ -1,0 +1,104 @@
+/* === NAVBAR === */
+.navbar {
+  padding: 1rem 4rem;
+  background: #2b211c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(212, 180, 152, 0.2);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #f8f3e7;
+  letter-spacing: 1px;
+  /* text-transform: uppercase; */
+  position: relative;
+  padding: 0.25rem 0;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navLinkItem {
+  color: #f8f3e7;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  /* text-transform: uppercase; */
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.navLinkItem::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #d4b498;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.navLinkItem:hover::before,
+.navLinkItem.active::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.navLinkItem:hover,
+.navLinkItem.active {
+  color: #d4b498;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 2rem;
+  }
+
+  .navLinks {
+    gap: 1.5rem;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .logo::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .navLinks {
+    gap: 1.25rem;
+  }
+
+  .navLinkItem {
+    font-size: 0.8rem;
+  }
+}

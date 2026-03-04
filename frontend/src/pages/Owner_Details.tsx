@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/OwnerDetails.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface ManagerDetails {
   p_PhotoLink?: string;
@@ -60,13 +62,26 @@ const setCache = (key: string, data: any) => {
 };
 
 const SkeletonLoader: React.FC = () => (
-  <div className={styles.loadingContainer}>
-    <div className={styles.spinner}></div>
-    <p>Loading owner details...</p>
+  <div className={styles.pageWrapper}>
+    <div className={styles.skeletonNavbar} />
+    <div className={styles.header}>
+      <div className={styles.headerContent}>
+        <div className={styles.skeletonBackButton} />
+        <div className={styles.skeletonTitle} />
+        <div className={styles.skeletonSubtitle} />
+      </div>
+    </div>
+    <div className={styles.container}>
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <p>Loading owner details...</p>
+      </div>
+    </div>
   </div>
 );
 
 const OwnerDetails: React.FC = () => {
+  const userId = useAuthGuard();
   const [owner, setOwner] = useState<OwnerDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +94,6 @@ const OwnerDetails: React.FC = () => {
   // Extract query parameters
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hostelId = queryParams.get("id");
-  const userId = queryParams.get("user_id");
   
   // API Base URL
   const API_BASE_URL = "http://127.0.0.1:8000/faststay_app";
@@ -258,6 +272,11 @@ const OwnerDetails: React.FC = () => {
     navigate(`/student/hostelDetails?id=${hostelId}&user_id=${userId}`);
   }, [navigate, hostelId, userId]);
   
+  const handleRetry = useCallback(() => {
+    sessionStorage.removeItem(`owner_details_${hostelId}`);
+    fetchOwnerDetails();
+  }, [fetchOwnerDetails, hostelId]);
+  
   const handleImageError = useCallback(() => {
     setImageError(true);
   }, []);
@@ -280,33 +299,20 @@ const OwnerDetails: React.FC = () => {
   
   // Render loading state
   if (loading) {
-    return (
-      <div className={styles.pageWrapper}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-building-user"></i> FastStay
-          </div>
-        </nav>
-        <SkeletonLoader />
-      </div>
-    );
+    return <SkeletonLoader />;
   }
   
   // Render error state
   if (error || !owner) {
     return (
       <div className={styles.pageWrapper}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-building-user"></i> FastStay
-          </div>
-        </nav>
+        <Navbar userId={userId} />
         <div className={styles.errorContainer}>
           <i className="fa-solid fa-exclamation-circle"></i>
           <h3>Error Loading Owner Details</h3>
           <p>{error || "Owner information not found"}</p>
           <div className={styles.errorButtons}>
-            <button onClick={fetchOwnerDetails} className={styles.retryBtn}>
+            <button onClick={handleRetry} className={styles.retryBtn}>
               <i className="fa-solid fa-rotate"></i> Retry
             </button>
             <button onClick={handleBack} className={styles.backBtn}>
@@ -320,18 +326,7 @@ const OwnerDetails: React.FC = () => {
   
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-building-user"></i> FastStay
-        </div>
-        <div className={styles.navLinks}>
-          <a href={`/student/home?user_id=${userId}`} className={styles.navLink}>Home</a>
-          <a href={`/student/profile?user_id=${userId}`} className={styles.navLink}>My Profile</a>
-          <a href={`/student/suggestions?user_id=${userId}`} className={styles.navLink}>Suggestions</a>
-          <a href="/" className={styles.navLink}>Logout</a>
-        </div>
-      </nav>
+      <Navbar userId={userId} />
       
       {/* HEADER */}
       <div className={styles.header}>

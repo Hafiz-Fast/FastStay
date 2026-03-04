@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/HostelDetails.module.css";
+import useAuthGuard from "../hooks/useAuthGuard";
+import Navbar from "../components/Navbar";
 
 // ─── Interfaces ───
 
@@ -265,18 +267,6 @@ const SkeletonLoader: React.FC = () => (
   </>
 );
 
-const Navbar: React.FC<{ userId: string }> = ({ userId }) => (
-  <nav className={styles.navbar}>
-    <div className={styles.logo}><i className="fa-solid fa-building-user"></i> FastStay</div>
-    <div className={styles.navLinks}>
-      <a href={`/student/home?user_id=${userId}`} className={styles.navLink}>Home</a>
-      <a href={`/student/profile?user_id=${userId}`} className={styles.navLink}>My Profile</a>
-      <a href={`/student/suggestions?user_id=${userId}`} className={styles.navLink}>Suggestions</a>
-      <a href="/" className={styles.navLink}>Logout</a>
-    </div>
-  </nav>
-);
-
 const BooleanBadge: React.FC<{ value: boolean; trueLabel: string; falseLabel?: string }> = ({ value, trueLabel, falseLabel }) => (
   <span className={value ? styles.badgeYes : styles.badgeNo}>
     <i className={value ? "fa-solid fa-check" : "fa-solid fa-xmark"}></i>{" "}
@@ -294,6 +284,8 @@ const InfoRow: React.FC<{ icon: string; label: string; value: React.ReactNode }>
 // ─── Main Component ───
 
 const HostelDetailsPage: React.FC = () => {
+  const userId = useAuthGuard();
+
   const [hostel, setHostel] = useState<HostelDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -303,7 +295,6 @@ const HostelDetailsPage: React.FC = () => {
 
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hostelId = queryParams.get("id");
-  const userId = queryParams.get("user_id") || "";
 
   const fetchHostelDetails = useCallback(async (signal: AbortSignal) => {
     if (!hostelId) { setLoading(false); return; }

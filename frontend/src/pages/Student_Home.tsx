@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/StudentHome.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface Hostel {
   p_blockno: string;
@@ -178,6 +180,8 @@ const SkeletonCards: React.FC = () => (
 );
 
 const StudentHome: React.FC = () => {
+  const userId = useAuthGuard();
+
   const [hostels, setHostels] = useState<Hostel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,9 +189,6 @@ const StudentHome: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const navigate = useNavigate();
-
-  const queryParams = useMemo(() => new URLSearchParams(window.location.search), []);
-  const userId = queryParams.get("user_id") || '';
 
   const [filters, setFilters] = useState<FilterState>({
     maxRent: "",
@@ -246,7 +247,6 @@ const StudentHome: React.FC = () => {
     return () => controller.abort();
   }, [userId]);
 
-  // Memoized filtering instead of useEffect + separate state
   const filteredHostels = useMemo(() => {
     let filtered = hostels;
 
@@ -430,7 +430,7 @@ const StudentHome: React.FC = () => {
 
           <div className={styles.cardDetails}>
             <p><i className="fa-solid fa-building"></i> {hostel.p_numrooms} Rooms, {hostel.p_numfloors} Floors</p>
-            <p><i className="fa-solid fa-droplet"></i> Water: {hostel.p_watertimings}</p>
+            <p><i className="fa-solid fa-droplet"></i> Water: {hostel.p_watertimings} hours</p>
             <p><i className="fa-solid fa-broom"></i> Cleaning every {hostel.p_cleanlinesstenure} days</p>
             <p><i className="fa-solid fa-tools"></i> Issues resolved in {hostel.p_issueresolvingtenure} days</p>
           </div>
@@ -454,7 +454,6 @@ const StudentHome: React.FC = () => {
     ));
   }, [filteredHostels, handleViewDetails, handleViewOwner]);
 
-  // Render error state
   if (error && hostels.length === 0 && !loading) {
     return (
       <div className={styles.errorContainer}>
@@ -470,28 +469,8 @@ const StudentHome: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-building-user"></i> FastStay
-        </div>
-        <div className={styles.navLinks}>
-          <Link to={`/student/home?user_id=${userId}`} className={`${styles.navLinkItem} ${styles.active}`}>
-            Home
-          </Link>
-          <Link to={`/student/profile?user_id=${userId}`} className={styles.navLinkItem}>
-            My Profile
-          </Link>
-          <Link to={`/student/suggestions?user_id=${userId}`} className={styles.navLinkItem}>
-            Suggestions
-          </Link>
-          <Link to="/" className={styles.navLinkItem}>
-            Logout
-          </Link>
-        </div>
-      </nav>
+      <Navbar userId={userId} />
 
-      {/* SEARCH SECTION */}
       <div className={styles.searchSection}>
         <h2>Find the Perfect Hostel</h2>
 
@@ -535,7 +514,6 @@ const StudentHome: React.FC = () => {
           )}
         </form>
 
-        {/* FILTERS */}
         <div className={styles.filtersSection}>
           <div className={styles.filterRow}>
             <div className={styles.filterGroup}>
@@ -630,7 +608,6 @@ const StudentHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Results Info */}
         <div className={styles.resultsInfo}>
           <p>
             <i className="fa-solid fa-list"></i>
@@ -640,7 +617,6 @@ const StudentHome: React.FC = () => {
         </div>
       </div>
 
-      {/* HOSTEL GRID */}
       <div className={styles.hostelGrid}>
         {loading ? (
           <SkeletonCards />

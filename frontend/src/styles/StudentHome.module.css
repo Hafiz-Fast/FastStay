@@ -75,49 +75,12 @@
   color: #f8f3e7;
 }
 
-/* === NAVBAR === */
-.navbar {
-  padding: 3vh 2vw;
-  background: #2b211c;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: 600;
-  color: #f8f3e7;
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
-.navLinkItem {
-  color: #f8f3e7;
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.2s ease;
-}
-
-.navLinkItem:hover,
-.navLinkItem.active {
-  color: #d4b498;
-}
-
 /* === SEARCH SECTION === */
 .searchSection {
   padding: 25px 20px;
   text-align: center;
   background: #2b211c;
-  margin: 10px 0;
+  margin: 0 0 10px 0;
   border-radius: 0 0 20px 20px;
   box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.3);
 }

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/ViewRooms.module.css";
+import Navbar from "../components/Navbar";
+import useAuthGuard from "../hooks/useAuthGuard";
 
 interface Room {
   p_RoomNo: number;
@@ -72,6 +74,7 @@ const SkeletonCards: React.FC = () => (
 );
 
 const ViewRooms: React.FC = () => {
+  const userId = useAuthGuard();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [hostelInfo, setHostelInfo] = useState<HostelInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +88,6 @@ const ViewRooms: React.FC = () => {
 
   const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const hostelId = queryParams.get("hostel_id");
-  const userId = queryParams.get("user_id");
 
   const API_BASE_URL = "http://127.0.0.1:8000/faststay_app";
 
@@ -371,6 +373,10 @@ const ViewRooms: React.FC = () => {
                   alt={`Room ${room.p_RoomNo}`}
                   loading="lazy"
                   decoding="async"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://via.placeholder.com/400x300?text=No+Image";
+                  }}
                 />
                 {roomPicsList.length > 1 && (
                   <>
@@ -487,15 +493,7 @@ const ViewRooms: React.FC = () => {
   if (loading) {
     return (
       <div className={styles.pageWrapper}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}><i className="fa-solid fa-building-user"></i> FastStay</div>
-          <div className={styles.navLinks}>
-            <a href={`/student/home?user_id=${userId}`} className={styles.navLink}>Home</a>
-            <a href={`/student/profile?user_id=${userId}`} className={styles.navLink}>My Profile</a>
-            <a href={`/student/suggestions?user_id=${userId}`} className={styles.navLink}>Suggestions</a>
-            <a href="/" className={styles.navLink}>Logout</a>
-          </div>
-        </nav>
+        <Navbar userId={userId} />
         <div className={styles.container}>
           <SkeletonCards />
         </div>
@@ -506,15 +504,7 @@ const ViewRooms: React.FC = () => {
   if (rooms.length === 0) {
     return (
       <div className={styles.pageWrapper}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}><i className="fa-solid fa-building-user"></i> FastStay</div>
-          <div className={styles.navLinks}>
-            <a href={`/student/home?user_id=${userId}`} className={styles.navLink}>Home</a>
-            <a href={`/student/profile?user_id=${userId}`} className={styles.navLink}>My Profile</a>
-            <a href={`/student/suggestions?user_id=${userId}`} className={styles.navLink}>Suggestions</a>
-            <a href="/" className={styles.navLink}>Logout</a>
-          </div>
-        </nav>
+        <Navbar userId={userId} />
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}><i className="fa-solid fa-door-closed"></i></div>
           <h3>No Rooms Available</h3>
@@ -534,16 +524,7 @@ const ViewRooms: React.FC = () => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}><i className="fa-solid fa-building-user"></i> FastStay</div>
-        <div className={styles.navLinks}>
-          <a href={`/student/home?user_id=${userId}`} className={styles.navLink}>Home</a>
-          <a href={`/student/profile?user_id=${userId}`} className={styles.navLink}>My Profile</a>
-          <a href={`/student/suggestions?user_id=${userId}`} className={styles.navLink}>Suggestions</a>
-          <a href="/" className={styles.navLink}>Logout</a>
-        </div>
-      </nav>
+      <Navbar userId={userId} />
 
       {/* HOSTEL HEADER */}
       <div className={styles.header}>
@@ -634,11 +615,23 @@ const ViewRooms: React.FC = () => {
             </div>
             <div className={styles.filterGroup}>
               <label>Min Rent (PKR)</label>
-              <input type="number" placeholder="e.g., 10000" value={filters.minRent} onChange={(e) => handleFilterChange("minRent", e.target.value)} min="0" />
+              <input 
+                type="number" 
+                placeholder="e.g., 10000" 
+                value={filters.minRent} 
+                onChange={(e) => handleFilterChange("minRent", e.target.value)} 
+                min="0" 
+              />
             </div>
             <div className={styles.filterGroup}>
               <label>Max Rent (PKR)</label>
-              <input type="number" placeholder="e.g., 25000" value={filters.maxRent} onChange={(e) => handleFilterChange("maxRent", e.target.value)} min="0" />
+              <input 
+                type="number" 
+                placeholder="e.g., 25000" 
+                value={filters.maxRent} 
+                onChange={(e) => handleFilterChange("maxRent", e.target.value)} 
+                min="0" 
+              />
             </div>
           </div>
 
@@ -646,15 +639,27 @@ const ViewRooms: React.FC = () => {
           <div className={styles.featureFilters}>
             <div className={styles.featureGrid}>
               <label className={styles.featureCheckbox}>
-                <input type="checkbox" checked={filters.hasVentilation} onChange={(e) => handleFilterChange("hasVentilation", e.target.checked)} />
+                <input 
+                  type="checkbox" 
+                  checked={filters.hasVentilation} 
+                  onChange={(e) => handleFilterChange("hasVentilation", e.target.checked)} 
+                />
                 <span><i className="fa-solid fa-wind"></i> Ventilated</span>
               </label>
               <label className={styles.featureCheckbox}>
-                <input type="checkbox" checked={filters.hasCarpet} onChange={(e) => handleFilterChange("hasCarpet", e.target.checked)} />
+                <input 
+                  type="checkbox" 
+                  checked={filters.hasCarpet} 
+                  onChange={(e) => handleFilterChange("hasCarpet", e.target.checked)} 
+                />
                 <span><i className="fa-solid fa-carpet"></i> Carpet Floor</span>
               </label>
               <label className={styles.featureCheckbox}>
-                <input type="checkbox" checked={filters.hasFridge} onChange={(e) => handleFilterChange("hasFridge", e.target.checked)} />
+                <input 
+                  type="checkbox" 
+                  checked={filters.hasFridge} 
+                  onChange={(e) => handleFilterChange("hasFridge", e.target.checked)} 
+                />
                 <span><i className="fa-solid fa-snowflake"></i> Mini Fridge</span>
               </label>
             </div>
@@ -698,6 +703,10 @@ const ViewRooms: React.FC = () => {
                       alt={`Room ${selectedRoom.p_RoomNo}`}
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://via.placeholder.com/400x300?text=No+Image";
+                      }}
                     />
                     {getRoomPics(selectedRoom).length > 1 && (
                       <div className={styles.picCountIndicator}>
