@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/StudentHome.module.css";
@@ -179,6 +179,38 @@ const SkeletonCards: React.FC = () => (
   </div>
 );
 
+const AnimatedCard: React.FC<{ children: React.ReactNode; index: number }> = ({ children, index }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: `opacity 0.5s ease ${index * 0.07}s, transform 0.5s ease ${index * 0.07}s`,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 const StudentHome: React.FC = () => {
   const userId = useAuthGuard({ allowGuest: true });
 
@@ -189,6 +221,7 @@ const StudentHome: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const navigate = useNavigate();
+  const hostelGridRef = useRef<HTMLDivElement>(null);
 
   const [filters, setFilters] = useState<FilterState>({
     maxRent: "",
@@ -304,6 +337,8 @@ const StudentHome: React.FC = () => {
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
+    setShowSuggestions(false);
+    hostelGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
   const handleFilterChange = useCallback((key: keyof FilterState, value: any) => {
@@ -350,107 +385,104 @@ const StudentHome: React.FC = () => {
   }, [hostels, searchQuery]);
 
   const renderedCards = useMemo(() => {
-    return filteredHostels.map((hostel) => (
-      <div key={hostel.p_hostelid} className={styles.hostelCard}>
-        <div className={styles.cardImage}>
-          <img
-            src={hostel.images && hostel.images.length > 0 ? hostel.images[0] : DEFAULT_IMAGE}
-            alt={hostel.p_name}
-            loading="lazy"
-            decoding="async"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = DEFAULT_IMAGE;
-            }}
-          />
-          <div className={styles.cardBadges}>
-            {hostel.p_hosteltype === "Portion" && (
-              <span className={styles.acBadge}>Portion</span>
-            )}
-            {hostel.p_messprovide && (
-              <span className={styles.messBadge}>Mess</span>
-            )}
-            {hostel.p_isparking && (
-              <span className={styles.parkingBadge}>Parking</span>
-            )}
-            {hostel.p_geezerflag && (
-              <span className={styles.geyserBadge}>Geyser</span>
-            )}
-            {hostel.available_rooms !== -1 && hostel.available_rooms < 5 && (
-              <span className={styles.roomsBadge}>
-                Only {hostel.available_rooms} left
-              </span>
-            )}
+    return filteredHostels.map((hostel, index) => (
+      <AnimatedCard key={hostel.p_hostelid} index={index % 9}>
+        <div className={styles.hostelCard} style={{ animationDelay: '0s' }}>
+          <div className={styles.cardImage}>
+            <img
+              src={hostel.images && hostel.images.length > 0 ? hostel.images[0] : DEFAULT_IMAGE}
+              alt={hostel.p_name}
+              loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_IMAGE;
+              }}
+            />
+            <div className={styles.cardBadges}>
+              {hostel.p_hosteltype === "Portion" && (
+                <span className={styles.acBadge}>Portion</span>
+              )}
+              {hostel.p_messprovide && (
+                <span className={styles.messBadge}>Mess</span>
+              )}
+              {hostel.p_isparking && (
+                <span className={styles.parkingBadge}>Parking</span>
+              )}
+              {hostel.p_geezerflag && (
+                <span className={styles.geyserBadge}>Geyser</span>
+              )}
+              {hostel.available_rooms !== -1 && hostel.available_rooms < 5 && (
+                <span className={styles.roomsBadge}>
+                  Only {hostel.available_rooms} left
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.cardContent}>
+            <h3>{hostel.p_name}</h3>
+            <p className={styles.cardAddress}>
+              <i className="fa-solid fa-location-dot"></i>
+              Block {hostel.p_blockno}, House {hostel.p_houseno}
+              {hostel.distance_from_university !== -1 && (
+                <span className={styles.distance}>
+                  • {formatValue(hostel.distance_from_university, { isDistance: true })} from FAST
+                </span>
+              )}
+            </p>
+
+            <div className={styles.cardStats}>
+              <div className={styles.statItem}>
+                <i className="fa-solid fa-money-bill-wave"></i>
+                <div>
+                  <span className={styles.statLabel}>Monthly Rent</span>
+                  <span className={styles.statValue}>
+                    {formatValue(hostel.monthly_rent, { isCurrency: true })}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.statItem}>
+                <i className="fa-solid fa-star"></i>
+                <div>
+                  <span className={styles.statLabel}>Rating</span>
+                  <span className={styles.statValue}>
+                    {formatRating(hostel.rating)}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.statItem}>
+                <i className="fa-solid fa-door-closed"></i>
+                <div>
+                  <span className={styles.statLabel}>Total Rooms</span>
+                  <span className={styles.statValue}>
+                    {formatRooms(hostel.available_rooms)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* cardDetails section removed to reduce card size */}
+
+            <div className={styles.cardButtons}>
+              <button
+                className={styles.viewBtn}
+                onClick={() => handleViewDetails(hostel.p_hostelid)}
+              >
+                <i className="fa-solid fa-eye"></i> View Details
+              </button>
+              <button
+                className={styles.ownerBtn}
+                onClick={() => handleViewOwner(hostel.p_hostelid)}
+              >
+                <i className="fa-solid fa-user-tie"></i> View Owner
+              </button>
+            </div>
           </div>
         </div>
-
-        <div className={styles.cardContent}>
-          <h3>{hostel.p_name}</h3>
-          <p className={styles.cardAddress}>
-            <i className="fa-solid fa-location-dot"></i>
-            Block {hostel.p_blockno}, House {hostel.p_houseno}
-            {hostel.distance_from_university !== -1 && (
-              <span className={styles.distance}>
-                • {formatValue(hostel.distance_from_university, { isDistance: true })} from FAST
-              </span>
-            )}
-          </p>
-
-          <div className={styles.cardStats}>
-            <div className={styles.statItem}>
-              <i className="fa-solid fa-money-bill-wave"></i>
-              <div>
-                <span className={styles.statLabel}>Monthly Rent</span>
-                <span className={styles.statValue}>
-                  {formatValue(hostel.monthly_rent, { isCurrency: true })}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.statItem}>
-              <i className="fa-solid fa-star"></i>
-              <div>
-                <span className={styles.statLabel}>Rating</span>
-                <span className={styles.statValue}>
-                  {formatRating(hostel.rating)}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.statItem}>
-              <i className="fa-solid fa-door-closed"></i>
-              <div>
-                <span className={styles.statLabel}>Total Rooms</span>
-                <span className={styles.statValue}>
-                  {formatRooms(hostel.available_rooms)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.cardDetails}>
-            <p><i className="fa-solid fa-building"></i> {hostel.p_numrooms} Rooms, {hostel.p_numfloors} Floors</p>
-            <p><i className="fa-solid fa-droplet"></i> Water: {hostel.p_watertimings} hours</p>
-            <p><i className="fa-solid fa-broom"></i> Cleaning every {hostel.p_cleanlinesstenure} days</p>
-            <p><i className="fa-solid fa-tools"></i> Issues resolved in {hostel.p_issueresolvingtenure} days</p>
-          </div>
-
-          <div className={styles.cardButtons}>
-            <button
-              className={styles.viewBtn}
-              onClick={() => handleViewDetails(hostel.p_hostelid)}
-            >
-              <i className="fa-solid fa-eye"></i> View Details
-            </button>
-            <button
-              className={styles.ownerBtn}
-              onClick={() => handleViewOwner(hostel.p_hostelid)}
-            >
-              <i className="fa-solid fa-user-tie"></i> View Owner
-            </button>
-          </div>
-        </div>
-      </div>
+      </AnimatedCard>
     ));
   }, [filteredHostels, handleViewDetails, handleViewOwner]);
 
@@ -470,6 +502,13 @@ const StudentHome: React.FC = () => {
   return (
     <div className={styles.pageWrapper}>
       <Navbar userId={userId} />
+
+      {showSuggestions && (
+        <div
+          className={styles.overlay}
+          onClick={() => setShowSuggestions(false)}
+        />
+      )}
 
       <div className={styles.searchSection}>
         <h2>Find the Perfect Hostel</h2>
@@ -617,7 +656,7 @@ const StudentHome: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.hostelGrid}>
+      <div className={styles.hostelGrid} ref={hostelGridRef}>
         {loading ? (
           <SkeletonCards />
         ) : filteredHostels.length === 0 ? (
@@ -641,13 +680,6 @@ const StudentHome: React.FC = () => {
           renderedCards
         )}
       </div>
-
-      {showSuggestions && (
-        <div
-          className={styles.overlay}
-          onClick={() => setShowSuggestions(false)}
-        />
-      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/HostelDetails.module.css";
@@ -243,6 +243,51 @@ const getRoomTypesFromExpenses = (expenses: Expense | null): RoomType[] => {
   }));
 };
 
+// ─── Scroll Reveal Hook ───
+
+const useScrollReveal = (options?: IntersectionObserverInit) => {
+  const ref = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(element);
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px", ...options }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [options]);
+
+  return { ref, isVisible };
+};
+
+// Wrapper component for animated sections
+const AnimatedSection: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}> = ({ children, className = "", delay = 0 }) => {
+  const { ref, isVisible } = useScrollReveal();
+  return (
+    <section
+      ref={ref as React.RefObject<HTMLElement>}
+      className={`${className} ${styles.animateHidden} ${isVisible ? styles.animateVisible : ""}`}
+      style={{ transitionDelay: `${delay}s` }}
+    >
+      {children}
+    </section>
+  );
+};
+
 // ─── Components ───
 
 const SkeletonLoader: React.FC = () => (
@@ -289,6 +334,7 @@ const HostelDetailsPage: React.FC = () => {
   const [hostel, setHostel] = useState<HostelDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageTransition, setImageTransition] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -406,17 +452,25 @@ const HostelDetailsPage: React.FC = () => {
   const handleBack = () => { navigate(`/student/home?user_id=${userId}`); };
 
   const handlePrevImage = () => {
-    if (!hostel) return;
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? hostel.images.length - 1 : prev - 1
-    );
+    if (!hostel || hostel.images.length <= 1) return;
+    setImageTransition(true);
+    setTimeout(() => {
+      setCurrentImageIndex((prev) =>
+        prev === 0 ? hostel.images.length - 1 : prev - 1
+      );
+      setTimeout(() => setImageTransition(false), 30);
+    }, 250);
   };
 
   const handleNextImage = () => {
-    if (!hostel) return;
-    setCurrentImageIndex((prev) =>
-      prev === hostel.images.length - 1 ? 0 : prev + 1
-    );
+    if (!hostel || hostel.images.length <= 1) return;
+    setImageTransition(true);
+    setTimeout(() => {
+      setCurrentImageIndex((prev) =>
+        prev === hostel.images.length - 1 ? 0 : prev + 1
+      );
+      setTimeout(() => setImageTransition(false), 30);
+    }, 250);
   };
 
   const ratingBreakdown = useMemo(() => {
@@ -460,7 +514,13 @@ const HostelDetailsPage: React.FC = () => {
       <div className={styles.headerImage}>
         {hostel.images.length > 0 ? (
           <>
-            <img src={hostel.images[currentImageIndex].p_PhotoLink} alt={`${hostel.p_name} - ${currentImageIndex + 1}`} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img
+              src={hostel.images[currentImageIndex].p_PhotoLink}
+              alt={`${hostel.p_name} - ${currentImageIndex + 1}`}
+              loading="lazy"
+              className={`${imageTransition ? styles.imageEnter : styles.imageVisible}`}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
             {hostel.images.length > 1 && (
               <>
                 <button className={styles.sliderArrowLeft} onClick={handlePrevImage} aria-label="Previous image">
@@ -500,7 +560,6 @@ const HostelDetailsPage: React.FC = () => {
 
       {/* ─── Action Buttons ─── */}
       <div className={styles.buttons}>
-        
         <button className={styles.btn} onClick={() => navigate(`/student/rooms?hostel_id=${hostelId}&user_id=${userId}`)}><i className="fa-solid fa-door-open"></i> View Rooms</button>
         <button className={styles.btn} onClick={handleGetDirections}><i className="fa-solid fa-map-location-dot"></i> Get Directions</button>
       </div>
@@ -509,7 +568,7 @@ const HostelDetailsPage: React.FC = () => {
 
         {/* ═══════════════════ BASIC DETAILS ═══════════════════ */}
         {hostel.basic && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0}>
             <h2><i className="fa-solid fa-circle-info"></i> Basic Details</h2>
             <div className={styles.infoGrid}>
               <InfoRow icon="fa-solid fa-building" label="Hostel Type" value={hostel.basic.p_HostelType || "N/A"} />
@@ -526,12 +585,12 @@ const HostelDetailsPage: React.FC = () => {
               <BooleanBadge value={hostel.basic.p_MessProvide} trueLabel="Mess Provided" falseLabel="No Mess" />
               <BooleanBadge value={hostel.basic.p_GeezerFlag} trueLabel="Geyser Available" falseLabel="No Geyser" />
             </div>
-          </section>
+          </AnimatedSection>
         )}
 
         {/* ═══════════════════ MESS DETAILS ═══════════════════ */}
         {hostel.mess && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0.05}>
             <h2><i className="fa-solid fa-utensils"></i> Mess Details</h2>
             <div className={styles.infoGrid}>
               <InfoRow icon="fa-solid fa-clock" label="Meals Per Day" value={`${hostel.mess.p_MessTimeCount} meals`} />
@@ -549,12 +608,12 @@ const HostelDetailsPage: React.FC = () => {
                 </div>
               </>
             )}
-          </section>
+          </AnimatedSection>
         )}
 
         {/* ═══════════════════ KITCHEN DETAILS ═══════════════════ */}
         {hostel.kitchen && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0.05}>
             <h2><i className="fa-solid fa-kitchen-set"></i> Kitchen Details</h2>
             <div className={styles.featureTags}>
               <BooleanBadge value={hostel.kitchen.p_isFridge} trueLabel="Fridge Available" falseLabel="No Fridge" />
@@ -566,12 +625,12 @@ const HostelDetailsPage: React.FC = () => {
                 <InfoRow icon="fa-solid fa-money-bill" label="Kitchen Charges" value={`${hostel.expenses.p_KitchenCharges.toLocaleString()} PKR/month`} />
               </div>
             )}
-          </section>
+          </AnimatedSection>
         )}
 
         {/* ═══════════════════ SECURITY DETAILS ═══════════════════ */}
         {hostel.security && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0.05}>
             <h2><i className="fa-solid fa-shield-halved"></i> Security Details</h2>
             <div className={styles.infoGrid}>
               <InfoRow icon="fa-solid fa-clock" label="Guard Hours" value={`${hostel.security.p_GateTimings} hrs/day`} />
@@ -584,12 +643,12 @@ const HostelDetailsPage: React.FC = () => {
               <BooleanBadge value={hostel.security.p_isGuard} trueLabel="Security Guard" falseLabel="No Guard" />
               <BooleanBadge value={hostel.security.p_isOutsiderVerification} trueLabel="Outsider Verification" falseLabel="No Outsider Check" />
             </div>
-          </section>
+          </AnimatedSection>
         )}
 
         {/* ═══════════════════ EXPENSES BREAKDOWN ═══════════════════ */}
         {hostel.expenses && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0.05}>
             <h2><i className="fa-solid fa-money-bill-wave"></i> Expense Breakdown</h2>
 
             {hostel.expenses.p_isIncludedInRoomCharges ? (
@@ -658,12 +717,12 @@ const HostelDetailsPage: React.FC = () => {
                 <div className={styles.totalNote}>* Based on cheapest room + all listed recurring charges</div>
               </div>
             )}
-          </section>
+          </AnimatedSection>
         )}
 
         {/* ═══════════════════ RATINGS & REVIEWS ═══════════════════ */}
         {hostel.ratings.length > 0 && ratingBreakdown && (
-          <section className={styles.box}>
+          <AnimatedSection className={styles.box} delay={0.05}>
             <h2><i className="fa-solid fa-star"></i> Ratings & Reviews</h2>
             <div className={styles.ratingHeader}>
               <div className={styles.ratingBig}>{hostel.averageRating?.toFixed(1)}</div>
@@ -707,7 +766,7 @@ const HostelDetailsPage: React.FC = () => {
                 )}
               </div>
             ))}
-          </section>
+          </AnimatedSection>
         )}
 
       </div>

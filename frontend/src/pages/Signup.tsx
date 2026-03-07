@@ -42,6 +42,15 @@ const Signup: React.FC = () => {
     setMessage("");
     setMessageType("");
 
+    const userType = form.usertype.trim().toLowerCase();
+
+    if (userType === "hostel manager" && !form.email.endsWith(".faststay")) {
+      setMessageType("error");
+      setMessage("Invalid email domain.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("http://127.0.0.1:8000/faststay_app/signup/", {
         method: "POST",
@@ -57,8 +66,6 @@ const Signup: React.FC = () => {
       } else {
         setMessageType("success");
         setMessage("Account created successfully!");
-
-        const userType = form.usertype.trim().toLowerCase();
 
         if (userType === "student") {
           setTimeout(
