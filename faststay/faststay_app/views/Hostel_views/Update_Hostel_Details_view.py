@@ -24,6 +24,8 @@ class Update_Hostel_Details_view(APIView):
         "p_IssueResolvingTenure": int,# Optional, >= 1
         "p_MessProvide": bool,        # Optional
         "p_GeezerFlag": bool          # Optional
+        "p_Latitude": decimal
+        "p_Longitude": decimal
     }
 
     Returns:

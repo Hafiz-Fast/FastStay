@@ -301,7 +301,6 @@
     border-radius: 5px;
     background: #d4c9bb;
     outline: none;
-    -webkit-appearance: none;
 }
 
 .formRange::-webkit-slider-thumb {
@@ -414,17 +413,117 @@
     line-height: 1.5;
 }
 
+/* Photo Upload Section Styles */
+.photoUploadSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.photoPreviewBox {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4c9bb;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.photoPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photoPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #7d6d5f;
+    font-size: 0.9rem;
+    gap: 8px;
+}
+
+.photoPlaceholder i {
+    font-size: 2rem;
+    color: #d4c9bb;
+}
+
+.photoControls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.photoUploadButton {
+    background: #8d5f3a;
+    color: #f8f3e7;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.photoUploadButton:hover {
+    background: #a0744f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(141, 95, 58, 0.3);
+}
+
+.fileInput {
+    display: none;
+}
+
+.removePhotoButton {
+    background: #f44336;
+    color: #f8f3e7;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.removePhotoButton:hover {
+    background: #ef5350;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Disabled state for buttons */
+.saveButton:disabled,
+.cancelButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
     .profileContainer {
         grid-template-columns: 1fr;
     }
-    
+
     .profileHeader {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .profileTitle h3 {
         justify-content: center;
     }
@@ -436,26 +535,26 @@
         gap: 1rem;
         padding: 1rem;
     }
-    
+
     .navLinks {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         gap: 1rem;
     }
-    
+
     .navLinks a {
         margin-left: 0;
     }
-    
+
     .formButtons {
         flex-direction: column;
     }
-    
+
     .pageTitle {
         font-size: 22px;
     }
-    
+
     .container {
         padding: 100px 20px 40px;
     }
@@ -466,12 +565,12 @@
         width: 80px;
         height: 80px;
     }
-    
+
     .profileImagePlaceholder {
         width: 80px;
         height: 80px;
     }
-    
+
     .profileTitle h3 {
         font-size: 1.4rem;
     }

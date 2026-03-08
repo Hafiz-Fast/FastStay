@@ -1,5 +1,5 @@
 // src/components/AddHostel.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/AddHostel.module.css";
 import { Link } from "react-router-dom";
 import BasicInfoSection from "./hostel-sections/BasicInfoSection";
@@ -42,6 +42,9 @@ export default function AddHostel() {
     // hostel pics URLs (from DB/cloudinary)
     const [hostelPics, setHostelPics] = useState<string[]>([]);
 
+    // Pending files selected before hostel is saved
+    const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+
     // Form state for basic info
     const [form, setForm] = useState({
         p_ManagerId: managerId,
@@ -57,14 +60,16 @@ export default function AddHostel() {
         p_IssueResolvingTenure: "",
         p_MessProvide: false,
         p_GeezerFlag: false,
-        p_name: ""
+        p_name: "",
+        p_Latitude: "",
+        p_Longitude: ""
     });
 
-     // Add this useEffect to scroll to top when component mounts or editHostelId changes
-     useEffect(() => {
+    // Add this useEffect to scroll to top when component mounts or editHostelId changes
+    useEffect(() => {
         // Scroll to top immediately when component loads
         window.scrollTo(0, 0);
-        
+
         // Also scroll to top when editHostelId changes (which happens after hostel loads)
         if (editHostelId) {
             // Use setTimeout to ensure DOM is ready
@@ -168,7 +173,9 @@ export default function AddHostel() {
                     p_IssueResolvingTenure: hostel.p_IssueResolvingTenure?.toString() || "",
                     p_MessProvide: hostel.p_MessProvide || false,
                     p_GeezerFlag: hostel.p_GeezerFlag || false,
-                    p_name: hostel.p_name || ""
+                    p_name: hostel.p_name || "",
+                    p_Latitude: hostel.p_Latitude?.toString() || "",
+                    p_Longitude: hostel.p_Longitude?.toString() || ""
                 }));
 
                 setActiveSection("basic");
@@ -236,6 +243,7 @@ export default function AddHostel() {
         setActiveSection("basic");
         setHostelId(null);
         setHostelPics([]);
+        setPendingFiles([]);
         setMessage("");
 
         // Clear the edit_hostel parameter from URL without refreshing
@@ -258,7 +266,9 @@ export default function AddHostel() {
             p_IssueResolvingTenure: "",
             p_MessProvide: false,
             p_GeezerFlag: false,
-            p_name: ""
+            p_name: "",
+            p_Latitude: "",
+            p_Longitude: ""
         });
     }
 
@@ -281,6 +291,8 @@ export default function AddHostel() {
                 p_WaterTimings: parseInt(form.p_WaterTimings) || 0,
                 p_CleanlinessTenure: parseInt(form.p_CleanlinessTenure) || 0,
                 p_IssueResolvingTenure: parseInt(form.p_IssueResolvingTenure) || 0,
+                p_Latitude: parseFloat(form.p_Latitude),
+                p_Longitude: parseFloat(form.p_Longitude),
             };
 
             const res = await fetch(url, {
@@ -292,6 +304,7 @@ export default function AddHostel() {
             const data = await res.json();
 
             if (res.ok) {
+
                 setMessage(editingMode
                     ? (data.message || "Hostel Updated Successfully!")
                     : (data.message || "Hostel Added Successfully!"));
@@ -305,8 +318,17 @@ export default function AddHostel() {
                     // Clear edit_hostel parameter for new hostels
                     const newUrl = window.location.pathname + `?user_id=${managerId}&hostel_id=${data.hostelid}`;
                     window.history.replaceState({}, '', newUrl);
-                } 
+
+                    // Upload pending files now that we have a hostel ID
+                    if (pendingFiles.length > 0) {
+                        await uploadPendingFiles(data.hostelid);
+                    }
+                }
                 else if (editingMode && selectedHostelId) {
+                    // Upload pending files for existing hostel
+                    if (pendingFiles.length > 0) {
+                        await uploadPendingFiles(selectedHostelId);
+                    }
                     // Refresh hostel details
                     fetchHostelDetails(selectedHostelId);
                 }
@@ -344,6 +366,40 @@ export default function AddHostel() {
             console.error("Submit error:", error);
             setMessage("Server error");
         }
+    }
+
+    // Upload pending files after hostel creation
+    async function uploadPendingFiles(newHostelId: number) {
+        for (let i = 0; i < pendingFiles.length; i++) {
+            const file = pendingFiles[i];
+            const formData = new FormData();
+            formData.append("p_HostelId", newHostelId.toString());
+            formData.append("p_PhotoLink", file);
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/faststay_app/hostel_pics/add", {
+                    method: "POST",
+                    body: formData,
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.photo_url) {
+                        setHostelPics(prev => [...prev, data.photo_url]);
+                    } else if (data.photoUrl) {
+                        setHostelPics(prev => [...prev, data.photoUrl]);
+                    }
+                } else {
+                    console.error("Pending upload failed:", data.error);
+                }
+            } catch (err) {
+                console.error("Pending upload error:", err);
+            }
+        }
+        // Clear pending files after upload
+        setPendingFiles([]);
+        // Refresh pics from server
+        loadHostelPics(newHostelId);
     }
 
     // Image upload handler (uploads to backend which will upload to Cloudinary)
@@ -398,6 +454,12 @@ export default function AddHostel() {
         }
     }
 
+    // Remove an already-uploaded pic
+    function handleRemoveUploadedPic(index: number) {
+        // Remove from local state (optionally call backend delete endpoint)
+        setHostelPics(prev => prev.filter((_, i) => i !== index));
+    }
+
     function requireBasicInfo(e: any, goto: string) {
         e.preventDefault();
         if (!hostelId) {
@@ -410,6 +472,15 @@ export default function AddHostel() {
     }
 
     const selectedHostel = hostels.find(h => h.p_HostelId === selectedHostelId);
+
+    const sectionRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to section content when active section changes
+    useEffect(() => {
+        if (sectionRef.current) {
+            sectionRef.current.scrollIntoView({ behavior: "smooth", block: 'start' });
+        }
+    }, [activeSection]);
 
     return (
         <>
@@ -533,12 +604,12 @@ export default function AddHostel() {
                     {/* Message Display */}
                     {message && (
                         <div className={`${styles.message} ${message.includes("Successfully") ||
-                                message.includes("successfully") ||
-                                message.includes("Added") ||
-                                message.includes("Updated") ||
-                                message.includes("success")
-                                ? styles.success
-                                : styles.error
+                            message.includes("successfully") ||
+                            message.includes("Added") ||
+                            message.includes("Updated") ||
+                            message.includes("success")
+                            ? styles.success
+                            : styles.error
                             }`}>
                             {message}
                         </div>
@@ -550,6 +621,9 @@ export default function AddHostel() {
                             <i className="fa-solid fa-spinner fa-spin"></i> Loading...
                         </div>
                     )}
+
+                    {/* Section anchor for scrolling */}
+                    <div ref={sectionRef}></div>
 
                     {/* BASIC INFORMATION SECTION */}
                     {activeSection === "basic" && (
@@ -563,6 +637,9 @@ export default function AddHostel() {
                             hostelId={hostelId}
                             hostelPics={hostelPics}
                             onFileChange={handlePicUpload}
+                            pendingFiles={pendingFiles}
+                            setPendingFiles={setPendingFiles}
+                            onRemoveUploadedPic={handleRemoveUploadedPic}
                         />
                     )}
 

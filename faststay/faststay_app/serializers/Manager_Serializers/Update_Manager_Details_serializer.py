@@ -3,7 +3,6 @@ from faststay_app.utils.validators import validate_PhoneNum, validate_OperatingH
 
 class Update_Manager_Details_Serializer(serializers.Serializer):
     p_ManagerId = serializers.IntegerField()
-    p_PhotoLink = serializers.CharField(max_length=1024)
     p_PhoneNo = serializers.CharField(max_length=11)
     p_Education = serializers.CharField(max_length=50)
     p_ManagerType = serializers.CharField(max_length=50)

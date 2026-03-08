@@ -58,14 +58,9 @@ export default function KitchenDetailsSection({
                 setIsFridge(false);
                 setIsMicrowave(false);
                 setIsGas(false);
-
-                if (data.error && !data.error.includes("not found")) {
-                    setMessage(data.error);
-                }
             }
         } catch (error) {
             console.error("Error fetching kitchen details:", error);
-            setMessage("Failed to load kitchen details");
         } finally {
             setLoading(false);
         }
@@ -107,19 +102,22 @@ export default function KitchenDetailsSection({
                 body: JSON.stringify(payload),
             });
 
-            const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message || "Kitchen Details Saved Successfully!");
+                setMessage(
+                    existingKitchenDetails
+                        ? "Kitchen Details Updated Successfully!"
+                        : "Kitchen Details Added Successfully!"
+                );
                 // Refresh data
                 setTimeout(() => fetchKitchenDetails(hostelId), 500);
             } else {
-                setMessage(data.error || data.message || "Failed to save kitchen details.");
+                setMessage("Failed to save kitchen details. Please try again.");
             }
 
         } catch (error) {
             console.error("Error saving kitchen details:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -140,21 +138,20 @@ export default function KitchenDetailsSection({
                 body: JSON.stringify({ p_KitchenId: kitchenId }),
             });
 
-            const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message || "Kitchen Details Deleted Successfully!");
+                setMessage("Kitchen Details Deleted Successfully!");
                 setExistingKitchenDetails(null);
                 setKitchenId(null);
                 setIsFridge(false);
                 setIsMicrowave(false);
                 setIsGas(false);
             } else {
-                setMessage(data.error || "Failed to delete kitchen details.");
+                setMessage("Failed to delete kitchen details. Please try again.");
             }
         } catch (error) {
             console.error("Error deleting kitchen details:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 

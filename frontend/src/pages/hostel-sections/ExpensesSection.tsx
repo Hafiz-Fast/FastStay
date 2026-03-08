@@ -23,6 +23,8 @@ export default function ExpensesSection({
     const [loading, setLoading] = useState(false);
     const [existingExpenses, setExistingExpenses] = useState<any>(null);
     const [expenseId, setExpenseId] = useState<number | null>(null);
+    const [hasRooms, setHasRooms] = useState(false);
+    const [checkingRooms, setCheckingRooms] = useState(false);
 
     useEffect(() => {
         if (editingMode && hostelId) {
@@ -31,6 +33,37 @@ export default function ExpensesSection({
             resetForm();
         }
     }, [editingMode, hostelId]);
+
+    useEffect(() => {
+        if (hostelId) {
+            checkRoomsExist(hostelId);
+        } else {
+            setHasRooms(false);
+        }
+    }, [hostelId]);
+
+    async function checkRoomsExist(hostelId: number) {
+        setCheckingRooms(true);
+        try {
+            const res = await fetch("http://127.0.0.1:8000/faststay_app/Rooms/DisplayAllHostel/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ p_HostelId: hostelId })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                const roomList = Array.isArray(data.result) ? data.result : (data.result ? [data.result] : []);
+                setHasRooms(roomList.length > 0);
+            } else {
+                setHasRooms(false);
+            }
+        } catch (error) {
+            console.error("Error checking rooms:", error);
+            setHasRooms(false);
+        } finally {
+            setCheckingRooms(false);
+        }
+    }
 
     function resetForm() {
         setIsExpensesIncluded(false);
@@ -73,13 +106,10 @@ export default function ExpensesSection({
                 setElectricityCharges(expenses.p_ElectricityCharges?.toString() || "");
             } else {
                 resetForm();
-                if (data.error && !data.error.includes("not found")) {
-                    setMessage(data.error);
-                }
             }
         } catch (error) {
             console.error("Error fetching expenses:", error);
-            setMessage("Failed to load expenses");
+            setMessage("Failed to load expenses. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -177,17 +207,16 @@ export default function ExpensesSection({
                 body: JSON.stringify(payload)
             });
 
-            const data = await res.json();
 
             if (res.ok) {
                 setMessage("Expenses Saved Successfully!");
                 setTimeout(() => fetchExpenses(hostelId), 500);
             } else {
-                setMessage(data.error || data.message || "Failed to save expenses.");
+                setMessage("Failed to save expenses. Please check your inputs and try again.");
             }
         } catch (error) {
             console.error("Error saving expenses:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -206,17 +235,16 @@ export default function ExpensesSection({
                 body: JSON.stringify({ p_ExpenseId: expenseId })
             });
 
-            const data = await res.json();
 
             if (res.ok) {
                 setMessage("Expenses Deleted Successfully!");
                 resetForm();
             } else {
-                setMessage(data.error || data.message || "Failed to delete expenses.");
+                setMessage("Failed to delete expenses. Please try again.");
             }
         } catch (error) {
             console.error("Error deleting expenses:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -243,6 +271,44 @@ export default function ExpensesSection({
             {loading ? (
                 <div className={styles.loading}>
                     <i className="fa-solid fa-spinner fa-spin"></i> Loading expenses...
+                </div>
+            ) : checkingRooms ? (
+                <div className={styles.loading}>
+                    <i className="fa-solid fa-spinner fa-spin"></i> Checking rooms...
+                </div>
+            ) : !hasRooms && !existingExpenses ? (
+                <div style={{
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    backgroundColor: '#fff3f3',
+                    borderRadius: '10px',
+                    border: '2px dashed #e74c3c',
+                    margin: '20px 0'
+                }}>
+                    <i className="fa-solid fa-triangle-exclamation" style={{
+                        fontSize: '48px',
+                        color: '#e74c3c',
+                        marginBottom: '15px',
+                        display: 'block'
+                    }}></i>
+                    <p style={{
+                        fontWeight: 700,
+                        fontSize: '1.3rem',
+                        color: '#c0392b',
+                        marginBottom: '10px'
+                    }}>
+                        No Rooms Found for This Hostel
+                    </p>
+                    <p style={{
+                        color: '#555',
+                        fontSize: '1rem',
+                        maxWidth: '400px',
+                        margin: '0 auto',
+                        lineHeight: '1.5'
+                    }}>
+                        You must add at least one room before you can configure expenses.
+                        Please go to the <strong>"Add Room"</strong> page first.
+                    </p>
                 </div>
             ) : (
                 <form onSubmit={handleExpensesSubmit} className={styles.sectionForm}>
@@ -352,10 +418,9 @@ export default function ExpensesSection({
                                         required
                                     >
                                         <option value="">Select</option>
-                                        <option value="RoomMeterFull">Room Meter Full</option>
-                                        <option value="RoomMeterACOnly">Room Meter AC Only</option>
-                                        <option value="ACSubmeter">AC Submeter</option>
-                                        <option value="UnitBased">Unit Based</option>
+                                        <option value="RoomMeterFull">Room Meter Full — Full room electricity on meter</option>
+                                        <option value="ACSubmeter">AC Submeter — Separate submeter for AC</option>
+                                        <option value="UnitBased">Unit Based — Charged per unit consumed</option>
                                     </select>
                                 </div>
                             </div>
@@ -377,7 +442,13 @@ export default function ExpensesSection({
                         </>
                     )}
 
-                    <button className={styles.btn} style={{ marginTop: "10px" }} type="submit">
+                    <button
+                        className={styles.btn}
+                        style={{ marginTop: "10px" }}
+                        type="submit"
+                        disabled={!hasRooms}
+                        title={!hasRooms ? "Add at least one room first" : ""}
+                    >
                         {existingExpenses ? "Update Expenses" : "Save Expenses"}
                     </button>
 

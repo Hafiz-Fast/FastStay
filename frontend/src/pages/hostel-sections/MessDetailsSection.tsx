@@ -54,7 +54,6 @@ export default function MessDetailsSection({
                     setMessId(null);
                     setMessTimeCount("");
                     setDishes([""]);
-                    setMessage("");
                 } else {
                     setExistingMessDetails(data);
 
@@ -85,14 +84,12 @@ export default function MessDetailsSection({
                 setMessId(null);
                 setMessTimeCount("");
                 setDishes([""]);
-                setMessage(data.error || "Failed to load mess details");
             }
         } catch {
             setExistingMessDetails(null);
             setMessId(null);
             setMessTimeCount("");
             setDishes([""]);
-            setMessage("Failed to load mess details");
         } finally {
             setLoading(false);
         }
@@ -160,20 +157,18 @@ export default function MessDetailsSection({
                 body: JSON.stringify(payload),
             });
 
-            const data = await res.json();
 
             if (res.ok) {
                 setMessage(
-                    data.message ||
-                    (existingMessDetails ? "Mess Details Updated Successfully!" : "Mess Details Added Successfully!")
+                    existingMessDetails ? "Mess Details Updated Successfully!" : "Mess Details Added Successfully!"
                 );
 
                 if (hostelId) fetchMessDetails(hostelId);
             } else {
-                setMessage(data.error || "Failed to save mess details");
+                setMessage("Failed to save mess details. Please try again.");
             }
         } catch {
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -195,16 +190,16 @@ export default function MessDetailsSection({
             const data = await res.json();
 
             if (res.ok && data.result === true) {
-                setMessage(data.message || "Mess Details Deleted Successfully!");
+                setMessage("Mess Details Deleted Successfully!");
                 setExistingMessDetails(null);
                 setMessId(null);
                 setMessTimeCount("");
                 setDishes([""]);
             } else {
-                setMessage(data.error || "Failed to delete mess details");
+                setMessage("Failed to delete mess details. Please try again.");
             }
         } catch {
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -309,7 +304,7 @@ export default function MessDetailsSection({
 
                     {message && (
                         <div className={`${styles.message} ${
-                            message.toLowerCase().includes("success")
+                            message.includes("Successfully")
                                 ? styles.success 
                                 : styles.error
                         }`}>

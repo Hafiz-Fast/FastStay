@@ -62,14 +62,9 @@ export default function SecurityInfoSection({
                 setIsCameras(false);
                 setIsGuard(false);
                 setIsOutsiderVerification(false);
-                
-                if (data.error && !data.error.includes("not found")) {
-                    setMessage(data.error);
-                }
             }
         } catch (error) {
             console.error("Error fetching security info:", error);
-            setMessage("Failed to load security information");
         } finally {
             setLoading(false);
         }
@@ -118,18 +113,21 @@ export default function SecurityInfoSection({
                 body: JSON.stringify(payload),
             });
 
-            const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message || "Security Information Saved Successfully!");
+                setMessage(
+                    existingSecurityInfo
+                        ? "Security Information Updated Successfully!"
+                        : "Security Information Added Successfully!"
+                );
                 // Refresh data
                 setTimeout(() => fetchSecurityInfo(hostelId), 500);
             } else {
-                setMessage(data.error || "Failed to save security info.");
+                setMessage("Failed to save security information. Please try again.");
             }
         } catch (error) {
             console.error("Error saving security info:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 
@@ -150,10 +148,9 @@ export default function SecurityInfoSection({
                 body: JSON.stringify({ p_SecurityId: securityId }),
             });
 
-            const data = await res.json();
 
             if (res.ok) {
-                setMessage(data.message || "Security Information Deleted Successfully!");
+                setMessage("Security Information Deleted Successfully!");
                 setExistingSecurityInfo(null);
                 setSecurityId(null);
                 setGateTimings("");
@@ -161,11 +158,11 @@ export default function SecurityInfoSection({
                 setIsGuard(false);
                 setIsOutsiderVerification(false);
             } else {
-                setMessage(data.error || "Failed to delete security info.");
+                setMessage("Failed to delete security information. Please try again.");
             }
         } catch (error) {
             console.error("Error deleting security info:", error);
-            setMessage("Server error occurred.");
+            setMessage("Something went wrong. Please try again later.");
         }
     }
 

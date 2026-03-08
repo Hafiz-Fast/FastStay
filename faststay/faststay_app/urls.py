@@ -33,6 +33,7 @@ from faststay_app.views.display_views.details_hostel_mess import DetailsHostelMe
 from faststay_app.views.display_views.details_kitchen import DetailsKitchen
 from faststay_app.views.display_views.hostel_pic import HostelPicView
 from faststay_app.views.display_views.room_pic import RoomPicView
+from faststay_app.views.Hostel_views.Display_Student_Home import DisplayStudentHomeView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -98,7 +99,7 @@ urlpatterns=[
     path('display/details_kitchen', DetailsKitchen.as_view(), name='display_details_kitchen'),
     path('display/hostel_pic',HostelPicView.as_view(), name='display_hostel_pic'),
     path('display/room_pic',RoomPicView.as_view(), name='display_room_pic'),
-
+    path('display/StudentHome',DisplayStudentHomeView.as_view(), name='display_student_home'),
 
     # Swagger URLs
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

@@ -42,7 +42,7 @@ export default function AddRoom() {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const [currentRoomNo, setCurrentRoomNo] = useState<number | null>(null);
+    const [, setCurrentRoomNo] = useState<number | null>(null);
 
     // Room form state
     const [roomForm, setRoomForm] = useState({

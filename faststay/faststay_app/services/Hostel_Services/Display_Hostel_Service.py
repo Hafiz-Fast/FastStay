@@ -32,6 +32,8 @@ def Display_Hostel_service(data):
                 "p_MessProvide": result[9],
                 "p_GeezerFlag": result[10],
                 "p_name": result[11],
+                "p_Latitude": result[12],
+                "p_Longitude": result[13]
             }
 
             return True, Hostel_Detail

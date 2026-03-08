@@ -25,6 +25,8 @@ class Add_Hostel_Details_view(APIView):
         "p_MessProvide": bool,        # Required
         "p_GeezerFlag": bool          # Required
         "p_name": string              # Required
+        "p_Latitude": decimal
+        "p_Longitude": decimal
     }
 
     Returns:

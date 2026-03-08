@@ -17,6 +17,16 @@ def Display_Expenses_service(data):
             return False, 'Database returned no result.'
         
         expenses = {
+            "expense_id": result[0],
+            "isIncludedInRoomCharges": result[1],
+            "RoomCharges": result[2],          # This is a list (float array)
+            "SecurityCharges": result[3],
+            "MessCharges": result[4],
+            "KitchenCharges": result[5],
+            "InternetCharges": result[6],
+            "AcServiceCharges": result[7],
+            "ElectricitybillType": result[8],
+            "ElectricityCharges": result[9],
             "p_ExpenseId": result[0],
             "p_isIncludedInRoomCharges": result[1],
             "p_RoomCharges": result[2],          # This is a list (float array)

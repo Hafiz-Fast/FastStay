@@ -21,15 +21,6 @@ interface ManagerDetails {
   p_OperatingHours: number;
 }
 
-interface UpdateManagerData {
-  p_ManagerId: number;
-  p_PhotoLink: string;
-  p_PhoneNo: string;
-  p_Education: string;
-  p_ManagerType: string;
-  p_OperatingHours: number;
-}
-
 export default function Profile() {
   const [user, setUser] = useState<User | null>(null);
   const [managerDetails, setManagerDetails] = useState<ManagerDetails | null>(null);
@@ -37,6 +28,11 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  
+  // Photo upload state
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Form state for editing
   const [formData, setFormData] = useState<ManagerDetails>({
@@ -50,6 +46,25 @@ export default function Profile() {
   // Get managerId from URL params
   const params = new URLSearchParams(window.location.search);
   const managerId = Number(params.get("user_id"));
+
+  // Handle photo change
+  const handlePhotoChange = (file: File | null) => {
+    setPhoto(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPhotoPreview(null);
+      // If clearing photo, also clear the photo link in form data
+      setFormData(prev => ({
+        ...prev,
+        p_PhotoLink: ""
+      }));
+    }
+  };
 
   // Fetch user details (from Users table)
   useEffect(() => {
@@ -89,6 +104,9 @@ export default function Profile() {
         if (data.success && data.result) {
           setManagerDetails(data.result);
           setFormData(data.result);
+          if (data.result.p_PhotoLink) {
+            setPhotoPreview(data.result.p_PhotoLink);
+          }
         }
       } catch (error) {
         console.log("Manager details fetch error", error);
@@ -116,31 +134,48 @@ export default function Profile() {
     e.preventDefault();
     setUpdateSuccess(null);
     setUpdateError(null);
+    setIsUploading(true);
 
-    // Prepare update data
-    const updateData: UpdateManagerData = {
-      p_ManagerId: managerId,
-      p_PhotoLink: formData.p_PhotoLink,
-      p_PhoneNo: formData.p_PhoneNo,
-      p_Education: formData.p_Education,
-      p_ManagerType: formData.p_ManagerType,
-      p_OperatingHours: formData.p_OperatingHours,
-    };
+    // Prepare FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append("p_ManagerId", managerId.toString());
+    
+    // Append photo file if selected, otherwise append existing photo URL
+    if (photo) {
+      formDataToSend.append("p_PhotoLink", photo);
+    } else if (formData.p_PhotoLink && !photoPreview?.startsWith('data:')) {
+      // If there's an existing photo URL and we haven't changed it
+      formDataToSend.append("p_PhotoLink", formData.p_PhotoLink);
+    }
+    
+    formDataToSend.append("p_PhoneNo", formData.p_PhoneNo);
+    formDataToSend.append("p_Education", formData.p_Education);
+    formDataToSend.append("p_ManagerType", formData.p_ManagerType);
+    formDataToSend.append("p_OperatingHours", formData.p_OperatingHours.toString());
 
     try {
       const res = await fetch("http://127.0.0.1:8000/faststay_app/ManagerDetails/update/", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
+        body: formDataToSend,
+        // Note: Don't set Content-Type header for FormData, browser will set it with boundary
       });
 
       const data = await res.json();
       
-      if (data.result) {
+      if (data.result || data.success) {
         setUpdateSuccess(data.message || "Profile updated successfully!");
-        setManagerDetails(formData);
+        
+        // Update local state with new data
+        const updatedDetails = {
+          p_PhotoLink: photoPreview || formData.p_PhotoLink,
+          p_PhoneNo: formData.p_PhoneNo,
+          p_Education: formData.p_Education,
+          p_ManagerType: formData.p_ManagerType,
+          p_OperatingHours: formData.p_OperatingHours,
+        };
+        
+        setManagerDetails(updatedDetails);
+        setPhoto(null); // Clear photo file after successful upload
         setIsEditing(false);
         
         // Clear success message after 3 seconds
@@ -151,6 +186,8 @@ export default function Profile() {
     } catch (error) {
       console.log("Update error", error);
       setUpdateError("An error occurred while updating profile");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -158,10 +195,22 @@ export default function Profile() {
   const handleCancel = () => {
     if (managerDetails) {
       setFormData(managerDetails);
+      setPhoto(null);
+      setPhotoPreview(managerDetails.p_PhotoLink || null);
     }
     setIsEditing(false);
     setUpdateSuccess(null);
     setUpdateError(null);
+  };
+
+  // Handle remove photo
+  const handleRemovePhoto = () => {
+    setPhoto(null);
+    setPhotoPreview(null);
+    setFormData(prev => ({
+      ...prev,
+      p_PhotoLink: ""
+    }));
   };
 
   return (
@@ -224,9 +273,9 @@ export default function Profile() {
               {/* Left Column - User Info */}
               <div className={styles.userInfo}>
                 <div className={styles.profileHeader}>
-                  {managerDetails?.p_PhotoLink ? (
+                  {photoPreview || managerDetails?.p_PhotoLink ? (
                     <img 
-                      src={managerDetails.p_PhotoLink} 
+                      src={photoPreview || managerDetails?.p_PhotoLink} 
                       alt="Profile" 
                       className={styles.profileImage}
                     />
@@ -292,19 +341,55 @@ export default function Profile() {
 
                 {isEditing ? (
                   <form onSubmit={handleSubmit} className={styles.editForm}>
+                    {/* Photo Upload Section */}
                     <div className={styles.formGroup}>
                       <label htmlFor="p_PhotoLink">
-                        <i className="fa-solid fa-image"></i> Photo Link
+                        <i className="fa-solid fa-camera"></i> Profile Photo
                       </label>
-                      <input
-                        type="url"
-                        id="p_PhotoLink"
-                        name="p_PhotoLink"
-                        value={formData.p_PhotoLink}
-                        onChange={handleInputChange}
-                        placeholder="https://example.com/photo.jpg"
-                        className={styles.formInput}
-                      />
+                      
+                      <div className={styles.photoUploadSection}>
+                        <div className={styles.photoPreviewBox}>
+                          {photoPreview || managerDetails?.p_PhotoLink ? (
+                            <img 
+                              src={photoPreview || managerDetails?.p_PhotoLink} 
+                              alt="Profile Preview" 
+                              className={styles.photoPreview}
+                            />
+                          ) : (
+                            <div className={styles.photoPlaceholder}>
+                              <i className="fa-solid fa-user"></i>
+                              <span>No photo selected</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className={styles.photoControls}>
+                          <label htmlFor="photo-upload" className={styles.photoUploadButton}>
+                            <i className="fa-solid fa-upload"></i> Upload Photo
+                            <input
+                              type="file"
+                              id="photo-upload"
+                              accept="image/*"
+                              className={styles.fileInput}
+                              onChange={e => handlePhotoChange(e.target.files?.[0] || null)}
+                            />
+                          </label>
+                          
+                          {(photoPreview || managerDetails?.p_PhotoLink) && (
+                            <button 
+                              type="button"
+                              onClick={handleRemovePhoto}
+                              className={styles.removePhotoButton}
+                            >
+                              <i className="fa-solid fa-trash"></i> Remove
+                            </button>
+                          )}
+                        </div>
+                        
+                        <small className={styles.helperText}>
+                          Upload a JPG, PNG, or GIF image (max 5MB)
+                        </small>
+                      </div>
                     </div>
 
                     <div className={styles.formGroup}>
@@ -378,13 +463,26 @@ export default function Profile() {
                     </div>
 
                     <div className={styles.formButtons}>
-                      <button type="submit" className={styles.saveButton}>
-                        <i className="fa-solid fa-floppy-disk"></i> Save Changes
+                      <button 
+                        type="submit" 
+                        className={styles.saveButton}
+                        disabled={isUploading}
+                      >
+                        {isUploading ? (
+                          <>
+                            <i className="fa-solid fa-spinner fa-spin"></i> Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fa-solid fa-floppy-disk"></i> Save Changes
+                          </>
+                        )}
                       </button>
                       <button 
                         type="button" 
                         onClick={handleCancel}
                         className={styles.cancelButton}
+                        disabled={isUploading}
                       >
                         <i className="fa-solid fa-xmark"></i> Cancel
                       </button>

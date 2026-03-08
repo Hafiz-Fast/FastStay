@@ -17,6 +17,8 @@ def Add_hostel_details_service(data):
             data['p_MessProvide'],
             data['p_GeezerFlag'],
             data['p_name'],
+            data['p_Latitude'],
+            data['p_Longitude']
         ]
         with connection.cursor() as cursor:
             placeholders = ','.join(['%s'] * len(params))

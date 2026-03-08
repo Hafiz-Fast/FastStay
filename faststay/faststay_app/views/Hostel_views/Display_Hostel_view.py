@@ -31,6 +31,8 @@ class Display_Hostel_View(APIView):
             "p_MessProvide": bool,
             "p_GeezerFlag": bool,
             "p_name": str
+            "p_Latitude": decimal
+            "p_Longitude": decimal
         }
     }
 

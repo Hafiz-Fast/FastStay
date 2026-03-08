@@ -10,6 +10,7 @@ class RoomPicView(View):
 
     def get(self, request, *args, **kwargs):
         # Use query parameters instead of request body for GET
+        
         hostel_id_str = request.GET.get("p_HostelId")
         
         if not hostel_id_str:

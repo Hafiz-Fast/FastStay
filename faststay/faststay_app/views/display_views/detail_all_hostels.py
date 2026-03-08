@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse
 from django.views import View
 from faststay_app.services.display_service.detail_all_hostels import DetailAllHostels

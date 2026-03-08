@@ -1,0 +1,303 @@
+.wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f5f0eb;
+}
+
+/* ─── Top Bar ─── */
+
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 60%, transparent);
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #333;
+  transition: transform 0.15s;
+}
+
+.backBtn:hover {
+  transform: scale(1.1);
+}
+
+.topBarTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ─── Map ─── */
+
+.mapContainer {
+  flex: 1;
+  position: relative;
+}
+
+/* ─── Markers ─── */
+
+.originMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.markerDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.markerLabel {
+  background: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #333;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.destMarker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.markerPin {
+  font-size: 32px;
+  color: #e74c3c;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  line-height: 1;
+}
+
+/* ─── Loading ─── */
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.7);
+  gap: 12px;
+  z-index: 5;
+}
+
+.loadingOverlay p {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e0d6c9;
+  border-top-color: #8d5f3a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Bottom Card ─── */
+
+.bottomCard {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px 28px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.errorMsg {
+  text-align: center;
+  color: #e74c3c;
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+.routeHeader {
+  margin-bottom: 16px;
+}
+
+.routeTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c2c2c;
+}
+
+.routeSubtitle {
+  font-size: 13px;
+  color: #888;
+  margin-top: 2px;
+}
+
+/* ─── Route Stats ─── */
+
+.routeStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #faf6f1;
+  border-radius: 14px;
+  padding: 14px 8px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat > i {
+  font-size: 18px;
+  color: #8d5f3a;
+}
+
+.stat > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c2c2c;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 30px;
+  margin-left: 10px;
+}
+
+/* ─── Route Steps ─── */
+
+.routeSteps {
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepText strong {
+  font-size: 14px;
+  color: #2c2c2c;
+}
+
+.stepText span {
+  font-size: 12px;
+  color: #999;
+}
+
+.stepLine {
+  width: 2px;
+  height: 24px;
+  background: #d0d0d0;
+  margin-left: 17px;
+  border-radius: 1px;
+}
+
+/* ─── Google Maps Button ─── */
+
+.googleMapsBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: #8d5f3a;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.googleMapsBtn:hover {
+  background: #73492c;
+}
+
+/* ─── Responsive ─── */
+
+@media (min-width: 768px) {
+  .bottomCard {
+    max-width: 420px;
+    left: 20px;
+    right: auto;
+    bottom: 20px;
+    border-radius: 20px;
+  }
+}

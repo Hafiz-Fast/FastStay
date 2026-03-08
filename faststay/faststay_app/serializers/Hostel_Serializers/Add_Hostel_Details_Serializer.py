@@ -19,6 +19,8 @@ class Add_Hostel_Details_serializer(serializers.Serializer):
     p_MessProvide = serializers.BooleanField()
     p_GeezerFlag = serializers.BooleanField()
     p_name = serializers.CharField()
+    p_Latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    p_Longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

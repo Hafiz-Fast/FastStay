@@ -15,12 +15,14 @@ class Update_Hostel_Details_serializer(serializers.Serializer):
     p_isParking = serializers.BooleanField(required=False, allow_null=True)
     p_NumRooms = serializers.IntegerField(required=False, allow_null=True)
     p_NumFloors = serializers.IntegerField(required=False, allow_null=True)
-    p_WaterTimings = serializers.IntegerField()
+    p_WaterTimings = serializers.IntegerField(required=False)
     p_CleanlinessTenure = serializers.IntegerField(required=False, allow_null=True)
     p_IssueResolvingTenure = serializers.IntegerField(required=False, allow_null=True)
     p_MessProvide = serializers.BooleanField(required=False, allow_null=True)
     p_GeezerFlag = serializers.BooleanField(required=False, allow_null=True)
     p_name = serializers.CharField()
+    p_Latitude = serializers.DecimalField(max_digits=9, decimal_places=6)
+    p_Longitude = serializers.DecimalField(max_digits=9, decimal_places=6)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
