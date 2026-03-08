@@ -26,6 +26,7 @@
   left: 0;
   z-index: 1000;
   max-width: 100%;
+  animation: fadeInDown 0.45s ease both;
 }
 
 .logo {
@@ -90,6 +91,7 @@
   max-width: 400px;
   margin: 50px auto;
   color: #3b2c24;
+  animation: scaleIn 0.4s ease both;
 }
 
 .errorContainer i {
@@ -121,11 +123,13 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  transition: background 0.2s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .retryButton:hover {
   background: #704729;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 14px rgba(141, 95, 58, 0.35);
 }
 
 /* CONTAINER */
@@ -143,6 +147,7 @@
   margin-bottom: 30px;
   flex-wrap: wrap;
   gap: 20px;
+  animation: fadeInDown 0.5s 0.05s ease both;
 }
 
 .pageTitle {
@@ -169,11 +174,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: background 0.2s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .editBtn:hover {
   background: #704729;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 14px rgba(141, 95, 58, 0.4);
 }
 
 /* PROFILE GRID */
@@ -181,6 +188,7 @@
   display: flex;
   gap: 25px;
   flex-wrap: wrap;
+  animation: fadeIn 0.5s 0.1s ease both;
 }
 
 /* LEFT PROFILE CARD - Enhanced */
@@ -193,6 +201,13 @@
   text-align: center;
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.25);
   height: fit-content;
+  animation: fadeInUp 0.55s 0.15s ease both;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.profileCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.3);
 }
 
 .avatar {
@@ -208,6 +223,13 @@
   font-weight: 600;
   margin: 0 auto 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  animation: avatarPop 0.6s 0.25s ease both;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.profileCard:hover .avatar {
+  transform: scale(1.07);
+  box-shadow: 0 6px 18px rgba(141, 95, 58, 0.35);
 }
 
 .name {
@@ -243,6 +265,13 @@
   font-size: 14px;
   font-weight: 500;
   margin-top: 15px;
+  animation: scaleIn 0.4s 0.35s ease both;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+  background: #c5bbb0;
 }
 
 /* RIGHT INFO SECTIONS */
@@ -258,6 +287,17 @@
   border-radius: 16px;
   margin-bottom: 20px;
   box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.5s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section:nth-child(1) { animation-delay: 0.15s; }
+.section:nth-child(2) { animation-delay: 0.25s; }
+.section:nth-child(3) { animation-delay: 0.35s; }
+
+.section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 10px 24px rgba(0, 0, 0, 0.2);
 }
 
 .sectionTitle {
@@ -292,6 +332,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  transition: transform 0.15s ease;
 }
 
 .label {
@@ -322,12 +363,13 @@
   padding: 15px;
   background: #e8dfd1;
   border-radius: 12px;
-  transition: transform 0.2s;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .preferenceItem:hover {
-  transform: translateY(-2px);
-  background: #d4c9bb;
+  transform: translateY(-3px) scale(1.02);
+  background: #c9bfb2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .preferenceItem i {
@@ -340,6 +382,12 @@
   justify-content: center;
   background: #f8f3e7;
   border-radius: 8px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.preferenceItem:hover i {
+  transform: scale(1.2);
+  color: #704729;
 }
 
 .prefLabel {
@@ -474,4 +522,31 @@
 @keyframes loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes avatarPop {
+  0%   { opacity: 0; transform: scale(0.5); }
+  70%  { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
 }

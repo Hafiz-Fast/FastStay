@@ -360,12 +360,16 @@ const ViewRooms: React.FC = () => {
       );
     }
 
-    return filteredRooms.map((room) => {
+    return filteredRooms.map((room, index) => {   // <-- add `index`
       const roomPicsList = getRoomPics(room);
       const currentIndex = roomPicIndices[room.p_RoomNo] || 0;
 
       return (
-        <div key={room.p_RoomNo} className={styles.roomCard}>
+        <div
+          key={room.p_RoomNo}
+          className={styles.roomCard}
+          style={{ animationDelay: `${index * 0.07}s` }}  // stagger
+        >
           <div className={styles.cardImage}>
             {roomPicsList.length > 0 ? (
               <>
