@@ -1,9 +1,12 @@
 
 
 import axios, { AxiosError } from 'axios';
+import { cacheGet, cacheSet } from '../utils/cache';
 
 // Base URL for the FastStay API
 const API_BASE_URL = 'http://127.0.0.1:8000';
+
+export const CACHE_STUDENTS = 'cache:admin:students:all';
 
 // --- API Response Interfaces ---
 
@@ -58,7 +61,11 @@ export interface RecentStudent {
  * Only users with usertype === 'Student' are included.
  * @returns A promise that resolves to an array of StudentTableRow.
  */
-export const getAllStudentsTableData = async (): Promise<StudentTableRow[]> => {
+export const getAllStudentsTableData = async (bypassCache = false): Promise<StudentTableRow[]> => {
+    if (!bypassCache) {
+        const cached = cacheGet<StudentTableRow[]>(CACHE_STUDENTS);
+        if (cached) return cached;
+    }
     try {
         const usersResponse = await axios.get<UsersApiResponse>(`${API_BASE_URL}/faststay_app/users/all`);
 
@@ -77,6 +84,7 @@ export const getAllStudentsTableData = async (): Promise<StudentTableRow[]> => {
                 // Email is deliberately omitted
             }));
 
+        cacheSet(CACHE_STUDENTS, studentTableRows);
         return studentTableRows;
 
     } catch (error: unknown) {

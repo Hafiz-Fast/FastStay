@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { getAllStudentsTableData, type StudentTableRow } from "../api/admin_student";
+import { getAllStudentsTableData, CACHE_STUDENTS, type StudentTableRow } from "../api/admin_student";
+import { cacheGet } from "../utils/cache";
+import SkeletonRow from "../components/SkeletonRow";
 import styles from "../styles/admin_student.module.css";
 
 const AdminViewStudents: React.FC = () => {
@@ -12,19 +14,24 @@ const AdminViewStudents: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                setLoading(true);
-                const result = await getAllStudentsTableData();
+        // Phase 1: instant render from cache
+        const cached = cacheGet<StudentTableRow[]>(CACHE_STUDENTS);
+        if (cached) {
+            setStudents(cached);
+            setLoading(false);
+        }
+
+        // Phase 2: background refresh
+        getAllStudentsTableData(true)
+            .then(result => {
                 setStudents(result);
                 setLoading(false);
-            } catch (err) {
+            })
+            .catch((err: unknown) => {
                 console.error(err);
-                setError("Failed to load students data. Please try again later.");
+                if (!cached) setError("Failed to load students data. Please try again later.");
                 setLoading(false);
-            }
-        };
-        loadData();
+            });
     }, []);
 
     // Get unique cities and genders from data
@@ -43,7 +50,7 @@ const AdminViewStudents: React.FC = () => {
         return students.filter(s => {
             // Search filter
             const searchTerm = search.toLowerCase();
-            const matchesSearch = searchTerm === "" || 
+            const matchesSearch = searchTerm === "" ||
                 s.name.toLowerCase().includes(searchTerm) ||
                 s.city.toLowerCase().includes(searchTerm);
 
@@ -60,13 +67,13 @@ const AdminViewStudents: React.FC = () => {
     // Calculate statistics
     const stats = useMemo(() => {
         if (filteredStudents.length === 0) return null;
-        
+
         const averageAge = filteredStudents.reduce((sum, s) => sum + s.age, 0) / filteredStudents.length;
         const genderCount = filteredStudents.reduce((acc, s) => {
             acc[s.gender] = (acc[s.gender] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
-        
+
         return { averageAge, genderCount };
     }, [filteredStudents]);
 
@@ -81,7 +88,7 @@ const AdminViewStudents: React.FC = () => {
 
     return (
         <div className={styles.body}>
-            
+
             {/* NAVBAR */}
             <nav className={styles.navbar}>
                 <div className={styles.logo}>
@@ -104,9 +111,9 @@ const AdminViewStudents: React.FC = () => {
 
                 {/* RESULTS SUMMARY */}
                 {!loading && (
-                    <div style={{ 
-                        marginBottom: "15px", 
-                        color: "#666", 
+                    <div style={{
+                        marginBottom: "15px",
+                        color: "#666",
                         fontSize: "14px",
                         display: "flex",
                         alignItems: "center",
@@ -123,7 +130,7 @@ const AdminViewStudents: React.FC = () => {
                 {/* SEARCH + FILTER BAR */}
                 <div className={styles.topBar} style={{ marginBottom: "20px" }}>
                     <div className={styles.searchBox} style={{ flex: 1 }}>
-                        <input 
+                        <input
                             type="text"
                             placeholder="Search by name or city..."
                             value={search}
@@ -143,14 +150,14 @@ const AdminViewStudents: React.FC = () => {
                             <label style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
                                 Filter by City
                             </label>
-                            <select 
+                            <select
                                 className={styles.select}
                                 value={cityFilter}
                                 onChange={(e) => setCityFilter(e.target.value)}
                                 disabled={loading}
                                 style={{
                                 backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                                color: loading ? "#7a6648" : "#4c3f30",  
+                                color: loading ? "#7a6648" : "#4c3f30",
                                 }}
                             >
                                 <option value="All">All Cities ({students.length})</option>
@@ -166,14 +173,14 @@ const AdminViewStudents: React.FC = () => {
                             <label style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
                                 Filter by Gender
                             </label>
-                            <select 
+                            <select
                                 className={styles.select}
                                 value={genderFilter}
                                 onChange={(e) => setGenderFilter(e.target.value)}
                                 disabled={loading}
                                 style={{
                                 backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                                color: loading ? "#7a6648" : "#4c3f30",  
+                                color: loading ? "#7a6648" : "#4c3f30",
                                 }}
                             >
                                 <option value="All">All Genders ({students.length})</option>
@@ -187,7 +194,7 @@ const AdminViewStudents: React.FC = () => {
 
                         {(search || cityFilter !== "All" || genderFilter !== "All") && (
                             <div style={{ alignSelf: "flex-end" }}>
-                                <button 
+                                <button
                                     onClick={() => {
                                         setSearch("");
                                         setCityFilter("All");
@@ -217,7 +224,7 @@ const AdminViewStudents: React.FC = () => {
 
                 {/* STATISTICS BAR */}
                 {!loading && filteredStudents.length > 0 && stats && (
-                    <div style={{ 
+                    <div style={{
                         marginBottom: "20px",
                         padding: "15px",
                         backgroundColor: "#f8f9fa",
@@ -286,15 +293,7 @@ const AdminViewStudents: React.FC = () => {
 
                         <tbody>
                             {loading ? (
-                                <tr>
-                                    <td colSpan={5} className={styles.loadingRow}>
-                                        <div className={styles.loadingContainer}>
-                                            <i className="fa-solid fa-spinner fa-spin" 
-                                               style={{ marginRight: "10px", fontSize: "18px" }}></i>
-                                            Loading students data...
-                                        </div>
-                                    </td>
-                                </tr>
+                                <SkeletonRow cols={5} rows={8} />
                             ) : filteredStudents.length > 0 ? (
                                 filteredStudents.map(student => (
                                     <tr key={student.id} className={styles.tableRow}>
@@ -313,11 +312,11 @@ const AdminViewStudents: React.FC = () => {
                                                 display: "inline-block",
                                                 padding: "4px 10px",
                                                 borderRadius: "12px",
-                                                backgroundColor: 
-                                                    student.age < 20 ? "#e8f5e8" : 
+                                                backgroundColor:
+                                                    student.age < 20 ? "#e8f5e8" :
                                                     student.age < 25 ? "#e8f4fd" : "#fef5e7",
-                                                color: 
-                                                    student.age < 20 ? "#27ae60" : 
+                                                color:
+                                                    student.age < 20 ? "#27ae60" :
                                                     student.age < 25 ? "#2980b9" : "#d35400",
                                                 fontWeight: "bold",
                                                 fontSize: "13px"
@@ -346,30 +345,30 @@ const AdminViewStudents: React.FC = () => {
                                                 borderRadius: "12px",
                                                 fontSize: "12px",
                                                 fontWeight: "bold",
-                                                backgroundColor: 
-                                                    student.gender === "Male" ? "#e8f4fd" : 
+                                                backgroundColor:
+                                                    student.gender === "Male" ? "#e8f4fd" :
                                                     student.gender === "Female" ? "#fde8f8" : "#f5f5f5",
-                                                color: 
-                                                    student.gender === "Male" ? "#2980b9" : 
+                                                color:
+                                                    student.gender === "Male" ? "#2980b9" :
                                                     student.gender === "Female" ? "#9b59b6" : "#666",
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: "5px"
                                             }}>
                                                 <i className={`fa-solid ${
-                                                    student.gender === "Male" ? "fa-mars" : 
+                                                    student.gender === "Male" ? "fa-mars" :
                                                     student.gender === "Female" ? "fa-venus" : "fa-genderless"
                                                 }`}></i>
                                                 {student.gender}
                                             </span>
                                         </td>
                                         <td>
-                                            <Link 
+                                            <Link
                                                 to={`/admin/students/${student.id}`}
                                                 className={styles.actionBtn}
-                                                style={{ 
-                                                    display: "flex", 
-                                                    alignItems: "center", 
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
                                                     gap: "5px",
                                                     padding: "8px 16px",
                                                     backgroundColor: "#3498db",
@@ -392,15 +391,15 @@ const AdminViewStudents: React.FC = () => {
                             ) : (
                                 <tr>
                                     <td colSpan={5} className={styles.noDataRow}>
-                                        <div style={{ 
-                                            display: "flex", 
+                                        <div style={{
+                                            display: "flex",
                                             flexDirection: "column",
-                                            alignItems: "center", 
+                                            alignItems: "center",
                                             justifyContent: "center",
                                             padding: "40px 20px",
                                             gap: "15px"
                                         }}>
-                                            <i className="fa-solid fa-user-graduate" style={{ 
+                                            <i className="fa-solid fa-user-graduate" style={{
                                                 fontSize: "48px",
                                                 color: "#ddd"
                                             }}></i>
@@ -408,19 +407,19 @@ const AdminViewStudents: React.FC = () => {
                                                 <h4 style={{ marginBottom: "5px", color: "#666" }}>
                                                     No students found
                                                 </h4>
-                                                <p style={{ 
-                                                    margin: 0, 
-                                                    fontSize: "14px", 
-                                                    color: "#999", 
+                                                <p style={{
+                                                    margin: 0,
+                                                    fontSize: "14px",
+                                                    color: "#999",
                                                     maxWidth: "400px",
                                                     lineHeight: "1.5"
                                                 }}>
-                                                    {search || cityFilter !== "All" || genderFilter !== "All" 
+                                                    {search || cityFilter !== "All" || genderFilter !== "All"
                                                         ? "No students match your current filters. Try adjusting your search criteria."
                                                         : "There are no students registered in the system yet."}
                                                 </p>
                                                 {(search || cityFilter !== "All" || genderFilter !== "All") && (
-                                                    <button 
+                                                    <button
                                                         onClick={() => {
                                                             setSearch("");
                                                             setCityFilter("All");
