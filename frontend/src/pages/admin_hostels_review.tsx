@@ -23,7 +23,7 @@ const AdminViewHostels: React.FC = () => {
   useEffect(() => {
     const hostelId = parseInt(id || "0");
     setActionError(null);
-
+    //phases
     // Phase 1: instant render from cache
     const cached = cacheGet<HostelTableRow>(CACHE_HOSTEL_DETAIL(hostelId));
     if (cached) {
