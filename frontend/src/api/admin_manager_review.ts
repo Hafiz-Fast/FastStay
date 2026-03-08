@@ -1,6 +1,9 @@
 import axios, { AxiosError } from 'axios';
+import { cacheGet, cacheSet } from '../utils/cache';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
+
+export const CACHE_MANAGER_PROFILE = (id: number) => `cache:admin:manager:profile:${id}`;
 
 // ---- RAW Response Interfaces ----
 interface RawManager {
@@ -50,7 +53,7 @@ export interface ManagerTableRow {
 export const deleteManager = async (managerId: number): Promise<boolean> => {
     try {
         console.log(`Attempting to delete manager with ID: ${managerId}`);
-        
+
         const response = await axios.delete(
             `${API_BASE_URL}/faststay_app/ManagerDetails/delete/`,
             {
@@ -60,18 +63,18 @@ export const deleteManager = async (managerId: number): Promise<boolean> => {
                 }
             }
         );
-        
+
         console.log("Delete Manager API Response:", response.data);
-        
+
         // Check response format based on your backend
         if (response.data.result !== undefined) {
             return response.data.result === true || response.data.result === "true";
         } else if (response.data.success !== undefined) {
             return response.data.success === true;
         }
-        
+
         return false;
-        
+
     } catch (error: unknown) {
         console.error(`Error deleting manager ${managerId}:`, error);
         if (axios.isAxiosError(error)) {
@@ -116,7 +119,7 @@ export const getAllManagersTableData = async (): Promise<ManagerTableRow[]> => {
 
     } catch (error: unknown) {
         console.error("Error fetching manager data:", error);
-        
+
         if (axios.isAxiosError(error)) {
             const err = error as AxiosError;
             console.error("Axios error details:", {
@@ -170,7 +173,7 @@ export const getManagerById = async (managerId: number): Promise<ManagerTableRow
         ]);
 
         const manager = managersRes.data.result?.find(m => m.p_ManagerId === managerId);
-        
+
         if (!manager) {
             console.warn(`Manager with ID ${managerId} not found`);
             return null;
@@ -204,10 +207,10 @@ export const getUserForManager = async (managerId: number): Promise<RawUser | nu
         const response = await axios.get<UsersApiResponse>(
             `${API_BASE_URL}/faststay_app/users/all`
         );
-        
+
         const users = response.data.users || [];
         const user = users.find(u => u.userid === managerId);
-        
+
         return user || null;
     } catch (error: unknown) {
         console.error(`Error fetching user for manager ID ${managerId}:`, error);
@@ -222,10 +225,10 @@ export const getUserForManager = async (managerId: number): Promise<RawUser | nu
 export const fetchAndDisplayManagers = async () => {
     try {
         const managersData = await getAllManagersTableData();
-        
+
         console.log("Managers Table Data:", managersData);
         // You can now use this data in your React component
-        
+
         return managersData;
     } catch (error) {
         console.error("Failed to fetch managers:", error);

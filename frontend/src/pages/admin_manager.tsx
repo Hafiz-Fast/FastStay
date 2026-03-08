@@ -23,7 +23,7 @@
 //         setLoading(false);
 //       }
 //     };
-    
+
 //     loadManagers();
 //   }, []);
 
@@ -47,7 +47,7 @@
 //       if (filterType === "All") {
 //         return matchesSearch;
 //       }
-      
+
 //       return matchesSearch && m.type.toLowerCase() === filterType.toLowerCase();
 //     });
 //   }, [managers, search, filterType]);
@@ -85,27 +85,27 @@
 //         <p className={styles.subtitle}>View and manage hostel manager accounts near FAST Lahore.</p>
 
 //         {/* SEARCH + FILTER BAR */}
-//         <div style={{ 
-//           display: "flex", 
-//           justifyContent: "space-between", 
-//           marginBottom: "20px", 
-//           flexWrap: "wrap", 
-//           gap: "10px" 
+//         <div style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           marginBottom: "20px",
+//           flexWrap: "wrap",
+//           gap: "10px"
 //         }}>
-          
+
 //           {/* Search Field */}
 //           <input
 //             type="text"
 //             placeholder="Search manager by name, phone, or education..."
 //             value={search}
 //             onChange={(e) => setSearch(e.target.value)}
-//             style={{ 
-//               padding: "10px", 
-//               borderRadius: "8px", 
-//               width: "300px", 
+//             style={{
+//               padding: "10px",
+//               borderRadius: "8px",
+//               width: "300px",
 //               border: "1px solid #ddd",
 //               backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-//               color: loading ? "#7a6648" : "#4c3f30",  
+//               color: loading ? "#7a6648" : "#4c3f30",
 //             }}
 //             disabled={loading}
 //           />
@@ -116,12 +116,12 @@
 //             <select
 //               value={filterType}
 //               onChange={(e) => setFilterType(e.target.value)}
-//               style={{ 
-//                 padding: "10px", 
-//                 borderRadius: "8px", 
+//               style={{
+//                 padding: "10px",
+//                 borderRadius: "8px",
 //                 border: "1px solid #ddd",
 //                 backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-//                 color: loading ? "#7a6648" : "#4c3f30",  
+//                 color: loading ? "#7a6648" : "#4c3f30",
 //                 minWidth: "150px"
 //               }}
 //               disabled={loading}
@@ -138,9 +138,9 @@
 
 //         {/* RESULTS SUMMARY */}
 //         {!loading && (
-//           <div style={{ 
-//             marginBottom: "15px", 
-//             color: "#666", 
+//           <div style={{
+//             marginBottom: "15px",
+//             color: "#666",
 //             fontSize: "14px",
 //             display: "flex",
 //             alignItems: "center",
@@ -172,18 +172,18 @@
 //             <tbody>
 //               {loading ? (
 //                 <tr>
-//                   <td colSpan={6} style={{ 
-//                     textAlign: "center", 
+//                   <td colSpan={6} style={{
+//                     textAlign: "center",
 //                     padding: "40px 20px",
 //                     color: "#666"
 //                   }}>
-//                     <div style={{ 
-//                       display: "flex", 
-//                       alignItems: "center", 
+//                     <div style={{
+//                       display: "flex",
+//                       alignItems: "center",
 //                       justifyContent: "center",
 //                       gap: "10px"
 //                     }}>
-//                       <i className="fa-solid fa-spinner fa-spin" style={{ 
+//                       <i className="fa-solid fa-spinner fa-spin" style={{
 //                         fontSize: "18px",
 //                         marginRight: "8px"
 //                       }}></i>
@@ -203,13 +203,13 @@
 //                         borderRadius: "4px",
 //                         fontSize: "12px",
 //                         fontWeight: "bold",
-//                         backgroundColor: 
-//                           m.type === "Owner" ? "#e8f5e8" : 
-//                           m.type === "Employee" ? "#e8f5ff" : 
+//                         backgroundColor:
+//                           m.type === "Owner" ? "#e8f5e8" :
+//                           m.type === "Employee" ? "#e8f5ff" :
 //                           m.type === "Manager" ? "#f5f0ff" : "#f5f5f5",
-//                         color: 
-//                           m.type === "Owner" ? "#2e7d32" : 
-//                           m.type === "Employee" ? "#1565c0" : 
+//                         color:
+//                           m.type === "Owner" ? "#2e7d32" :
+//                           m.type === "Employee" ? "#1565c0" :
 //                           m.type === "Manager" ? "#5e35b1" : "#666"
 //                       }}>
 //                         {m.type}
@@ -227,31 +227,31 @@
 //                 ))
 //               ) : (
 //                 <tr>
-//                   <td colSpan={6} style={{ 
-//                     textAlign: "center", 
+//                   <td colSpan={6} style={{
+//                     textAlign: "center",
 //                     padding: "40px 20px",
 //                     color: "#666"
 //                   }}>
-//                     <div style={{ 
-//                       display: "flex", 
+//                     <div style={{
+//                       display: "flex",
 //                       flexDirection: "column",
-//                       alignItems: "center", 
+//                       alignItems: "center",
 //                       justifyContent: "center",
 //                       gap: "15px"
 //                     }}>
-//                       <i className="fa-solid fa-user-slash" style={{ 
+//                       <i className="fa-solid fa-user-slash" style={{
 //                         fontSize: "48px",
 //                         color: "#ddd"
 //                       }}></i>
 //                       <div>
 //                         <h4 style={{ marginBottom: "5px" }}>No managers found</h4>
 //                         <p style={{ margin: 0, fontSize: "14px", maxWidth: "400px" }}>
-//                           {search || filterType !== "All" 
+//                           {search || filterType !== "All"
 //                             ? `No managers match your ${search ? `search "${search}"` : ""}${search && filterType !== "All" ? ' and ' : ''}${filterType !== "All" ? `filter "${filterType}"` : ''}.`
 //                             : "There are no managers in the system yet."}
 //                         </p>
 //                         {(search || filterType !== "All") && (
-//                           <button 
+//                           <button
 //                             onClick={() => {
 //                               setSearch("");
 //                               setFilterType("All");
@@ -290,7 +290,9 @@
 
 
 import React, { useEffect, useState, useMemo } from "react";
-import { getAllManagersTableData, type ManagerTableRow } from "../api/admin_manager";
+import { getAllManagersTableData, CACHE_MANAGERS, type ManagerTableRow } from "../api/admin_manager";
+import { cacheGet } from "../utils/cache";
+import SkeletonRow from "../components/SkeletonRow";
 import styles from "../styles/admin_dashboard.module.css";
 import { Link } from "react-router-dom";
 
@@ -302,20 +304,24 @@ const AdminViewManagers: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadManagers = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllManagersTableData();
+    // Phase 1: instant render from cache
+    const cached = cacheGet<ManagerTableRow[]>(CACHE_MANAGERS);
+    if (cached) {
+      setManagers(cached);
+      setLoading(false);
+    }
+
+    // Phase 2: background refresh
+    getAllManagersTableData(true)
+      .then(data => {
         setManagers(data);
         setLoading(false);
-      } catch (err) {
+      })
+      .catch((err: unknown) => {
         console.error(err);
-        setError("Failed to load managers data. Please try again later.");
+        if (!cached) setError("Failed to load managers data. Please try again later.");
         setLoading(false);
-      }
-    };
-    
-    loadManagers();
+      });
   }, []);
 
   // Get unique manager types from data
@@ -338,7 +344,7 @@ const AdminViewManagers: React.FC = () => {
       if (filterType === "All") {
         return matchesSearch;
       }
-      
+
       return matchesSearch && m.type.toLowerCase() === filterType.toLowerCase();
     });
   }, [managers, search, filterType]);
@@ -376,27 +382,27 @@ const AdminViewManagers: React.FC = () => {
         <p className={styles.subtitle}>View and manage hostel manager accounts near FAST Lahore.</p>
 
         {/* SEARCH + FILTER BAR */}
-        <div style={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          marginBottom: "20px", 
-          flexWrap: "wrap", 
-          gap: "10px" 
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+          gap: "10px"
         }}>
-          
+
           {/* Search Field */}
           <input
             type="text"
             placeholder="Search manager by name, phone, or education..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ 
-              padding: "10px", 
-              borderRadius: "8px", 
-              width: "300px", 
+            style={{
+              padding: "10px",
+              borderRadius: "8px",
+              width: "300px",
               border: "1px solid #ddd",
               backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-              color: loading ? "#7a6648" : "#4c3f30",  
+              color: loading ? "#7a6648" : "#4c3f30",
             }}
             disabled={loading}
           />
@@ -407,12 +413,12 @@ const AdminViewManagers: React.FC = () => {
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
-              style={{ 
-                padding: "10px", 
-                borderRadius: "8px", 
+              style={{
+                padding: "10px",
+                borderRadius: "8px",
                 border: "1px solid #ddd",
                 backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                color: loading ? "#7a6648" : "#4c3f30",  
+                color: loading ? "#7a6648" : "#4c3f30",
                 minWidth: "150px"
               }}
               disabled={loading}
@@ -429,9 +435,9 @@ const AdminViewManagers: React.FC = () => {
 
         {/* RESULTS SUMMARY */}
         {!loading && (
-          <div style={{ 
-            marginBottom: "15px", 
-            color: "#666", 
+          <div style={{
+            marginBottom: "15px",
+            color: "#666",
             fontSize: "14px",
             display: "flex",
             alignItems: "center",
@@ -462,26 +468,7 @@ const AdminViewManagers: React.FC = () => {
 
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ 
-                    textAlign: "center", 
-                    padding: "40px 20px",
-                    color: "#666"
-                  }}>
-                    <div style={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      gap: "10px"
-                    }}>
-                      <i className="fa-solid fa-spinner fa-spin" style={{ 
-                        fontSize: "18px",
-                        marginRight: "8px"
-                      }}></i>
-                      Loading managers...
-                    </div>
-                  </td>
-                </tr>
+                <SkeletonRow cols={6} rows={6} />
               ) : filteredManagers.length > 0 ? (
                 filteredManagers.map((m) => (
                   <tr key={m.id}>
@@ -494,13 +481,13 @@ const AdminViewManagers: React.FC = () => {
                         borderRadius: "4px",
                         fontSize: "12px",
                         fontWeight: "bold",
-                        backgroundColor: 
-                          m.type === "Owner" ? "#e8f5e8" : 
-                          m.type === "Employee" ? "#e8f5ff" : 
+                        backgroundColor:
+                          m.type === "Owner" ? "#e8f5e8" :
+                          m.type === "Employee" ? "#e8f5ff" :
                           m.type === "Manager" ? "#f5f0ff" : "#f5f5f5",
-                        color: 
-                          m.type === "Owner" ? "#2e7d32" : 
-                          m.type === "Employee" ? "#1565c0" : 
+                        color:
+                          m.type === "Owner" ? "#2e7d32" :
+                          m.type === "Employee" ? "#1565c0" :
                           m.type === "Manager" ? "#5e35b1" : "#666"
                       }}>
                         {m.type}
@@ -509,10 +496,10 @@ const AdminViewManagers: React.FC = () => {
                     <td>{m.education}</td>
                     <td>{m.operatingHours} hours</td>
                     <td>
-                      <Link 
+                      <Link
                         to={`/admin/managers/${m.id}`}
                         className={styles.actionBtn}
-                        style={{ 
+                        style={{
                           display: "inline-block",
                           padding: "8px 16px",
                           backgroundColor: "#3498db",
@@ -532,31 +519,31 @@ const AdminViewManagers: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} style={{ 
-                    textAlign: "center", 
+                  <td colSpan={6} style={{
+                    textAlign: "center",
                     padding: "40px 20px",
                     color: "#666"
                   }}>
-                    <div style={{ 
-                      display: "flex", 
+                    <div style={{
+                      display: "flex",
                       flexDirection: "column",
-                      alignItems: "center", 
+                      alignItems: "center",
                       justifyContent: "center",
                       gap: "15px"
                     }}>
-                      <i className="fa-solid fa-user-slash" style={{ 
+                      <i className="fa-solid fa-user-slash" style={{
                         fontSize: "48px",
                         color: "#ddd"
                       }}></i>
                       <div>
                         <h4 style={{ marginBottom: "5px" }}>No managers found</h4>
                         <p style={{ margin: 0, fontSize: "14px", maxWidth: "400px" }}>
-                          {search || filterType !== "All" 
+                          {search || filterType !== "All"
                             ? `No managers match your ${search ? `search "${search}"` : ""}${search && filterType !== "All" ? ' and ' : ''}${filterType !== "All" ? `filter "${filterType}"` : ''}.`
                             : "There are no managers in the system yet."}
                         </p>
                         {(search || filterType !== "All") && (
-                          <button 
+                          <button
                             onClick={() => {
                               setSearch("");
                               setFilterType("All");
