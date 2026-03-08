@@ -439,6 +439,14 @@
   .section {
     padding: 18px;
   }
+
+  .pageTitle{
+    text-align: center;
+  }
+
+  .subtitle{
+    text-align: center;
+  }
 }
 
 .skeletonTitle,
