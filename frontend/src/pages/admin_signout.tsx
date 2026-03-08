@@ -5,7 +5,7 @@ import { clearAuthenticatedUser } from "../utils/auth";
 const LogoutConfirm: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const from = searchParams.get("from") || "/";
+  const from = searchParams.get("from") || "/admin";
 
   const handleCancel = () => {
     navigate(from);

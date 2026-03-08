@@ -10,14 +10,14 @@ export const setAuthenticatedUser = (userId: string) => {
  * Get the authenticated user ID from session storage.
  */
 export const getAuthenticatedUser = (): string | null => {
-  return sessionStorage.getItem("authenticated_user_id");
+  return sessionStorage.getItem("authenticated_user");
 };
 
 /**
  * Clear the authenticated user (on logout).
  */
 export const clearAuthenticatedUser = () => {
-  sessionStorage.removeItem("authenticated_user_id");
+  sessionStorage.removeItem("authenticated_user");
 };
 
 /**

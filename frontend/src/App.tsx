@@ -25,8 +25,6 @@ import Profile from "./pages/Profile";
 import ManagerAnalytics from "./pages/ManagerAnalytics";
 import DirectionsMap from "./pages/DirectionsMap";
 
-localStorage.clear();
-
 function App() {
   return (
     <BrowserRouter>
