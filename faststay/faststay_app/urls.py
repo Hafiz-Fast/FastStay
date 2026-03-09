@@ -13,7 +13,8 @@ from faststay_app.views import Add_Room_View, Update_Room_View, Delete_Room_View
 from faststay_app.views import Add_Expenses_View, AddExpenses_RoomIncluded_View, Update_Expenses_View, Delete_Expenses_View, Display_Expenses_View
 from faststay_app.views.signup_view import SignupView
 from faststay_app.views.get_all_users_view import GetAllUsersView
-from faststay_app.views.login_view import LoginView 
+from faststay_app.views.login_view import LoginView
+from faststay_app.views.admin_access_view import AdminAccessView
 from faststay_app.views.delete_hostel_details import DeleteHostelDetailsView
 from faststay_app.views.add_hostel_pics_view import AddHostelPics
 from faststay_app.views.add_room_pics_view import AddRoomPics
@@ -80,6 +81,7 @@ urlpatterns=[
     path("Expenses/display/", Display_Expenses_View.as_view(), name='Display_Expenses'),
     path('users/all/', GetAllUsersView.as_view(), name='get_all_users'),
     path('login/', LoginView.as_view(), name='login'),
+    path('admin/verify-access/', AdminAccessView.as_view(), name='admin_verify_access'),
     path('hosteldetails/delete', DeleteHostelDetailsView.as_view(), name='delete_hostel_details'),
     path('hostel_pics/add', AddHostelPics.as_view(), name='add_hostel_pics'),
     path('room_pics/add', AddRoomPics.as_view(), name='add_room_pics'),

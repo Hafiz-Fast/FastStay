@@ -15,12 +15,36 @@
 
 /* -------- LOGIN CARD -------- */
 .loginCard {
+  position: relative;
   width: 100%;
   background: #f8f3e7;
-  padding: 30px 30px 12px 30px;
+  padding: 30px 30px 56px 30px;
   border-radius: 18px;
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.35);
   text-align: center;
+}
+
+.adminToggle {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  border: 1px solid #8d5f3a;
+  background: #fdfaf4;
+  color: #8d5f3a;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.adminToggle:hover {
+  background: #8d5f3a;
+  color: #fff;
+}
+
+.adminToggle i {
+  margin-right: 6px;
 }
 
 .title {
@@ -161,9 +185,16 @@
 /* -------- MOBILE RESPONSIVE -------- */
 @media (max-width: 480px) {
   .loginCard {
-    padding: 25px 20px;
+    padding: 25px 20px 58px 20px;
     border-radius: 15px;
     width: 100%;
+  }
+
+  .adminToggle {
+    right: 16px;
+    bottom: 14px;
+    font-size: 11px;
+    padding: 6px 12px;
   }
 
   .title {

@@ -6,6 +6,10 @@ export const setAuthenticatedUser = (userId: string) => {
   sessionStorage.setItem("authenticated_user", userId);
 };
 
+export const setAuthenticatedUserType = (userType: string) => {
+  sessionStorage.setItem("authenticated_user_type", userType);
+};
+
 /**
  * Get the authenticated user ID from session storage.
  */
@@ -13,11 +17,20 @@ export const getAuthenticatedUser = (): string | null => {
   return sessionStorage.getItem("authenticated_user");
 };
 
+export const getAuthenticatedUserType = (): string | null => {
+  return sessionStorage.getItem("authenticated_user_type");
+};
+
+export const isAdminAuthenticated = (): boolean => {
+  return getAuthenticatedUserType() === "Admin" && getAuthenticatedUser() !== null;
+};
+
 /**
  * Clear the authenticated user (on logout).
  */
 export const clearAuthenticatedUser = () => {
   sessionStorage.removeItem("authenticated_user");
+  sessionStorage.removeItem("authenticated_user_type");
 };
 
 /**

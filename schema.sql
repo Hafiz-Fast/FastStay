@@ -1,7 +1,7 @@
 Create Table LoginInfo(
   LoginId Serial Primary Key,
   Email varchar(100),
-  Password varchar(50)
+  Password Text   -- Widened from varchar(50) to TEXT to support password hashes
 );
 
 Create Table Users(
@@ -135,7 +135,7 @@ Create Table SecurityInfo(
 Create Table Expenses(
   ExpenseId int Primary Key references Hostel(HostelId) On delete cascade On update cascade,
   isIncludedInRoomCharges boolean,
-  RoomCharges float[],               -- include the charges based on RoomSeaterNo 
+  RoomCharges float[],               -- include the charges based on RoomSeaterNo
   SecurityCharges float,
   MessCharges float Default 0,
   KitchenCharges float Default 0,
@@ -1174,7 +1174,7 @@ Create or Replace function AddHostelRating(
   p_Challenges Text
 ) Returns int as $$
 Begin
-  if not exists(Select 1 from hostelrating where ratingid = p_RatingId and studentid = p_StudentId and hostelid = p_HostelId) 
+  if not exists(Select 1 from hostelrating where ratingid = p_RatingId and studentid = p_StudentId and hostelid = p_HostelId)
   then
     return 0;     -- Error: Rating Info Does not Exists
   End if;
@@ -1205,7 +1205,7 @@ Create or Replace function DeleteHostelRating(
   p_StudentId int
 ) Returns boolean as $$
 Begin
-  if not exists(Select 1 from hostelrating where ratingid = p_RatingId and studentid = p_StudentId and hostelid = p_HostelId) 
+  if not exists(Select 1 from hostelrating where ratingid = p_RatingId and studentid = p_StudentId and hostelid = p_HostelId)
   then
     return false;     -- Error: Rating Info Does not Exists
   End if;

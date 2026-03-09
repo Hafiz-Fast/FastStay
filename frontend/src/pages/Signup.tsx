@@ -98,6 +98,10 @@ const Signup: React.FC = () => {
             <i className="fa-solid fa-user-plus"></i> Create Account
           </h2>
 
+          <a href="/?admin=1" className={styles.adminToggle}>
+            <i className="fa-solid fa-user-shield"></i> Login as Admin
+          </a>
+
           <form onSubmit={handleSubmit}>
 
             <div className={styles.row}>
