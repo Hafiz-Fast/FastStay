@@ -25,12 +25,21 @@ export const isAdminAuthenticated = (): boolean => {
   return getAuthenticatedUserType() === "Admin" && getAuthenticatedUser() !== null;
 };
 
+export const setAdminAccessCode = (code: string) => {
+  sessionStorage.setItem("admin_access_code", code);
+};
+
+export const getAdminAccessCode = (): string => {
+  return sessionStorage.getItem("admin_access_code") || "";
+};
+
 /**
  * Clear the authenticated user (on logout).
  */
 export const clearAuthenticatedUser = () => {
   sessionStorage.removeItem("authenticated_user");
   sessionStorage.removeItem("authenticated_user_type");
+  sessionStorage.removeItem("admin_access_code");
 };
 
 /**

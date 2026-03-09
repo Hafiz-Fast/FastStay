@@ -112,11 +112,11 @@ export interface HostelTableRow {
 }
 
 // ---- Approve Hostel ----
-export const approveHostel = async (hostelId: number): Promise<boolean> => {
+export const approveHostel = async (hostelId: number, adminSecret: string): Promise<boolean> => {
     try {
         const response = await axios.post(
             `${API_BASE_URL}/faststay_app/hosteldetails/approve`,
-            { p_hostelid: hostelId }
+            { p_HostelId: hostelId, admin_secret: adminSecret }
         );
         return response.data.success || false;
     } catch (error: unknown) {

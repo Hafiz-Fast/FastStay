@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getHostelDetails, deleteHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow } from "../api/admin_hostels_review";
-import { cacheGet } from "../utils/cache";
+import { getHostelDetails, deleteHostel, approveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow } from "../api/admin_hostels_review";
+import { cacheGet, cacheSet } from "../utils/cache";
+import { getAdminAccessCode } from "../utils/auth";
 import { SkeletonBlock } from "../components/SkeletonRow";
 import styles from "../styles/admin_dashboard.module.css";
 import "../AdminViewHostels.css";
@@ -15,6 +16,7 @@ const AdminViewHostels: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isApproved, setIsApproved] = useState(false);
+  const [approveLoading, setApproveLoading] = useState(false);
   const [showApproveSuccess, setShowApproveSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -29,6 +31,7 @@ const AdminViewHostels: React.FC = () => {
     if (cached) {
       setHostel(cached);
       if (cached.photos && cached.photos.length > 0) setSelectedImage(cached.photos[0]);
+      setIsApproved(Boolean(cached.approved));
       setLoading(false);
     }
 
@@ -41,6 +44,7 @@ const AdminViewHostels: React.FC = () => {
             setSelectedImage(hostelDetails.photos[0]);
             setCurrentImageIndex(0);
           }
+          setIsApproved(Boolean(hostelDetails.approved));
         } else if (!cached) {
           setError("Hostel not found");
         }
@@ -53,18 +57,38 @@ const AdminViewHostels: React.FC = () => {
       });
   }, [id]);
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!hostel) return;
 
-    // Fake approval - no API call
-    console.log(`Fake approving hostel ${hostel.id}`);
-    setIsApproved(true);
-    setShowApproveSuccess(true);
+    const adminSecret = getAdminAccessCode();
+    if (!adminSecret) {
+      setActionError("Admin access code not found. Please log out and log in again.");
+      return;
+    }
 
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      setShowApproveSuccess(false);
-    }, 3000);
+    try {
+      setApproveLoading(true);
+      setActionError(null);
+
+      const success = await approveHostel(hostel.id, adminSecret);
+
+      if (success) {
+        setIsApproved(true);
+        setShowApproveSuccess(true);
+        // Update the cached hostel so the approval state survives navigation
+        const updated = { ...hostel, approved: true };
+        setHostel(updated);
+        cacheSet(CACHE_HOSTEL_DETAIL(hostel.id), updated);
+        setTimeout(() => setShowApproveSuccess(false), 3000);
+      } else {
+        setActionError("Failed to approve hostel. Please try again.");
+      }
+    } catch (err) {
+      console.error("Approve error:", err);
+      setActionError("Error approving hostel. Please try again.");
+    } finally {
+      setApproveLoading(false);
+    }
   };
 
 
@@ -441,36 +465,43 @@ const handleDelete = async () => {
                 {/* APPROVAL BUTTONS */}
                 <div className="custom-btn-row">
                   {!isApproved ? (
-                    <>
-                      <button
-                        className="custom-btn custom-btn-approve"
-                        onClick={handleApprove}
-                      >
-                        <i className="fa-solid fa-check"></i> Approve
-                      </button>
-
-                      <button
-                        className="custom-btn custom-btn-delete"
-                        onClick={() => setShowDeleteConfirm(true)}
-                        disabled={deleteLoading}
-                      >
-                        {deleteLoading ? (
-                          <>
-                            <i className="fa-solid fa-spinner fa-spin"></i> Deleting...
-                          </>
-                        ) : (
-                          <>
-                            <i className="fa-solid fa-trash"></i> Delete Hostel
-                          </>
-                        )}
-                      </button>
-                    </>
-                  ) : (
+                    <button
+                      className="custom-btn custom-btn-approve"
+                      onClick={handleApprove}
+                      disabled={approveLoading}
+                    >
+                      {approveLoading ? (
+                        <>
+                          <i className="fa-solid fa-spinner fa-spin"></i> Approving...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa-solid fa-check"></i> Approve
+                        </>
+                      )}
+                    </button>
+                  ) : showApproveSuccess ? (
                     <div className="custom-approved-message">
                       <i className="fa-solid fa-check-circle"></i>
                       <span>This hostel has been approved</span>
                     </div>
-                  )}
+                  ) : null}
+
+                  <button
+                    className="custom-btn custom-btn-delete"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={deleteLoading}
+                  >
+                    {deleteLoading ? (
+                      <>
+                        <i className="fa-solid fa-spinner fa-spin"></i> Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-trash"></i> Delete Hostel
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </>

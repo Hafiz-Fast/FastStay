@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import styles from "../styles/Login.module.css";
 import { useGoogleLogin } from "@react-oauth/google";
-import { setAuthenticatedUser, setAuthenticatedUserType, loginAsGuest } from "../utils/auth";
+import { setAuthenticatedUser, setAuthenticatedUserType, loginAsGuest, setAdminAccessCode } from "../utils/auth";
 
 const Login: React.FC = () => {
   const adminModeFromQuery = new URLSearchParams(window.location.search).get("admin") === "1";
@@ -60,6 +60,7 @@ const Login: React.FC = () => {
         });
         setAuthenticatedUser("admin");
         setAuthenticatedUserType("Admin");
+        setAdminAccessCode(adminSecret);
         window.location.href = "/admin";
       } catch (err: any) {
         setError(err.response?.data?.error || "Invalid access code.");

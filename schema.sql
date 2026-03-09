@@ -67,6 +67,8 @@ Create Table Hostel(
   GeezerFlag boolean
 );
 
+-- ALTER TABLE hostel ADD COLUMN IF NOT EXISTS isapproved boolean DEFAULT false
+
 Alter table hostel
 Alter column BlockNo Type varchar(100);
 
