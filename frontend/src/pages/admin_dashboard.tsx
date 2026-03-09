@@ -24,6 +24,7 @@ interface DashboardSummary {
   total_managers: number;
   total_hostels: number;
   total_rooms: number;
+  total_pending: number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -159,6 +160,40 @@ const AdminDashboard: React.FC = () => {
               {summaryLoading ? <SkeletonBlock width="55%" height="30px" /> : (summary?.total_rooms ?? 0)}
             </p>
           </div>
+
+          <Link
+            to="/admin/hostels/pending"
+            style={{ textDecoration: 'none', color: 'inherit', flex: 1, minWidth: '230px' }}
+          >
+            <div
+              className={styles.card}
+              style={{
+                cursor: 'pointer',
+                position: 'relative',
+                borderLeft: !summaryLoading && (summary?.total_pending ?? 0) > 0
+                  ? '4px solid #d97706'
+                  : '4px solid #8d5f3a',
+              }}
+            >
+              {!summaryLoading && (summary?.total_pending ?? 0) > 0 && (
+                <span style={{
+                  position: 'absolute', top: '12px', right: '14px',
+                  backgroundColor: '#d97706', color: 'white',
+                  borderRadius: '50%', width: '22px', height: '22px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '11px', fontWeight: '700',
+                }}>!</span>
+              )}
+              <i
+                className="fa-solid fa-hourglass-half"
+                style={{ color: !summaryLoading && (summary?.total_pending ?? 0) > 0 ? '#d97706' : '#8d5f3a' }}
+              ></i>
+              <p className={styles.cardTitle}>Pending Approvals</p>
+              <p className={styles.cardValue}>
+                {summaryLoading ? <SkeletonBlock width="55%" height="30px" /> : (summary?.total_pending ?? 0)}
+              </p>
+            </div>
+          </Link>
         </div>
 
         {/* RECENT STUDENTS */}

@@ -123,6 +123,7 @@ interface RawHostel {
   p_messprovide: boolean;
   p_geezerflag: boolean;
   p_name: string;
+  p_isapproved?: boolean;
 }
 
 // Interface for API response structure
@@ -217,7 +218,7 @@ export const CACHE_ALL_HOSTELS_RAW   = 'cache:admin:hostels:all:raw';
  * Also seeds CACHE_ALL_USERS_RAW so subsequent profile prefetches cost 0 extra network calls.
  */
 export const loadDashboardData = async (bypassCache = false): Promise<{
-  summary: { total_students: number; total_managers: number; total_hostels: number; total_rooms: number };
+  summary: { total_students: number; total_managers: number; total_hostels: number; total_rooms: number; total_pending: number };
   recentUsers: RecentUserAccount[];
   recentHostels: RecentHostel[];
 }> => {
@@ -247,6 +248,7 @@ export const loadDashboardData = async (bypassCache = false): Promise<{
     total_managers: users.filter(u => u.usertype === 'Hostel Manager').length,
     total_hostels: hostelsRes.data?.count || 0,
     total_rooms: roomsRes.data?.count || 0,
+    total_pending: allHostels.filter(h => h.p_isapproved === false).length,
   };
 
   // Recent users (top 5 by highest userid)

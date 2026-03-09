@@ -5,6 +5,18 @@ import { CACHE_ALL_USERS_RAW, CACHE_ALL_MANAGERS_RAW, CACHE_ALL_HOSTELS_RAW } fr
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
 export const CACHE_HOSTEL_DETAIL = (id: number) => `cache:admin:hostel:detail:${id}`;
+export const CACHE_PENDING_HOSTELS = 'cache:admin:hostels:pending';
+
+// ---- Lightweight type for the pending-approvals list ----
+export interface PendingHostel {
+    id: number;
+    name: string;
+    blockNo: string;
+    houseNo: string;
+    type: string;
+    managerName: string;
+    managerId: number;
+}
 
 // ---- RAW Response Interfaces ----
 
@@ -23,6 +35,7 @@ interface RawHostel {
     p_messprovide: boolean;
     p_geezerflag: boolean;
     p_name: string;
+    p_isapproved: boolean;
 }
 
 interface HostelsApiResponse {
@@ -258,7 +271,8 @@ export const getAllHostelsTableData = async (): Promise<HostelTableRow[]> => {
                 managerName: user ? `${user.fname} ${user.lname}` : 'Unknown',
                 managerPhone: manager?.p_PhoneNo || 'N/A',
                 managerType: manager?.p_ManagerType || 'N/A',
-                managerEducation: manager?.p_Education || 'N/A'
+                managerEducation: manager?.p_Education || 'N/A',
+                approved: hostel.p_isapproved,
             };
         }));
 
@@ -344,7 +358,8 @@ export const getHostelDetails = async (hostelId: number, bypassCache = false): P
             managerName: user ? `${user.fname} ${user.lname}` : 'Unknown',
             managerPhone: manager?.p_PhoneNo || 'N/A',
             managerType: manager?.p_ManagerType || 'N/A',
-            managerEducation: manager?.p_Education || 'N/A'
+            managerEducation: manager?.p_Education || 'N/A',
+            approved: hostel.p_isapproved,
         };
         cacheSet(CACHE_HOSTEL_DETAIL(hostelId), result);
         return result;
@@ -352,5 +367,54 @@ export const getHostelDetails = async (hostelId: number, bypassCache = false): P
     } catch (error: unknown) {
         console.error(`Error fetching hostel ${hostelId} details:`, error);
         return null;
+    }
+};
+
+// ---- Pending Approvals: hostels where isapproved = false ----
+export const getPendingHostels = async (bypassCache = false): Promise<PendingHostel[]> => {
+    if (!bypassCache) {
+        const cached = cacheGet<PendingHostel[]>(CACHE_PENDING_HOSTELS);
+        if (cached) return cached;
+    }
+    try {
+        const getCachedHostels = async (): Promise<RawHostel[]> => {
+            const c = cacheGet<RawHostel[]>(CACHE_ALL_HOSTELS_RAW);
+            if (c) return c;
+            const res = await axios.get<HostelsApiResponse>(`${API_BASE_URL}/faststay_app/display/all_hostels`);
+            const list = res.data.hostels || [];
+            cacheSet(CACHE_ALL_HOSTELS_RAW, list);
+            return list;
+        };
+        const getCachedUsers = async (): Promise<RawUser[]> => {
+            const c = cacheGet<RawUser[]>(CACHE_ALL_USERS_RAW);
+            if (c) return c;
+            const res = await axios.get<UsersApiResponse>(`${API_BASE_URL}/faststay_app/users/all`);
+            const list = res.data.users || [];
+            cacheSet(CACHE_ALL_USERS_RAW, list);
+            return list;
+        };
+
+        const [hostels, users] = await Promise.all([getCachedHostels(), getCachedUsers()]);
+
+        const pending: PendingHostel[] = hostels
+            .filter(h => h.p_isapproved === false)
+            .map(h => {
+                const user = users.find(u => u.userid === h.p_managerid);
+                return {
+                    id: h.p_hostelid,
+                    name: h.p_name,
+                    blockNo: h.p_blockno,
+                    houseNo: h.p_houseno,
+                    type: h.p_hosteltype,
+                    managerName: user ? `${user.fname} ${user.lname}` : 'Unknown',
+                    managerId: h.p_managerid,
+                };
+            });
+
+        cacheSet(CACHE_PENDING_HOSTELS, pending);
+        return pending;
+    } catch (err: unknown) {
+        console.error('Error fetching pending hostels:', err);
+        return [];
     }
 };
