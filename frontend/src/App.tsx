@@ -13,6 +13,7 @@ import AdminViewStudents from './pages/admin_student';
 import AdminViewManagers from './pages/admin_manager';
 import ViewHostels from './pages/admin_hostels';
 import AdminManagerProfile from './pages/admin_manager_review';
+import AdminManagerHostels from './pages/admin_manager_hostels';
 import AdminStudentProfile from './pages/admin_students_review';
 import AdminViewHostels from './pages/admin_hostels_review';
 import AdminPendingHostels from './pages/admin_pending_hostels';
@@ -64,6 +65,7 @@ function App() {
           <Route path="/admin/managers" element={<AdminViewManagers />} />
           <Route path="/admin/hostels/:id" element={<AdminViewHostels />} />
           <Route path="/admin/managers/:id" element={<AdminManagerProfile />} />
+          <Route path="/admin/managers/:id/hostels" element={<AdminManagerHostels />} />
           <Route path="/admin/students/:id" element={<AdminStudentProfile />} />
         </Route>
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />

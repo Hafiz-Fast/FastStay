@@ -528,3 +528,80 @@ export const getHostelRoomPics = async (hostelId: number): Promise<RoomPicItem[]
         return [];
     }
 };
+
+// ---- Manager Hostels: summary cards for all hostels a manager owns ----
+
+export interface ManagerHostelCard {
+    id: number;
+    name: string;
+    blockNo: string;
+    houseNo: string;
+    type: string;
+    parking: boolean;
+    rooms: number;
+    floors: number;
+    messProvide: boolean;
+    geezer: boolean;
+    photos: string[];
+    approved?: boolean;
+    avgRating: number | null;
+}
+
+interface RawRatingMH { p_hostelid: number; p_ratingstar: number; }
+interface RatingsApiResponseMH { ratings: RawRatingMH[]; }
+
+export const getManagerHostels = async (managerId: number): Promise<ManagerHostelCard[]> => {
+    try {
+        const getCachedHostels = async (): Promise<RawHostel[]> => {
+            const c = cacheGet<RawHostel[]>(CACHE_ALL_HOSTELS_RAW);
+            if (c) return c;
+            const res = await axios.get<HostelsApiResponse>(`${API_BASE_URL}/faststay_app/display/all_hostels`);
+            const list = res.data.hostels || [];
+            cacheSet(CACHE_ALL_HOSTELS_RAW, list);
+            return list;
+        };
+
+        const [hostelsList, ratingsRes] = await Promise.all([
+            getCachedHostels(),
+            axios.get<RatingsApiResponseMH>(`${API_BASE_URL}/faststay_app/display/hostel_rating`)
+                .catch(() => ({ data: { ratings: [] as RawRatingMH[] } })),
+        ]);
+
+        const managerHostels = hostelsList.filter(h => h.p_managerid === managerId);
+
+        const ratingsMap = new Map<number, number[]>();
+        (ratingsRes.data?.ratings || []).forEach(r => {
+            if (!ratingsMap.has(r.p_hostelid)) ratingsMap.set(r.p_hostelid, []);
+            ratingsMap.get(r.p_hostelid)!.push(r.p_ratingstar);
+        });
+
+        const photosResults = await Promise.all(
+            managerHostels.map(h => getHostelPictures(h.p_hostelid).catch(() => [] as string[]))
+        );
+
+        return managerHostels.map((hostel, idx) => {
+            const stars = ratingsMap.get(hostel.p_hostelid);
+            const avgRating = stars && stars.length > 0
+                ? stars.reduce((a, b) => a + b, 0) / stars.length
+                : null;
+            return {
+                id: hostel.p_hostelid,
+                name: hostel.p_name,
+                blockNo: hostel.p_blockno,
+                houseNo: hostel.p_houseno,
+                type: hostel.p_hosteltype,
+                parking: hostel.p_isparking,
+                rooms: hostel.p_numrooms,
+                floors: hostel.p_numfloors,
+                messProvide: hostel.p_messprovide,
+                geezer: hostel.p_geezerflag,
+                photos: photosResults[idx],
+                approved: hostel.p_isapproved,
+                avgRating,
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching manager hostels:", error);
+        return [];
+    }
+};

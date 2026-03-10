@@ -1639,11 +1639,45 @@ const AdminManagerProfile: React.FC = () => {
             {/* Action Buttons */}
             <div style={{
               display: "flex",
-              justifyContent: "flex-start",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "12px",
               marginTop: "30px",
               padding: "20px",
               borderTop: "1px solid #eaeaea"
             }}>
+              {/* View Managed Hostels */}
+              <Link
+                to={`/admin/managers/${id}/hostels`}
+                style={{
+                  padding: "12px 28px",
+                  background: "linear-gradient(135deg, #5c3d2e, #8d5f3a)",
+                  color: "#f8f3e7",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  textDecoration: "none",
+                  boxShadow: "0 4px 12px rgba(92, 61, 46, 0.25)",
+                  transition: "all 0.3s",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 6px 16px rgba(92, 61, 46, 0.4)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(92, 61, 46, 0.25)";
+                }}
+              >
+                <i className="fa-solid fa-building"></i> View Managed Hostels
+              </Link>
+
+              {/* Delete Manager */}
               <button
                 style={{
                   padding: "12px 28px",
@@ -1652,7 +1686,7 @@ const AdminManagerProfile: React.FC = () => {
                   border: "none",
                   borderRadius: "8px",
                   cursor: deleteLoading ? "not-allowed" : "pointer",
-                  fontSize: "16px",
+                  fontSize: "15px",
                   fontWeight: "600",
                   display: "flex",
                   alignItems: "center",
