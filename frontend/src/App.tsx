@@ -16,6 +16,7 @@ import AdminManagerProfile from './pages/admin_manager_review';
 import AdminStudentProfile from './pages/admin_students_review';
 import AdminViewHostels from './pages/admin_hostels_review';
 import AdminPendingHostels from './pages/admin_pending_hostels';
+import AdminSuggestions from './pages/admin_suggestions';
 import LogoutConfirm from './pages/admin_signout';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -58,6 +59,7 @@ function App() {
           <Route path="/admin/logout" element={<LogoutConfirm />} />
           <Route path="/admin/hostels" element={<ViewHostels />} />
           <Route path="/admin/hostels/pending" element={<AdminPendingHostels />} />
+          <Route path="/admin/suggestions" element={<AdminSuggestions />} />
           <Route path="/admin/students" element={<AdminViewStudents />} />
           <Route path="/admin/managers" element={<AdminViewManagers />} />
           <Route path="/admin/hostels/:id" element={<AdminViewHostels />} />

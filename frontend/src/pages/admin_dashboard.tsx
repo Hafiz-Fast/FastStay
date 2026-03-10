@@ -15,6 +15,7 @@ import { cacheGet } from "../utils/cache";
 import { getStudentProfile } from "../api/admin_students_review";
 import { getManagerProfile } from "../api/admin_manager_review";
 import { getHostelDetails } from "../api/admin_hostels_review";
+import { getAllSuggestions, CACHE_SUGGESTIONS } from "../api/admin_suggestions";
 import SkeletonRow, { SkeletonBlock } from "../components/SkeletonRow";
 import styles from "../styles/admin_dashboard.module.css";
 
@@ -31,6 +32,7 @@ const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [recentUsers, setRecentUsers] = useState<RecentUserAccount[]>([]);
   const [recentHostels, setRecentHostels] = useState<RecentHostel[]>([]);
+  const [totalSuggestions, setTotalSuggestions] = useState<number | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -41,14 +43,16 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // ── Phase 1: Paint cached data instantly (zero network wait on revisits) ──
+      // Phase 1: Paint cached data instantly (zero network wait on revisits) ──
       const cachedSummary = cacheGet<DashboardSummary>(CACHE_DASHBOARD);
       const cachedUsers   = cacheGet<RecentUserAccount[]>(`${CACHE_RECENT_USERS}:5`);
       const cachedHostels = cacheGet<RecentHostel[]>(`${CACHE_RECENT_HOSTELS}:5`);
+      const cachedSuggestions = cacheGet<unknown[]>(CACHE_SUGGESTIONS);
 
       if (cachedSummary) { setSummary(cachedSummary);       setSummaryLoading(false); }
       if (cachedUsers)   { setRecentUsers(cachedUsers);     setUsersLoading(false); }
       if (cachedHostels) { setRecentHostels(cachedHostels); setHostelsLoading(false); }
+      if (cachedSuggestions) { setTotalSuggestions(cachedSuggestions.length); }
 
       // Phase 1 prefetch: warm up caches for recent profiles in background
       if (cachedUsers) {
@@ -69,6 +73,9 @@ const AdminDashboard: React.FC = () => {
         setSummary(freshSummary);       setSummaryLoading(false);
         setRecentUsers(freshUsers);     setUsersLoading(false);
         setRecentHostels(freshHostels); setHostelsLoading(false);
+
+        // Fetch suggestions count in background
+        getAllSuggestions(true).then(s => setTotalSuggestions(s.length)).catch(() => {});
 
         // Phase 2 prefetch: warm up caches for fresh recent profiles
         freshUsers.forEach(u => {
@@ -191,6 +198,40 @@ const AdminDashboard: React.FC = () => {
               <p className={styles.cardTitle}>Pending Approvals</p>
               <p className={styles.cardValue}>
                 {summaryLoading ? <SkeletonBlock width="55%" height="30px" /> : (summary?.total_pending ?? 0)}
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            to="/admin/suggestions"
+            style={{ textDecoration: 'none', color: 'inherit', flex: 1, minWidth: '230px' }}
+          >
+            <div
+              className={styles.card}
+              style={{
+                cursor: 'pointer',
+                position: 'relative',
+                borderLeft: totalSuggestions !== null && totalSuggestions > 0
+                  ? '4px solid #5c6bc0'
+                  : '4px solid #8d5f3a',
+              }}
+            >
+              {totalSuggestions !== null && totalSuggestions > 0 && (
+                <span style={{
+                  position: 'absolute', top: '12px', right: '14px',
+                  backgroundColor: '#5c6bc0', color: 'white',
+                  borderRadius: '50%', width: '22px', height: '22px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '11px', fontWeight: '700',
+                }}>{totalSuggestions > 9 ? '9+' : totalSuggestions}</span>
+              )}
+              <i
+                className="fa-solid fa-lightbulb"
+                style={{ color: totalSuggestions !== null && totalSuggestions > 0 ? '#5c6bc0' : '#8d5f3a' }}
+              ></i>
+              <p className={styles.cardTitle}>User Suggestions</p>
+              <p className={styles.cardValue}>
+                {totalSuggestions === null ? <SkeletonBlock width="55%" height="30px" /> : totalSuggestions}
               </p>
             </div>
           </Link>
