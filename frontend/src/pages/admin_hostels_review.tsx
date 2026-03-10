@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getHostelDetails, deleteHostel, approveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses } from "../api/admin_hostels_review";
+import { getHostelDetails, deleteHostel, approveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses, getHostelRooms, type HostelRoom, getHostelRoomPics, type RoomPicItem } from "../api/admin_hostels_review";
 import { cacheGet, cacheSet } from "../utils/cache";
 import { getAdminAccessCode } from "../utils/auth";
 import { SkeletonBlock } from "../components/SkeletonRow";
@@ -21,10 +21,12 @@ const AdminViewHostels: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'facilities'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'facilities' | 'rooms'>('overview');
   const [expenses, setExpenses] = useState<HostelExpenses | null>(null);
   const [securityInfo, setSecurityInfo] = useState<Record<string, any> | null>(null);
   const [messInfo, setMessInfo] = useState<Record<string, any> | null>(null);
+  const [rooms, setRooms] = useState<HostelRoom[]>([]);
+  const [roomPics, setRoomPics] = useState<RoomPicItem[]>([]);
   const [tabLoading, setTabLoading] = useState(false);
   const tabsLoadedRef = useRef<Record<string, boolean>>({});
 
@@ -69,6 +71,8 @@ const AdminViewHostels: React.FC = () => {
     setExpenses(null);
     setSecurityInfo(null);
     setMessInfo(null);
+    setRooms([]);
+    setRoomPics([]);
   }, [id]);
 
   useEffect(() => {
@@ -85,6 +89,12 @@ const AdminViewHostels: React.FC = () => {
       setTabLoading(true);
       Promise.all([getHostelSecurityInfo(hostelId), getHostelMessInfo(hostelId)])
         .then(([sec, mess]) => { setSecurityInfo(sec); setMessInfo(mess); setTabLoading(false); })
+        .catch(() => setTabLoading(false));
+    } else if (activeTab === 'rooms' && !tabsLoadedRef.current['rooms']) {
+      tabsLoadedRef.current = { ...tabsLoadedRef.current, rooms: true };
+      setTabLoading(true);
+      Promise.all([getHostelRooms(hostelId), getHostelRoomPics(hostelId)])
+        .then(([data, pics]) => { setRooms(data); setRoomPics(pics); setTabLoading(false); })
         .catch(() => setTabLoading(false));
     }
   }, [activeTab, id]);
@@ -341,15 +351,26 @@ const handleDelete = async () => {
                   { key: 'overview' as const, label: 'Overview', icon: 'fa-building' },
                   { key: 'expenses' as const, label: 'Expenses', icon: 'fa-money-bill-wave' },
                   { key: 'facilities' as const, label: 'Security & Mess', icon: 'fa-shield-halved' },
+                  { key: 'rooms' as const, label: 'Rooms', icon: 'fa-door-open' },
                 ]).map(tab => (
                   <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-                    flex: 1, padding: '10px 14px', border: 'none', borderRadius: '7px', cursor: 'pointer',
+                    flex: 1, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
                     fontSize: '13px', fontWeight: activeTab === tab.key ? '600' : '400',
-                    background: activeTab === tab.key ? '#5c3d2e' : 'transparent',
+                    background: activeTab === tab.key
+                      ? '#5c3d2e'
+                      : tab.key === 'rooms'
+                        ? 'rgba(92,61,46,0.12)'
+                        : 'transparent',
                     color: activeTab === tab.key ? '#f8f3e7' : '#6b4e38',
+                    border: tab.key === 'rooms' && activeTab !== 'rooms' ? '1.5px dashed #a07850' : 'none',
                     transition: 'all 0.18s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
                   }}>
                     <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
+                    {tab.key === 'rooms' && activeTab !== 'rooms' && (
+                      <span style={{ background: '#8d5f3a', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 7px', marginLeft: '2px', fontWeight: 600 }}>
+                        {hostel.rooms}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -636,6 +657,123 @@ const handleDelete = async () => {
                         </div>
                       </div>
                     </>
+                  )}
+                </div>
+              )}
+
+              {/* ROOMS TAB */}
+              {activeTab === 'rooms' && (
+                <div className="custom-card">
+                  <h3 className="custom-section-title">
+                    <i className="fa-solid fa-door-open" style={{ marginRight: '8px', color: '#8d5f3a' }}></i>
+                    Rooms ({rooms.length})
+                  </h3>
+                  {tabLoading ? (
+                    <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+                      <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '26px' }}></i>
+                      <p style={{ marginTop: '12px' }}>Loading rooms...</p>
+                    </div>
+                  ) : rooms.length === 0 ? (
+                    <div style={{ padding: '24px 0', color: '#888', fontSize: '14px' }}>
+                      <i className="fa-solid fa-circle-info" style={{ marginRight: '6px' }}></i>No rooms registered for this hostel yet.
+                    </div>
+                  ) : (
+                    (() => {
+                      const byFloor = rooms.reduce<Record<number, HostelRoom[]>>((acc, r) => {
+                        if (!acc[r.p_FloorNo]) acc[r.p_FloorNo] = [];
+                        acc[r.p_FloorNo].push(r);
+                        return acc;
+                      }, {});
+                      return Object.keys(byFloor)
+                        .sort((a, b) => Number(a) - Number(b))
+                        .map(floor => (
+                          <div key={floor} style={{ marginBottom: '28px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                              <div style={{ background: '#5c3d2e', color: '#f8f3e7', borderRadius: '8px', padding: '5px 14px', fontSize: '13px', fontWeight: 600 }}>
+                                <i className="fa-solid fa-layer-group" style={{ marginRight: '6px' }}></i>Floor {floor}
+                              </div>
+                              <div style={{ height: '1px', flex: 1, background: '#dbc8b8' }} />
+                              <span style={{ fontSize: '12px', color: '#8d7060' }}>{byFloor[Number(floor)].length} room(s)</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+                              {byFloor[Number(floor)].map((room, idx) => {
+                                const picUrl = (
+                                  roomPics.find(p => p.p_RoomSeaterNo === room.p_SeaterNo)
+                                  ?? roomPics.find(p => p.p_PhotoLink != null)
+                                )?.p_PhotoLink ?? null;
+                                return (
+                                <div key={idx} className="custom-info-box" style={{ padding: '0', borderRadius: '12px', overflow: 'hidden' }}>
+                                  {/* Room pic */}
+                                  {picUrl ? (
+                                    <img src={picUrl} alt={`Room ${idx + 1}`} style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }} />
+                                  ) : (
+                                    <div style={{ width: '100%', height: '100px', background: '#e8ddd4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                      <i className="fa-solid fa-image" style={{ fontSize: '24px', color: '#b5a090' }}></i>
+                                      <span style={{ fontSize: '11px', color: '#b5a090' }}>No photo</span>
+                                    </div>
+                                  )}
+                                  <div style={{ padding: '14px 16px' }}>
+                                  {/* Rent header */}
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                                    <div style={{ fontSize: '13px', color: '#6a5c54' }}>Room #{idx + 1}</div>
+                                    <div style={{ background: '#e8f5e9', color: '#2e7d32', borderRadius: '20px', padding: '4px 12px', fontWeight: 700, fontSize: '14px' }}>
+                                      PKR {Number(room.p_RoomRent).toLocaleString()}
+                                      <span style={{ fontSize: '11px', fontWeight: 400, marginLeft: '3px' }}>/mo</span>
+                                    </div>
+                                  </div>
+                                  {/* Key stats row */}
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                                    <div>
+                                      <div className="custom-info-label">Capacity</div>
+                                      <div className="custom-info-value" style={{ fontSize: '14px' }}>
+                                        <i className="fa-solid fa-users" style={{ marginRight: '5px', color: '#8d5f3a' }}></i>{room.p_SeaterNo} seater
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="custom-info-label">Bed Type</div>
+                                      <div className="custom-info-value" style={{ fontSize: '14px' }}>
+                                        <i className="fa-solid fa-bed" style={{ marginRight: '5px', color: '#8d5f3a' }}></i>{room.p_BedType}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="custom-info-label">Washroom</div>
+                                      <div className="custom-info-value" style={{ fontSize: '14px' }}>
+                                        <i className="fa-solid fa-shower" style={{ marginRight: '5px', color: '#8d5f3a' }}></i>{room.p_WashroomType}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="custom-info-label">Cupboard</div>
+                                      <div className="custom-info-value" style={{ fontSize: '14px' }}>
+                                        <i className="fa-solid fa-box-archive" style={{ marginRight: '5px', color: '#8d5f3a' }}></i>{room.p_CupboardType}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {/* Amenity pills */}
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                    {[
+                                      { flag: room.p_isVentilated, label: 'Ventilated', icon: 'fa-wind' },
+                                      { flag: room.p_isCarpet, label: 'Carpet', icon: 'fa-rug' },
+                                      { flag: room.p_isMiniFridge, label: 'Mini Fridge', icon: 'fa-snowflake' },
+                                    ].map(am => (
+                                      <span key={am.label} style={{
+                                        padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 500,
+                                        background: am.flag ? '#e3f1e3' : '#f5f0ec',
+                                        color: am.flag ? '#2e7d32' : '#9e8a7a',
+                                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                      }}>
+                                        <i className={`fa-solid ${am.icon}`}></i>
+                                        {am.label}: {am.flag ? 'Yes' : 'No'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  </div>{/* end padding wrapper */}
+                                </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ));
+                    })()
                   )}
                 </div>
               )}

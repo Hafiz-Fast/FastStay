@@ -470,3 +470,48 @@ export const getHostelMessInfo = async (hostelId: number): Promise<Record<string
         return null;
     }
 };
+
+// ---- Hostel Rooms ----
+export interface HostelRoom {
+    p_FloorNo: number;
+    p_SeaterNo: number;
+    p_BedType: string;
+    p_WashroomType: string;
+    p_CupboardType: string;
+    p_RoomRent: number;
+    p_isVentilated: boolean;
+    p_isCarpet: boolean;
+    p_isMiniFridge: boolean;
+}
+
+export const getHostelRooms = async (hostelId: number): Promise<HostelRoom[]> => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/faststay_app/Rooms/DisplayAllHostel/`, {
+            p_HostelId: hostelId,
+        });
+        if (response.data?.success && Array.isArray(response.data?.result)) {
+            return response.data.result as HostelRoom[];
+        }
+        return [];
+    } catch {
+        return [];
+    }
+};
+
+// ---- Room Pics ----
+export interface RoomPicItem {
+    p_PhotoLink: string | null;
+    p_RoomSeaterNo: number;
+}
+
+export const getHostelRoomPics = async (hostelId: number): Promise<RoomPicItem[]> => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/faststay_app/display/room_pic`, {
+            params: { p_HostelId: hostelId },
+        });
+        if (Array.isArray(response.data)) return response.data as RoomPicItem[];
+        return [];
+    } catch {
+        return [];
+    }
+};
