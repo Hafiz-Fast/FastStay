@@ -453,6 +453,33 @@
   background-color: #c82333 !important;
 }
 
+.custom-btn-confirm-disapprove {
+  background-color: #e67e22 !important;
+  color: white !important;
+}
+
+.custom-btn-confirm-disapprove:hover {
+  background-color: #ca6f1e !important;
+}
+
+.custom-btn-disapprove {
+  background: linear-gradient(135deg, #ca6f1e, #e67e22) !important;
+  color: white !important;
+  min-width: 150px;
+  justify-content: center;
+}
+
+.custom-btn-disapprove:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b9600f, #ca6f1e) !important;
+}
+
+.custom-btn-disapprove:disabled {
+  background: linear-gradient(135deg, #ca6f1e88, #e67e2288) !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .custom-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;

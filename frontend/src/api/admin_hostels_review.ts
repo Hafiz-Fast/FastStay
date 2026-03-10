@@ -128,6 +128,19 @@ export const approveHostel = async (hostelId: number, adminSecret: string): Prom
     }
 };
 
+export const disapproveHostel = async (hostelId: number, adminSecret: string): Promise<boolean> => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/faststay_app/hosteldetails/disapprove`,
+            { p_HostelId: hostelId, admin_secret: adminSecret }
+        );
+        return response.data.success || false;
+    } catch (error: unknown) {
+        console.error(`Error disapproving hostel ${hostelId}:`, error);
+        return false;
+    }
+};
+
 // In your admin_hostels_review.ts file, update the deleteHostel function:
 
 export const deleteHostel = async (hostelId: number): Promise<boolean> => {

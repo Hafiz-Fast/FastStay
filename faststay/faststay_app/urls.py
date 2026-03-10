@@ -31,6 +31,7 @@ from faststay_app.views.rating_views.delete import DeleteHostelRatingView
 from faststay_app.views.rating_views.display import DisplayRatingsView
 from faststay_app.views.display_views.detail_all_hostels import DisplayAllHostelsView
 from faststay_app.views.approve_hostel_view import ApproveHostelView
+from faststay_app.views.disapprove_hostel_view import DisapproveHostelView
 from faststay_app.views.display_views.details_hostel_mess import DetailsHostelMess
 from faststay_app.views.display_views.details_kitchen import DetailsKitchen
 from faststay_app.views.display_views.hostel_pic import HostelPicView
@@ -85,6 +86,7 @@ urlpatterns=[
     path('login/', LoginView.as_view(), name='login'),
     path('admin/verify-access/', AdminAccessView.as_view(), name='admin_verify_access'),
     path('hosteldetails/approve', ApproveHostelView.as_view(), name='approve_hostel_details'),
+    path('hosteldetails/disapprove', DisapproveHostelView.as_view(), name='disapprove_hostel_details'),
     path('hosteldetails/delete', DeleteHostelDetailsView.as_view(), name='delete_hostel_details'),
     path('hostel_pics/add', AddHostelPics.as_view(), name='add_hostel_pics'),
     path('room_pics/add', AddRoomPics.as_view(), name='add_room_pics'),

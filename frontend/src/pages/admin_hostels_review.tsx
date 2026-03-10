@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getHostelDetails, deleteHostel, approveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses, getHostelRooms, type HostelRoom, getHostelRoomPics, type RoomPicItem } from "../api/admin_hostels_review";
+import { getHostelDetails, deleteHostel, approveHostel, disapproveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses, getHostelRooms, type HostelRoom, getHostelRoomPics, type RoomPicItem } from "../api/admin_hostels_review";
 import { cacheGet, cacheSet } from "../utils/cache";
 import { getAdminAccessCode } from "../utils/auth";
 import { SkeletonBlock } from "../components/SkeletonRow";
@@ -20,6 +20,8 @@ const AdminViewHostels: React.FC = () => {
   const [showApproveSuccess, setShowApproveSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showDisapproveConfirm, setShowDisapproveConfirm] = useState(false);
+  const [disapproveLoading, setDisapproveLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'facilities' | 'rooms'>('overview');
   const [expenses, setExpenses] = useState<HostelExpenses | null>(null);
@@ -168,8 +170,37 @@ const handleDelete = async () => {
     }
 };
 
-
-
+  const handleDisapprove = async () => {
+    if (!hostel) return;
+    const adminSecret = getAdminAccessCode();
+    if (!adminSecret) {
+      setActionError("Admin access code not found. Please log out and log in again.");
+      setShowDisapproveConfirm(false);
+      return;
+    }
+    try {
+      setDisapproveLoading(true);
+      setActionError(null);
+      const success = await disapproveHostel(hostel.id, adminSecret);
+      if (success) {
+        setIsApproved(false);
+        const updated = { ...hostel, approved: false };
+        setHostel(updated);
+        cacheSet(CACHE_HOSTEL_DETAIL(hostel.id), updated);
+        setShowApproveSuccess(false);
+        setActionError("Hostel disapproved successfully!");
+        setTimeout(() => setActionError(null), 3000);
+      } else {
+        setActionError("Failed to disapprove hostel. Please try again.");
+      }
+    } catch (err) {
+      console.error("Disapprove error:", err);
+      setActionError("Error disapproving hostel. Please try again.");
+    } finally {
+      setDisapproveLoading(false);
+      setShowDisapproveConfirm(false);
+    }
+  };
 
   const handleNextImage = () => {
     if (hostel?.photos && hostel.photos.length > 0) {
@@ -578,12 +609,27 @@ const handleDelete = async () => {
                         </>
                       )}
                     </button>
-                  ) : showApproveSuccess ? (
-                    <div className="custom-approved-message">
-                      <i className="fa-solid fa-check-circle"></i>
-                      <span>This hostel has been approved</span>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      {showApproveSuccess && (
+                        <div className="custom-approved-message">
+                          <i className="fa-solid fa-check-circle"></i>
+                          <span>Hostel approved!</span>
+                        </div>
+                      )}
+                      <button
+                        className="custom-btn custom-btn-disapprove"
+                        onClick={() => setShowDisapproveConfirm(true)}
+                        disabled={disapproveLoading}
+                      >
+                        {disapproveLoading ? (
+                          <><i className="fa-solid fa-spinner fa-spin"></i> Disapproving...</>
+                        ) : (
+                          <><i className="fa-solid fa-ban"></i> Disapprove</>
+                        )}
+                      </button>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
               )}
@@ -835,6 +881,44 @@ const handleDelete = async () => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Disapprove Confirmation Modal */}
+          {showDisapproveConfirm && (
+            <div className="custom-modal-overlay">
+              <div className="custom-modal">
+                <div className="custom-modal-header">
+                  <i className="fa-solid fa-ban" style={{ color: '#e67e22', marginRight: '10px' }}></i>
+                  <h3>Confirm Disapproval</h3>
+                </div>
+                <div className="custom-modal-body">
+                  <p>Are you sure you want to disapprove <strong>{hostel?.name}</strong>?</p>
+                  <p className="custom-warning-text">
+                    <i className="fa-solid fa-exclamation-circle"></i> The hostel will no longer be visible to students and will require re-approval.
+                  </p>
+                </div>
+                <div className="custom-modal-footer">
+                  <button
+                    className="custom-btn custom-btn-cancel"
+                    onClick={() => setShowDisapproveConfirm(false)}
+                    disabled={disapproveLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="custom-btn custom-btn-confirm-disapprove"
+                    onClick={handleDisapprove}
+                    disabled={disapproveLoading}
+                  >
+                    {disapproveLoading ? (
+                      <><i className="fa-solid fa-spinner fa-spin"></i> Disapproving...</>
+                    ) : (
+                      <><i className="fa-solid fa-ban"></i> Disapprove</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Delete Confirmation Modal */}
