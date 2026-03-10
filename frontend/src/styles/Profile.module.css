@@ -46,6 +46,12 @@
     color: #f8f3e7;
 }
 
+/* Fixed page header so title/subtitle don't shift on load */
+.pageHeader {
+    min-height: 80px;
+    padding: 16px 0 12px;
+}
+
 .pageTitle {
     font-size: 26px;
     color: #f8f3e7;
@@ -55,6 +61,13 @@
 .subtitle {
     margin: 6px 0 25px;
     color: #d4c9bb;
+}
+
+/* Content area reserves space so pageHeader never shifts */
+.contentArea {
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Messages */
@@ -83,6 +96,10 @@
 }
 
 .loading {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 3rem;
     color: #d4c9bb;
@@ -536,15 +553,12 @@
         padding: 1rem;
     }
 
-    .navLinks {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
+    .hamburger {
+        display: block;
     }
 
-    .navLinks a {
-        margin-left: 0;
+    .navLinks {
+        display: none;
     }
 
     .formButtons {
@@ -556,7 +570,11 @@
     }
 
     .container {
-        padding: 100px 20px 40px;
+        padding: 75px 20px 40px;
+    }
+
+    .pageHeader {
+        top: 60px;
     }
 }
 

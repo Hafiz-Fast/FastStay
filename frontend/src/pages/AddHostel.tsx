@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/AddHostel.module.css";
 import { Link } from "react-router-dom";
+import ManagerSidenav from "../components/ManagerSidenav";
 import BasicInfoSection from "./hostel-sections/BasicInfoSection";
 import MessDetailsSection from "./hostel-sections/MessDetailsSection";
 import KitchenDetailsSection from "./hostel-sections/KitchenDetailsSection";
@@ -484,6 +485,8 @@ export default function AddHostel() {
 
     return (
         <>
+            <ManagerSidenav managerId={managerId} activePage="add_hostel" />
+
             {/* NAVBAR */}
             <nav className={styles.navbar}>
                 <div className={styles.logo}>

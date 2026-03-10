@@ -1,0 +1,127 @@
+/* Hamburger button — hidden on desktop */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1100;
+  background: #2b211c;
+  color: #f8f3e7;
+  border: none;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Overlay */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1200;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.overlayVisible {
+  display: block;
+  opacity: 1;
+}
+
+/* Side navigation panel */
+.sidenav {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 270px;
+  height: 100%;
+  background: #2b211c;
+  z-index: 1300;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.sidenav.open {
+  left: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(248, 243, 231, 0.15);
+}
+
+.logo {
+  color: #f8f3e7;
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo i {
+  color: #d4b498;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #f8f3e7;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.navList {
+  list-style: none;
+  padding: 12px 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: rgba(248, 243, 231, 0.7);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.navItem:hover {
+  background: rgba(248, 243, 231, 0.08);
+  color: #f8f3e7;
+}
+
+.navItem.active {
+  background: rgba(141, 95, 58, 0.25);
+  color: #d4b498;
+  border-left: 3px solid #d4b498;
+}
+
+.navItem i {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Show only on mobile */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../styles/ManagerAnalytics.module.css";
+import ManagerSidenav from "../components/ManagerSidenav";
 
 interface Hostel {
     p_HostelId: number;
@@ -51,7 +52,8 @@ export default function ManagerAnalytics() {
 
     return (
         <div className={styles.screen}>
-            
+            <ManagerSidenav managerId={managerId} activePage="analytics" />
+
             {/* NAVBAR */}
             <nav className={styles.navbar}>
                 <div className={styles.logo}>
