@@ -9,6 +9,7 @@ import {
   CACHE_DASHBOARD,
   CACHE_RECENT_USERS,
   CACHE_RECENT_HOSTELS,
+  CACHE_ALL_USERS_RAW,
 } from "../api/admin_dashboard";
 
 import { cacheGet } from "../utils/cache";
@@ -28,6 +29,35 @@ interface DashboardSummary {
   total_pending: number;
 }
 
+// ---- Notification helpers (persist dismissed IDs in localStorage, no DB required) ----
+const NOTIF_DISMISSED_KEY = 'faststay_admin:dismissed_notif_ids';
+const readDismissed = (): Set<number> => {
+  try {
+    const raw = localStorage.getItem(NOTIF_DISMISSED_KEY);
+    return new Set(raw ? (JSON.parse(raw) as number[]) : []);
+  } catch (_err) { return new Set(); }
+};
+const saveDismissed = (ids: Set<number>): void => {
+  try { localStorage.setItem(NOTIF_DISMISSED_KEY, JSON.stringify([...ids])); } catch (_err) {}
+};
+type RawUserNotif = { userid: number; usertype: string; fname: string; lname: string; city: string; };
+interface NotifItem { userid: number; name: string; city: string; userType: 'Student' | 'Hostel Manager'; }
+const buildNotifications = (users: RawUserNotif[]): NotifItem[] => {
+  const dismissed = readDismissed();
+  const pick = (type: string) => users
+    .filter(u => u.usertype === type)
+    .sort((a, b) => b.userid - a.userid)
+    .slice(0, 25);
+  return [...pick('Student'), ...pick('Hostel Manager')]
+    .filter(u => !dismissed.has(u.userid))
+    .map(u => ({
+      userid: u.userid,
+      name: `${u.fname} ${u.lname}`.trim(),
+      city: u.city,
+      userType: u.usertype as 'Student' | 'Hostel Manager',
+    }));
+};
+
 const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [recentUsers, setRecentUsers] = useState<RecentUserAccount[]>([]);
@@ -40,6 +70,8 @@ const AdminDashboard: React.FC = () => {
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
   const [hostelsLoading, setHostelsLoading] = useState(true);
+  const [notifications, setNotifications] = useState<NotifItem[]>([]);
+  const [notifLoading, setNotifLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,6 +85,11 @@ const AdminDashboard: React.FC = () => {
       if (cachedUsers)   { setRecentUsers(cachedUsers);     setUsersLoading(false); }
       if (cachedHostels) { setRecentHostels(cachedHostels); setHostelsLoading(false); }
       if (cachedSuggestions) { setTotalSuggestions(cachedSuggestions.length); }
+      const cachedRawUsers = cacheGet<RawUserNotif[]>(CACHE_ALL_USERS_RAW);
+      if (cachedRawUsers) {
+        setNotifications(buildNotifications(cachedRawUsers));
+        setNotifLoading(false);
+      }
 
       // Phase 1 prefetch: warm up caches for recent profiles in background
       if (cachedUsers) {
@@ -73,6 +110,9 @@ const AdminDashboard: React.FC = () => {
         setSummary(freshSummary);       setSummaryLoading(false);
         setRecentUsers(freshUsers);     setUsersLoading(false);
         setRecentHostels(freshHostels); setHostelsLoading(false);
+        const freshRawUsers = cacheGet<RawUserNotif[]>(CACHE_ALL_USERS_RAW);
+        if (freshRawUsers) setNotifications(buildNotifications(freshRawUsers));
+        setNotifLoading(false);
 
         // Fetch suggestions count in background
         getAllSuggestions(true).then(s => setTotalSuggestions(s.length)).catch(() => {});
@@ -95,6 +135,7 @@ const AdminDashboard: React.FC = () => {
         setSummaryLoading(false);
         setUsersLoading(false);
         setHostelsLoading(false);
+        setNotifLoading(false);
       }
     };
     fetchData();
@@ -113,6 +154,22 @@ const AdminDashboard: React.FC = () => {
         return "#";
     }
   };
+
+  const dismissNotif = (userid: number) => {
+    const set = readDismissed();
+    set.add(userid);
+    saveDismissed(set);
+    setNotifications(prev => prev.filter(n => n.userid !== userid));
+  };
+  const clearAllNotifs = () => {
+    const set = readDismissed();
+    notifications.forEach(n => set.add(n.userid));
+    saveDismissed(set);
+    setNotifications([]);
+  };
+
+  const notifsStudents = notifications.filter(n => n.userType === 'Student');
+  const notifsManagers = notifications.filter(n => n.userType === 'Hostel Manager');
 
   return (
     <>
@@ -237,6 +294,190 @@ const AdminDashboard: React.FC = () => {
             </div>
           </Link>
         </div>
+
+        {/* NEW REGISTRATIONS NOTIFICATION PANEL */}
+        {(notifLoading || notifications.length > 0) && (
+          <div style={{
+            background: '#fffbf7',
+            border: '1px solid #e8ddd4',
+            borderRadius: '12px',
+            marginBottom: '28px',
+            overflow: 'hidden',
+            boxShadow: '0 2px 10px rgba(43,33,28,0.08)',
+          }}>
+            {/* Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #5c3d2e 0%, #8d5f3a 100%)',
+              padding: '14px 20px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#f8f3e7' }}>
+                <div style={{ position: 'relative', display: 'inline-flex' }}>
+                  <i className="fa-solid fa-bell" style={{ fontSize: '18px' }}></i>
+                  {!notifLoading && notifications.length > 0 && (
+                    <span style={{
+                      position: 'absolute', top: '-7px', right: '-10px',
+                      background: '#d97706', color: '#fff',
+                      borderRadius: '50%', fontSize: '10px', fontWeight: 800,
+                      width: '18px', height: '18px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>{notifications.length > 9 ? '9+' : notifications.length}</span>
+                  )}
+                </div>
+                <span style={{ fontWeight: 700, fontSize: '15px' }}>New Registrations</span>
+              </div>
+              {!notifLoading && notifications.length > 0 && (
+                <button
+                  onClick={clearAllNotifs}
+                  style={{
+                    background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.35)',
+                    color: '#f8f3e7', borderRadius: '6px', padding: '5px 14px',
+                    cursor: 'pointer', fontSize: '12px', fontWeight: 500,
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  }}
+                >
+                  <i className="fa-solid fa-check-double"></i> Dismiss All
+                </button>
+              )}
+            </div>
+
+            {/* Body */}
+            {notifLoading ? (
+              <div style={{ padding: '28px', textAlign: 'center', color: '#888' }}>
+                <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '24px' }}></i>
+                <p style={{ marginTop: '10px', fontSize: '14px' }}>Loading new registrations...</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+
+                {/* Students column */}
+                {notifsStudents.length > 0 && (
+                  <div style={{ flex: '1 1 300px', borderRight: notifsManagers.length > 0 ? '1px solid #e8ddd4' : 'none' }}>
+                    <div style={{
+                      padding: '9px 18px', background: '#fdf6ef',
+                      borderBottom: '1px solid #f0e7dc',
+                      display: 'flex', alignItems: 'center', gap: '7px',
+                      fontSize: '12px', fontWeight: 700, color: '#5c3d2e',
+                      textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}>
+                      <i className="fa-solid fa-user-graduate"></i> Students
+                      <span style={{ background: '#7D5D4E', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 7px', fontWeight: 600 }}>
+                        {notifsStudents.length}
+                      </span>
+                    </div>
+                    <div style={{ maxHeight: '290px', overflowY: 'auto' }}>
+                      {notifsStudents.map(n => (
+                        <div key={n.userid} style={{
+                          display: 'flex', alignItems: 'center', gap: '12px',
+                          padding: '11px 18px', borderBottom: '1px solid #f5f0ec',
+                        }}>
+                          <div style={{
+                            width: '36px', height: '36px', borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #7D5D4E, #5c3d2e)',
+                            color: '#f8f3e7', fontWeight: 700, fontSize: '14px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          }}>{n.name.charAt(0).toUpperCase()}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#2b211c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.name}</div>
+                            <div style={{ fontSize: '12px', color: '#8d7060' }}>
+                              <i className="fa-solid fa-location-dot" style={{ marginRight: '4px' }}></i>{n.city}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                            <Link
+                              to={`/admin/students/${n.userid}`}
+                              onClick={() => dismissNotif(n.userid)}
+                              style={{
+                                padding: '5px 13px', background: '#5c3d2e', color: '#f8f3e7',
+                                borderRadius: '6px', textDecoration: 'none',
+                                fontSize: '12px', fontWeight: 600,
+                                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                              }}
+                            >
+                              <i className="fa-solid fa-eye"></i> View
+                            </Link>
+                            <button
+                              onClick={() => dismissNotif(n.userid)}
+                              title="Dismiss"
+                              style={{
+                                padding: '5px 9px', background: '#f0e7dc',
+                                border: 'none', borderRadius: '6px',
+                                cursor: 'pointer', color: '#8d5f3a', fontSize: '13px',
+                              }}
+                            ><i className="fa-solid fa-xmark"></i></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Managers column */}
+                {notifsManagers.length > 0 && (
+                  <div style={{ flex: '1 1 300px' }}>
+                    <div style={{
+                      padding: '9px 18px', background: '#fdf6ef',
+                      borderBottom: '1px solid #f0e7dc',
+                      display: 'flex', alignItems: 'center', gap: '7px',
+                      fontSize: '12px', fontWeight: 700, color: '#5c3d2e',
+                      textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}>
+                      <i className="fa-solid fa-user-tie"></i> Managers
+                      <span style={{ background: '#8B7355', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 7px', fontWeight: 600 }}>
+                        {notifsManagers.length}
+                      </span>
+                    </div>
+                    <div style={{ maxHeight: '290px', overflowY: 'auto' }}>
+                      {notifsManagers.map(n => (
+                        <div key={n.userid} style={{
+                          display: 'flex', alignItems: 'center', gap: '12px',
+                          padding: '11px 18px', borderBottom: '1px solid #f5f0ec',
+                        }}>
+                          <div style={{
+                            width: '36px', height: '36px', borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #8B7355, #5c3d2e)',
+                            color: '#f8f3e7', fontWeight: 700, fontSize: '14px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          }}>{n.name.charAt(0).toUpperCase()}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#2b211c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.name}</div>
+                            <div style={{ fontSize: '12px', color: '#8d7060' }}>
+                              <i className="fa-solid fa-location-dot" style={{ marginRight: '4px' }}></i>{n.city}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                            <Link
+                              to={`/admin/managers/${n.userid}`}
+                              onClick={() => dismissNotif(n.userid)}
+                              style={{
+                                padding: '5px 13px', background: '#5c3d2e', color: '#f8f3e7',
+                                borderRadius: '6px', textDecoration: 'none',
+                                fontSize: '12px', fontWeight: 600,
+                                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                              }}
+                            >
+                              <i className="fa-solid fa-eye"></i> View
+                            </Link>
+                            <button
+                              onClick={() => dismissNotif(n.userid)}
+                              title="Dismiss"
+                              style={{
+                                padding: '5px 9px', background: '#f0e7dc',
+                                border: 'none', borderRadius: '6px',
+                                cursor: 'pointer', color: '#8d5f3a', fontSize: '13px',
+                              }}
+                            ><i className="fa-solid fa-xmark"></i></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            )}
+          </div>
+        )}
 
         {/* RECENT STUDENTS */}
         <div className={styles.tableCard}>
