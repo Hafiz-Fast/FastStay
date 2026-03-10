@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getHostelDetails, deleteHostel, approveHostel, disapproveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses, getHostelRooms, type HostelRoom, getHostelRoomPics, type RoomPicItem } from "../api/admin_hostels_review";
+import { getHostelDetails, deleteHostel, approveHostel, disapproveHostel, CACHE_HOSTEL_DETAIL, type HostelTableRow, getHostelExpenses, getHostelSecurityInfo, getHostelMessInfo, type HostelExpenses, getHostelRooms, type HostelRoom, getHostelRoomPics, type RoomPicItem, getHostelReviews, type HostelReview } from "../api/admin_hostels_review";
 import { cacheGet, cacheSet } from "../utils/cache";
 import { getAdminAccessCode } from "../utils/auth";
 import { SkeletonBlock } from "../components/SkeletonRow";
@@ -23,12 +23,13 @@ const AdminViewHostels: React.FC = () => {
   const [showDisapproveConfirm, setShowDisapproveConfirm] = useState(false);
   const [disapproveLoading, setDisapproveLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'facilities' | 'rooms'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'facilities' | 'rooms' | 'reviews'>('overview');
   const [expenses, setExpenses] = useState<HostelExpenses | null>(null);
   const [securityInfo, setSecurityInfo] = useState<Record<string, any> | null>(null);
   const [messInfo, setMessInfo] = useState<Record<string, any> | null>(null);
   const [rooms, setRooms] = useState<HostelRoom[]>([]);
   const [roomPics, setRoomPics] = useState<RoomPicItem[]>([]);
+  const [reviews, setReviews] = useState<HostelReview[]>([]);
   const [tabLoading, setTabLoading] = useState(false);
   const tabsLoadedRef = useRef<Record<string, boolean>>({});
 
@@ -75,6 +76,7 @@ const AdminViewHostels: React.FC = () => {
     setMessInfo(null);
     setRooms([]);
     setRoomPics([]);
+    setReviews([]);
   }, [id]);
 
   useEffect(() => {
@@ -97,6 +99,12 @@ const AdminViewHostels: React.FC = () => {
       setTabLoading(true);
       Promise.all([getHostelRooms(hostelId), getHostelRoomPics(hostelId)])
         .then(([data, pics]) => { setRooms(data); setRoomPics(pics); setTabLoading(false); })
+        .catch(() => setTabLoading(false));
+    } else if (activeTab === 'reviews' && !tabsLoadedRef.current['reviews']) {
+      tabsLoadedRef.current = { ...tabsLoadedRef.current, reviews: true };
+      setTabLoading(true);
+      getHostelReviews(hostelId)
+        .then(data => { setReviews(data); setTabLoading(false); })
         .catch(() => setTabLoading(false));
     }
   }, [activeTab, id]);
@@ -383,6 +391,7 @@ const handleDelete = async () => {
                   { key: 'expenses' as const, label: 'Expenses', icon: 'fa-money-bill-wave' },
                   { key: 'facilities' as const, label: 'Security & Mess', icon: 'fa-shield-halved' },
                   { key: 'rooms' as const, label: 'Rooms', icon: 'fa-door-open' },
+                  { key: 'reviews' as const, label: 'Reviews', icon: 'fa-star' },
                 ]).map(tab => (
                   <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
                     flex: 1, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
@@ -391,15 +400,26 @@ const handleDelete = async () => {
                       ? '#5c3d2e'
                       : tab.key === 'rooms'
                         ? 'rgba(92,61,46,0.12)'
-                        : 'transparent',
+                        : tab.key === 'reviews'
+                          ? 'rgba(245,166,35,0.10)'
+                          : 'transparent',
                     color: activeTab === tab.key ? '#f8f3e7' : '#6b4e38',
-                    border: tab.key === 'rooms' && activeTab !== 'rooms' ? '1.5px dashed #a07850' : 'none',
+                    border: tab.key === 'rooms' && activeTab !== 'rooms'
+                      ? '1.5px dashed #a07850'
+                      : tab.key === 'reviews' && activeTab !== 'reviews'
+                        ? '1.5px dashed #f5a623'
+                        : 'none',
                     transition: 'all 0.18s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
                   }}>
                     <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
                     {tab.key === 'rooms' && activeTab !== 'rooms' && (
                       <span style={{ background: '#8d5f3a', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 7px', marginLeft: '2px', fontWeight: 600 }}>
                         {hostel.rooms}
+                      </span>
+                    )}
+                    {tab.key === 'reviews' && activeTab !== 'reviews' && reviews.length > 0 && (
+                      <span style={{ background: '#f5a623', color: '#fff', borderRadius: '10px', fontSize: '10px', padding: '1px 7px', marginLeft: '2px', fontWeight: 600 }}>
+                        {reviews.length}
                       </span>
                     )}
                   </button>
@@ -876,6 +896,153 @@ const handleDelete = async () => {
                           ))}
                         </div>
                       )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* REVIEWS TAB */}
+              {activeTab === 'reviews' && (
+                <div className="custom-card">
+                  <h3 className="custom-section-title">
+                    <i className="fa-solid fa-star" style={{ marginRight: '8px', color: '#f5a623' }}></i>
+                    Student Reviews ({reviews.length})
+                  </h3>
+
+                  {tabLoading ? (
+                    <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>
+                      <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '26px' }}></i>
+                      <p style={{ marginTop: '12px' }}>Loading reviews...</p>
+                    </div>
+                  ) : reviews.length === 0 ? (
+                    <div style={{ padding: '40px 0', textAlign: 'center', color: '#888' }}>
+                      <i className="fa-regular fa-star" style={{ fontSize: '36px', display: 'block', marginBottom: '12px', color: '#d0c8c0' }}></i>
+                      <p style={{ fontSize: '15px' }}>No reviews yet for this hostel.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* ── Summary card ── */}
+                      {(() => {
+                        const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+                        const overall = avg(reviews.map(r => r.ratingStar));
+                        const maintenance = avg(reviews.map(r => r.maintenanceRating));
+                        const issueResolving = avg(reviews.map(r => r.issueResolvingRate));
+                        const managerBehaviour = avg(reviews.map(r => r.managerBehaviour));
+                        const categories = [
+                          { label: 'Overall Star Rating', value: overall, icon: 'fa-star', color: '#f5a623' },
+                          { label: 'Maintenance', value: maintenance, icon: 'fa-wrench', color: '#5c7fff' },
+                          { label: 'Issue Resolving', value: issueResolving, icon: 'fa-circle-check', color: '#28a745' },
+                          { label: 'Manager Behaviour', value: managerBehaviour, icon: 'fa-user-tie', color: '#8d5f3a' },
+                        ];
+                        return (
+                          <div style={{ background: '#faf6f1', borderRadius: '12px', padding: '20px 24px', marginBottom: '28px', border: '1px solid #e8ddd4' }}>
+                            {/* Big overall number */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                              <div style={{ fontSize: '52px', fontWeight: 800, color: '#2b211c', lineHeight: 1 }}>
+                                {overall.toFixed(1)}
+                              </div>
+                              <div>
+                                <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                                  {[1, 2, 3, 4, 5].map(i => (
+                                    <i key={i}
+                                      className={`fa-${i <= Math.round(overall) ? 'solid' : 'regular'} fa-star`}
+                                      style={{ fontSize: '20px', color: i <= Math.round(overall) ? '#f5a623' : '#d0c8c0' }} />
+                                  ))}
+                                </div>
+                                <div style={{ fontSize: '13px', color: '#8d7060' }}>
+                                  Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Category bars */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
+                              {categories.slice(1).map(cat => (
+                                <div key={cat.label}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                                    <span style={{ fontSize: '12px', color: '#6a5c54', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                      <i className={`fa-solid ${cat.icon}`} style={{ color: cat.color }}></i>{cat.label}
+                                    </span>
+                                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#2b211c' }}>{cat.value.toFixed(1)}<span style={{ fontSize: '11px', fontWeight: 400, color: '#8d7060' }}>/5</span></span>
+                                  </div>
+                                  <div style={{ height: '7px', background: '#e8ddd4', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${(cat.value / 5) * 100}%`, background: cat.color, borderRadius: '4px', transition: 'width 0.4s ease' }} />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* ── Individual review cards ── */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {reviews.map(review => (
+                          <div key={review.ratingId} className="custom-info-box" style={{ padding: '18px 20px' }}>
+                            {/* Header: name + overall stars */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{
+                                  width: '38px', height: '38px', borderRadius: '50%',
+                                  background: 'linear-gradient(135deg, #5c3d2e, #8d5f3a)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  color: '#f8f3e7', fontWeight: 700, fontSize: '15px', flexShrink: 0,
+                                }}>
+                                  {review.studentName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 600, color: '#2b211c', fontSize: '14px' }}>{review.studentName}</div>
+                                  <div style={{ fontSize: '11px', color: '#9e8a7a' }}>Student ID: {review.studentId}</div>
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                {[1, 2, 3, 4, 5].map(i => (
+                                  <i key={i}
+                                    className={`fa-${i <= review.ratingStar ? 'solid' : 'regular'} fa-star`}
+                                    style={{ fontSize: '16px', color: i <= review.ratingStar ? '#f5a623' : '#d0c8c0' }} />
+                                ))}
+                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#2b211c', marginLeft: '5px' }}>{review.ratingStar}/5</span>
+                              </div>
+                            </div>
+
+                            {/* Category mini-bars grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px', marginBottom: review.challenges ? '14px' : '0' }}>
+                              {[
+                                { label: 'Maintenance', value: review.maintenanceRating, icon: 'fa-wrench', color: '#5c7fff' },
+                                { label: 'Issue Resolving', value: review.issueResolvingRate, icon: 'fa-circle-check', color: '#28a745' },
+                                { label: 'Manager Behaviour', value: review.managerBehaviour, icon: 'fa-user-tie', color: '#8d5f3a' },
+                              ].map(cat => (
+                                <div key={cat.label}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                    <span style={{ fontSize: '11px', color: '#6a5c54', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                      <i className={`fa-solid ${cat.icon}`} style={{ color: cat.color, fontSize: '10px' }}></i>{cat.label}
+                                    </span>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#2b211c' }}>{cat.value}/5</span>
+                                  </div>
+                                  <div style={{ height: '5px', background: '#e8ddd4', borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${(cat.value / 5) * 100}%`, background: cat.color, borderRadius: '3px' }} />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Challenges/comment */}
+                            {review.challenges && (
+                              <div style={{
+                                marginTop: '10px', padding: '10px 14px',
+                                background: '#fdf6ee', borderRadius: '8px',
+                                borderLeft: '3px solid #f5a623',
+                                fontSize: '13px', color: '#4a3728', lineHeight: 1.55,
+                              }}>
+                                <span style={{ fontWeight: 600, color: '#8d5f3a', marginRight: '6px' }}>
+                                  <i className="fa-solid fa-comment-dots" style={{ marginRight: '4px' }}></i>Challenges:
+                                </span>
+                                {review.challenges}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </>
                   )}
                 </div>

@@ -605,3 +605,65 @@ export const getManagerHostels = async (managerId: number): Promise<ManagerHoste
         return [];
     }
 };
+
+// ---- Student reviews for a specific hostel ----
+
+export interface HostelReview {
+    ratingId: number;
+    studentId: number;
+    studentName: string;
+    ratingStar: number;
+    maintenanceRating: number;
+    issueResolvingRate: number;
+    managerBehaviour: number;
+    challenges: string | null;
+}
+
+interface RawRatingRow {
+    p_ratingid: number;
+    p_hostelid: number;
+    p_studentid: number;
+    p_ratingstar: number;
+    p_maintenancerating: number;
+    p_issueresolvingrate: number;
+    p_managerbehaviour: number;
+    p_challenges: string | null;
+}
+
+interface RatingsDisplayResponse {
+    ratings: RawRatingRow[];
+    count: number;
+}
+
+export const getHostelReviews = async (hostelId: number): Promise<HostelReview[]> => {
+    try {
+        const [ratingsRes, usersRes] = await Promise.all([
+            axios.get<RatingsDisplayResponse>(`${API_BASE_URL}/faststay_app/display/hostel_rating`),
+            axios.get<{ users: { userid: number; fname: string; lname: string; usertype: string }[] }>(
+                `${API_BASE_URL}/faststay_app/users/all`
+            ).catch(() => ({ data: { users: [] as { userid: number; fname: string; lname: string; usertype: string }[] } })),
+        ]);
+
+        const allRatings: RawRatingRow[] = ratingsRes.data?.ratings || [];
+        const users = usersRes.data?.users || [];
+
+        const nameMap = new Map<number, string>();
+        users.forEach(u => nameMap.set(u.userid, `${u.fname} ${u.lname}`.trim() || `Student #${u.userid}`));
+
+        return allRatings
+            .filter(r => r.p_hostelid === hostelId)
+            .map(r => ({
+                ratingId: r.p_ratingid,
+                studentId: r.p_studentid,
+                studentName: nameMap.get(r.p_studentid) || `Student #${r.p_studentid}`,
+                ratingStar: r.p_ratingstar,
+                maintenanceRating: r.p_maintenancerating,
+                issueResolvingRate: r.p_issueresolvingrate,
+                managerBehaviour: r.p_managerbehaviour,
+                challenges: r.p_challenges || null,
+            }));
+    } catch (error) {
+        console.error("Error fetching hostel reviews:", error);
+        return [];
+    }
+};
