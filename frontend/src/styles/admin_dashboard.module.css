@@ -256,40 +256,61 @@ tr:hover {
   display: grid;
   grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
   align-items: center;
+  padding: 13px 20px;
+  margin: 0 12px 8px;
+  border: 1px solid #deeade;
+  border-radius: 10px;
+  background: #fdfffd;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
 @media (max-width: 768px) {
-  .hostelColHeader {
-    display: none;
-  }
+  .hostelColHeader { display: none; }
 
   .hostelGridRow {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "name  name  name   action"
+      "loc   type  rooms  rooms"
+      "mgr   mgr   amen   amen";
+    column-gap: 8px;
+    row-gap: 6px;
+    padding: 12px 14px;
+    margin: 0 8px 8px;
   }
 
-  /* Name + Action share the first "row" of the card */
-  .hostelCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
-  .hostelCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
+  .hostelCellName   { grid-area: name;   min-width: 0; }
+  .hostelCellAction { grid-area: action; align-self: start; }
+  .hostelCellLoc    { grid-area: loc;    align-self: center; }
+  .hostelCellType   { grid-area: type;   align-self: center; }
+  .hostelCellRooms  { grid-area: rooms;  align-self: center;
+                      flex-direction: row !important; gap: 10px !important; }
+  .hostelCellMgr    { grid-area: mgr;    min-width: 0; align-self: center; }
+  .hostelCellAmen   { grid-area: amen;   align-self: center; justify-content: flex-end; }
 
-  /* Middle detail badges sit on the next line */
-  .hostelCellLoc    { flex: 0 0 auto; order: 3; }
-  .hostelCellType   { flex: 0 0 auto; order: 4; }
-  .hostelCellRooms  { flex: 0 0 auto; order: 5; }
-
-  /* Manager and amenities each take full width */
-  .hostelCellMgr    { flex: 1 1 100%; order: 6; }
-  .hostelCellAmen   { flex: 1 1 100%; order: 7; }
-
-  /* Search / filter bar: stack filters below the input */
-  .hostelFilterGroup {
-    flex-direction: column;
-    width: 100%;
+  /* Search / filter bar — single row on mobile */
+  .hostelFilterBar {
+    flex-wrap: nowrap;
+    gap: 6px !important;
   }
 
-  .hostelFilterGroup select {
-    width: 100%;
+  .hostelFilterBar input {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+  }
+
+  .hostelFilterBar select {
+    min-width: 0 !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    max-width: 90px;
+  }
+
+  .hostelFilterBar button {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
   }
 }

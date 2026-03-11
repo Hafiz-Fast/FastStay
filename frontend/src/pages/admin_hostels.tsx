@@ -580,7 +580,7 @@ const ViewHostels: React.FC = () => {
         </div>
 
         {/* SEARCH + FILTER BAR */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className={styles.hostelFilterBar} style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '8px' }}>
           <input
             type="text"
             placeholder="Search by name, block, or manager..."
@@ -588,40 +588,34 @@ const ViewHostels: React.FC = () => {
             onChange={e => setSearch(e.target.value)}
             disabled={loading}
             style={{
-              padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd',
+              padding: '9px 14px', borderRadius: '8px', border: '1px solid #ddd',
               backgroundColor: loading ? '#d6c4a1' : '#f5e9d2',
               color: loading ? '#7a6648' : '#4c3f30',
-              fontSize: '14px', minWidth: '280px', flex: '1 1 280px',
+              fontSize: '14px', flex: '1 1 auto', minWidth: 0,
             }}
           />
-          <div className={styles.hostelFilterGroup} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <select
-              value={blockFilter}
-              onChange={e => setBlockFilter(e.target.value)}
-              disabled={loading}
-              style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
-            >
-              <option value="All">All Blocks ({hostels.length})</option>
-              {blockOptions.map(b => <option key={b} value={b}>{b} ({hostels.filter(h => h.blockHouse === b).length})</option>)}
-            </select>
-            <select
-              value={typeFilter}
-              onChange={e => setTypeFilter(e.target.value)}
-              disabled={loading}
-              style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
-            >
-              <option value="All">All Types ({hostels.length})</option>
-              {typeOptions.map(t => <option key={t} value={t}>{t} ({hostels.filter(h => h.type === t).length})</option>)}
-            </select>
-            {(search || blockFilter !== 'All' || typeFilter !== 'All') && (
-              <button
-                onClick={() => { setSearch(''); setBlockFilter('All'); setTypeFilter('All'); }}
-                style={{ padding: '8px 16px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}
-              >
-                <i className="fa-solid fa-times"></i> Clear
-              </button>
-            )}
-          </div>
+          <select
+            value={blockFilter}
+            onChange={e => setBlockFilter(e.target.value)}
+            disabled={loading}
+            style={{ padding: '9px 8px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '13px', flexShrink: 0 }}
+          >
+            <option value="All">All Blocks</option>
+            {blockOptions.map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+          <button
+            onClick={() => { setSearch(''); setBlockFilter('All'); setTypeFilter('All'); }}
+            disabled={!search && blockFilter === 'All'}
+            title="Clear filters"
+            style={{
+              padding: '9px 12px', backgroundColor: (search || blockFilter !== 'All') ? '#e74c3c' : '#ddd',
+              color: (search || blockFilter !== 'All') ? 'white' : '#999',
+              border: 'none', borderRadius: '8px', cursor: (search || blockFilter !== 'All') ? 'pointer' : 'default',
+              fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0, transition: 'background 0.2s',
+            }}
+          >
+            <i className="fa-solid fa-times"></i> Clear
+          </button>
         </div>
 
         {/* HOSTELS PANEL */}
@@ -641,7 +635,7 @@ const ViewHostels: React.FC = () => {
 
           {/* Column headers */}
           <div className={styles.hostelColHeader} style={{
-            padding: '8px 20px', background: '#f3f8f3', borderBottom: '1px solid #deeade',
+            padding: '8px 32px', background: '#f3f8f3', borderBottom: '1px solid #deeade',
             fontSize: '11px', fontWeight: 700, color: '#5a7060', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
             <span>Hostel</span><span>Location</span><span>Type</span>
@@ -678,14 +672,11 @@ const ViewHostels: React.FC = () => {
               )}
             </div>
           ) : (
-            filteredHostels.map((h, i) => (
-              <div key={h.id} className={styles.hostelGridRow} style={{
-                padding: '13px 20px',
-                borderBottom: i < filteredHostels.length - 1 ? '1px solid #e8f0e8' : 'none',
-                transition: 'background 0.15s',
-              }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#f3f8f3')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            <div style={{ padding: '8px 0 4px' }}>
+            {filteredHostels.map((h, i) => (
+              <div key={h.id} className={styles.hostelGridRow}
+                onMouseEnter={e => (e.currentTarget.style.background = '#f0faf0')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#fdfffd')}
               >
                 {/* Name */}
                 <div className={styles.hostelCellName} style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
@@ -709,7 +700,12 @@ const ViewHostels: React.FC = () => {
                 </div>
                 {/* Location */}
                 <div className={styles.hostelCellLoc}>
-                  <span style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#e8f2fb', color: '#1565c0' }}>
+                  <span style={{
+                    display: 'inline-block', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
+                    backgroundColor: '#e8f2fb', color: '#1565c0',
+                    maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    verticalAlign: 'middle',
+                  }} title={h.blockHouse || '—'}>
                     {h.blockHouse || '—'}
                   </span>
                 </div>
@@ -774,7 +770,8 @@ const ViewHostels: React.FC = () => {
                   </Link>
                 </div>
               </div>
-            ))
+            ))}
+            </div>
           )}
         </div>
       </div>
