@@ -12,15 +12,21 @@ interface User {
   usertype: string;
 }
 
+interface ManagerApiResponse {
+  success: boolean;
+  result: unknown[];
+}
+
 export const getDashboardSummary = async (bypassCache = false) => {
   const cached = cacheGet<{ total_students: number; total_managers: number; total_hostels: number; total_rooms: number }>(CACHE_DASHBOARD);
   if (cached && !bypassCache) return cached;
 
   try {
-    const [usersResponse, hostelsResponse, roomsResponse] = await Promise.all([
+    const [usersResponse, hostelsResponse, roomsResponse, managersResponse] = await Promise.all([
       axios.get(`${API_BASE_URL}/faststay_app/users/all/`),
       axios.get(`${API_BASE_URL}/faststay_app/display/all_hostels`),
-      axios.get(`${API_BASE_URL}/faststay_app/display/all_rooms`)
+      axios.get(`${API_BASE_URL}/faststay_app/display/all_rooms`),
+      axios.get<ManagerApiResponse>(`${API_BASE_URL}/faststay_app/ManagerDetails/display/all`)
     ]);
 
     const users = usersResponse.data?.users || [];
@@ -31,9 +37,7 @@ export const getDashboardSummary = async (bypassCache = false) => {
       user.usertype === 'Student'
     ).length;
 
-    const total_managers = users.filter((user: User) =>
-      user.usertype === 'Hostel Manager'
-    ).length;
+    const total_managers = (managersResponse.data?.result || []).length;
 
     const summary = { total_students, total_managers, total_hostels, total_rooms };
     cacheSet(CACHE_DASHBOARD, summary);
@@ -229,10 +233,11 @@ export const loadDashboardData = async (bypassCache = false): Promise<{
     if (s && u && h) return { summary: s, recentUsers: u, recentHostels: h };
   }
 
-  const [usersRes, hostelsRes, roomsRes] = await Promise.all([
+  const [usersRes, hostelsRes, roomsRes, managersRes] = await Promise.all([
     axios.get<{ users: RawUser[] }>(`${API_BASE_URL}/faststay_app/users/all/`),
     axios.get<HostelsApiResponse>(`${API_BASE_URL}/faststay_app/display/all_hostels`),
     axios.get(`${API_BASE_URL}/faststay_app/display/all_rooms`),
+    axios.get<ManagerApiResponse>(`${API_BASE_URL}/faststay_app/ManagerDetails/display/all`),
   ]);
 
   const users = usersRes.data?.users || [];
@@ -245,7 +250,7 @@ export const loadDashboardData = async (bypassCache = false): Promise<{
   // Summary
   const summary = {
     total_students: users.filter(u => u.usertype === 'Student').length,
-    total_managers: users.filter(u => u.usertype === 'Hostel Manager').length,
+    total_managers: (managersRes.data?.result || []).length,
     total_hostels: hostelsRes.data?.count || 0,
     total_rooms: roomsRes.data?.count || 0,
     total_pending: allHostels.filter(h => h.p_isapproved === false).length,
