@@ -1,4 +1,4 @@
-/* AdminStudentProfile.css */
+
 
 /* Reuse styles from your hostel view page */
 .custom-title {
@@ -286,24 +286,24 @@
   .custom-info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .custom-btn-row {
     flex-direction: column;
   }
-  
+
   .custom-btn {
     width: 100%;
   }
-  
+
   .custom-modal {
     width: 95%;
     margin: 10px;
   }
-  
+
   .custom-modal-footer {
     flex-direction: column;
   }
-  
+
   .custom-btn-cancel,
   .custom-btn-confirm-delete {
     width: 100%;

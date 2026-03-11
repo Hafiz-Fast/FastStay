@@ -2,3 +2,4 @@ from .Student_Detail_Entry_view import Student_Detail_Entry_view
 from .Update_Student_Detail_view import Update_Student_Detail_view
 from .Display_Student_view import Display_Student_View
 from .Display_All_Students_view import Display_All_Students_View
+from .Delete_Student_view import Delete_Student_View

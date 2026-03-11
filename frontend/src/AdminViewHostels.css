@@ -75,29 +75,47 @@
 }
 
 .custom-btn-row {
-  margin-top: 25px;
+  margin-top: 30px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .custom-btn {
-  padding: 12px 22px;
-  border-radius: 12px;
+  padding: 13px 28px;
+  border-radius: 10px;
   border: none;
   color: white;
   cursor: pointer;
   font-size: 15px;
-  display: flex;
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+  letter-spacing: 0.3px;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
 }
 
-.custom-btn:hover {
-  opacity: 0.9;
+.custom-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.22);
+}
+
+.custom-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .custom-btn-approve {
-  background: #2ecc71;
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  min-width: 170px;
+  justify-content: center;
+}
+
+.custom-btn-approve:hover:not(:disabled) {
+  background: linear-gradient(135deg, #219150, #27ae60);
 }
 
 .custom-btn-reject {
@@ -261,12 +279,12 @@
   .custom-main-image-container {
     height: 350px;
   }
-  
+
   .custom-thumbnail-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 10px;
   }
-  
+
   .custom-thumbnail-container {
     height: 80px;
   }
@@ -276,15 +294,15 @@
   .custom-main-image-container {
     height: 250px;
   }
-  
+
   .custom-thumbnail-grid {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
-  
+
   .custom-thumbnail-container {
     height: 70px;
   }
-  
+
   .custom-nav-btn {
     width: 40px;
     height: 40px;
@@ -339,17 +357,21 @@
 
 /* Delete Button */
 .custom-btn-delete {
-  background-color: #dc3545 !important;
+  background: linear-gradient(135deg, #c0392b, #e74c3c) !important;
   color: white !important;
+  min-width: 160px;
+  justify-content: center;
 }
 
-.custom-btn-delete:hover {
-  background-color: #c82333 !important;
+.custom-btn-delete:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a93226, #c0392b) !important;
 }
 
 .custom-btn-delete:disabled {
-  background-color: #e35d6a !important;
+  background: linear-gradient(135deg, #c0392b88, #e74c3c88) !important;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* Modal Styles */
@@ -429,6 +451,33 @@
 
 .custom-btn-confirm-delete:hover {
   background-color: #c82333 !important;
+}
+
+.custom-btn-confirm-disapprove {
+  background-color: #e67e22 !important;
+  color: white !important;
+}
+
+.custom-btn-confirm-disapprove:hover {
+  background-color: #ca6f1e !important;
+}
+
+.custom-btn-disapprove {
+  background: linear-gradient(135deg, #ca6f1e, #e67e22) !important;
+  color: white !important;
+  min-width: 150px;
+  justify-content: center;
+}
+
+.custom-btn-disapprove:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b9600f, #ca6f1e) !important;
+}
+
+.custom-btn-disapprove:disabled {
+  background: linear-gradient(135deg, #ca6f1e88, #e67e2288) !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .custom-btn:disabled {

@@ -14,11 +14,34 @@
 }
 
 .signupCard {
+  position: relative;
   width: 100%;
   background: #f8f3e7;
-  padding: 30px 35px;
+  padding: 30px 35px 68px 35px;
   border-radius: 18px;
   box-shadow: 0px 8px 22px rgba(0, 0, 0, 0.30);
+}
+
+.adminToggle {
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #8d5f3a;
+  background: #fdfaf4;
+  color: #8d5f3a;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.adminToggle:hover {
+  background: #8d5f3a;
+  color: #fff;
 }
 
 .title {
@@ -145,7 +168,14 @@
 
 @media (max-width: 480px) {
   .signupCard {
-    padding: 22px 20px;
+    padding: 22px 20px 60px 20px;
+  }
+
+  .adminToggle {
+    right: 16px;
+    bottom: 14px;
+    font-size: 11px;
+    padding: 6px 12px;
   }
 
   .title {

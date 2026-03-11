@@ -1,6 +1,9 @@
 import axios, { AxiosError } from 'axios';
+import { cacheGet, cacheSet } from '../utils/cache';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
+
+export const CACHE_MANAGERS = 'cache:admin:managers:all';
 
 // ---- RAW Response Interfaces ----
 
@@ -41,7 +44,11 @@ export interface ManagerTableRow {
 
 
 // ---- Main Function (Return Full Table Data) ----
-export const getAllManagersTableData = async (): Promise<ManagerTableRow[]> => {
+export const getAllManagersTableData = async (bypassCache = false): Promise<ManagerTableRow[]> => {
+    if (!bypassCache) {
+        const cached = cacheGet<ManagerTableRow[]>(CACHE_MANAGERS);
+        if (cached) return cached;
+    }
     try {
         const [managersRes, usersRes] = await Promise.all([
             axios.get<ManagerApiResponse>(`${API_BASE_URL}/faststay_app/ManagerDetails/display/all`),
@@ -64,11 +71,12 @@ export const getAllManagersTableData = async (): Promise<ManagerTableRow[]> => {
             };
         });
 
+        cacheSet(CACHE_MANAGERS, finalData);
         return finalData;
 
     } catch (error: unknown) {
         console.error("Error fetching manager data:", error);
-        
+
         if (axios.isAxiosError(error)) {
             const err = error as AxiosError;
             console.error("Axios Response:", err.response?.data);

@@ -7,7 +7,7 @@
 // // // const AdminStudentProfile: React.FC = () => {
 // // //   const { id } = useParams<{ id: string }>();
 // // //   const navigate = useNavigate();
-  
+
 // // //   const [student, setStudent] = useState<StudentProfile | null>(null);
 // // //   const [loading, setLoading] = useState(true);
 // // //   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@
 // // //       try {
 // // //         setLoading(true);
 // // //         const studentId = parseInt(id);
-        
+
 // // //         const studentData = await getStudentProfile(studentId);
 
 // // //         if (studentData) {
@@ -44,13 +44,13 @@
 
 // // //   const handleDelete = async () => {
 // // //     if (!student) return;
-    
+
 // // //     if (window.confirm(`Are you sure you want to delete ${student.fullName}? This action cannot be undone.`)) {
 // // //       try {
 // // //         // Add your delete API call here
 // // //         console.log("Deleting student:", student.userId);
 // // //         // await deleteStudent(student.userId);
-        
+
 // // //         // Navigate back to students list after deletion
 // // //         navigate("/admin/students");
 // // //       } catch (err) {
@@ -90,7 +90,7 @@
 // // //             <Link to="/logout">Logout</Link>
 // // //           </div>
 // // //         </nav>
-        
+
 // // //         <div className={styles.container}>
 // // //           <div className={studentStyles.loadingContainer}>
 // // //             <i className="fas fa-spinner fa-spin" style={{ marginRight: "10px" }}></i>
@@ -117,14 +117,14 @@
 // // //             <Link to="/logout">Logout</Link>
 // // //           </div>
 // // //         </nav>
-        
+
 // // //         <div className={styles.container}>
 // // //           <div className={studentStyles.errorContainer}>
 // // //             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
 // // //             <h2>Error Loading Student</h2>
 // // //             <p>{error || "Student not found"}</p>
-// // //             <button 
-// // //               className={studentStyles.backButton} 
+// // //             <button
+// // //               className={studentStyles.backButton}
 // // //               onClick={() => navigate("/admin/students")}
 // // //               style={{ marginTop: "20px" }}
 // // //             >
@@ -163,8 +163,8 @@
 // // //               </h2>
 // // //               <p className={styles.subtitle}>Complete demographic details of {student.fullName}</p>
 // // //             </div>
-// // //             <button 
-// // //               className={studentStyles.backButton} 
+// // //             <button
+// // //               className={studentStyles.backButton}
 // // //               onClick={() => navigate("/admin/students")}
 // // //             >
 // // //               <i className="fas fa-arrow-left"></i> Back to List
@@ -363,7 +363,7 @@
 
 // // //           {/* Action Buttons */}
 // // //           <div className={studentStyles.studentActions}>
-// // //             <button 
+// // //             <button
 // // //               className={studentStyles.primaryButton}
 // // //               onClick={() => {
 // // //                 // Navigate to find suitable hostels for this student
@@ -373,7 +373,7 @@
 // // //               <i className="fas fa-search"></i> Find Suitable Hostels
 // // //             </button>
 
-// // //             <button 
+// // //             <button
 // // //               className={studentStyles.secondaryButton}
 // // //               onClick={() => {
 // // //                 // Edit student functionality
@@ -384,7 +384,7 @@
 // // //               <i className="fas fa-edit"></i> Edit Profile
 // // //             </button>
 
-// // //             <button 
+// // //             <button
 // // //               className={studentStyles.dangerButton}
 // // //               onClick={handleDelete}
 // // //             >
@@ -395,9 +395,9 @@
 // // //       </div>
 
 // // //       {/* Font Awesome Icons */}
-// // //       <link 
-// // //         rel="stylesheet" 
-// // //         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+// // //       <link
+// // //         rel="stylesheet"
+// // //         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 // // //       />
 // // //     </div>
 // // //   );
@@ -420,7 +420,7 @@
 // const AdminStudentProfile: React.FC = () => {
 //   const { id } = useParams<{ id: string }>();
 //   const navigate = useNavigate();
-  
+
 //   const [student, setStudent] = useState<StudentProfile | null>(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
@@ -436,7 +436,7 @@
 //       try {
 //         setLoading(true);
 //         const studentId = parseInt(id);
-        
+
 //         const studentData = await getStudentProfile(studentId);
 
 //         if (studentData) {
@@ -457,13 +457,13 @@
 
 //   const handleDelete = async () => {
 //     if (!student) return;
-    
+
 //     if (window.confirm(`Are you sure you want to delete ${student.fullName}? This action cannot be undone.`)) {
 //       try {
 //         // Add your delete API call here
 //         console.log("Deleting student:", student.userId);
 //         // await deleteStudent(student.userId);
-        
+
 //         // Navigate back to students list after deletion
 //         navigate("/admin/students");
 //       } catch (err) {
@@ -504,14 +504,14 @@
 //             <Link to="/admin/logout">Logout</Link>
 //           </div>
 //         </nav>
-        
+
 //         <div className={styles.container}>
 //           <div className={studentStyles.errorContainer}>
 //             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
 //             <h2>Error Loading Student</h2>
 //             <p>{error || "Student not found"}</p>
-//             <button 
-//               className={studentStyles.backButton} 
+//             <button
+//               className={studentStyles.backButton}
 //               onClick={() => navigate("/admin/students")}
 //               style={{ marginTop: "20px" }}
 //             >
@@ -551,24 +551,24 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Loading student details...</p>
 //               </div>
-//               <button 
-//                 className={studentStyles.backButton} 
+//               <button
+//                 className={studentStyles.backButton}
 //                 onClick={() => navigate("/admin/students")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center"
 //             }}>
-//               <i className="fa-solid fa-spinner fa-spin" style={{ 
-//                 fontSize: "32px", 
+//               <i className="fa-solid fa-spinner fa-spin" style={{
+//                 fontSize: "32px",
 //                 marginBottom: "20px",
 //                 color: "#5c3d2e"
 //               }}></i>
@@ -585,24 +585,24 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Student not found</p>
 //               </div>
-//               <button 
-//                 className={studentStyles.backButton} 
+//               <button
+//                 className={studentStyles.backButton}
 //                 onClick={() => navigate("/admin/students")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center"
 //             }}>
-//               <i className="fas fa-user-slash" style={{ 
-//                 fontSize: "48px", 
+//               <i className="fas fa-user-slash" style={{
+//                 fontSize: "48px",
 //                 marginBottom: "20px",
 //                 color: "#999"
 //               }}></i>
@@ -620,8 +620,8 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Complete demographic details of {student.fullName}</p>
 //               </div>
-//               <button 
-//                 className={studentStyles.backButton} 
+//               <button
+//                 className={studentStyles.backButton}
 //                 onClick={() => navigate("/admin/students")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
@@ -820,7 +820,7 @@
 
 //             {/* Action Buttons */}
 //             <div className={studentStyles.studentActions}>
-//               <button 
+//               <button
 //                 className={studentStyles.primaryButton}
 //                 onClick={() => {
 //                   // Navigate to find suitable hostels for this student
@@ -830,7 +830,7 @@
 //                 <i className="fas fa-search"></i> Find Suitable Hostels
 //               </button>
 
-//               <button 
+//               <button
 //                 className={studentStyles.secondaryButton}
 //                 onClick={() => {
 //                   // Edit student functionality
@@ -841,7 +841,7 @@
 //                 <i className="fas fa-edit"></i> Edit Profile
 //               </button>
 
-//               <button 
+//               <button
 //                 className={studentStyles.dangerButton}
 //                 onClick={handleDelete}
 //               >
@@ -853,9 +853,9 @@
 //       </div>
 
 //       {/* Font Awesome Icons */}
-//       <link 
-//         rel="stylesheet" 
-//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+//       <link
+//         rel="stylesheet"
+//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 //       />
 //     </div>
 //   );
@@ -870,74 +870,78 @@
 
 
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { getStudentProfile, type StudentProfile } from "../api/admin_students_review";
+import { useParams, useNavigate } from "react-router-dom";
+import { getStudentProfile, CACHE_STUDENT_PROFILE, type StudentProfile } from "../api/admin_students_review";
+import { cacheGet } from "../utils/cache";
+import { SkeletonBlock } from "../components/SkeletonRow";
 import styles from "../styles/admin_dashboard.module.css";
 import studentStyles from "../styles/admin_students_profile.module.css";
+import AdminSideNavbar from "../components/AdminSideNavbar";
 
 const AdminStudentProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const [student, setStudent] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isApproved, setIsApproved] = useState(false);
-  const [showApproveSuccess, setShowApproveSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchStudentData = async () => {
-      if (!id) {
-        setError("Student ID is missing");
-        setLoading(false);
-        return;
-      }
+    if (!id) {
+      setError("Student ID is missing");
+      setLoading(false);
+      return;
+    }
 
-      try {
-        setLoading(true);
-        const studentId = parseInt(id);
-        
-        const studentData = await getStudentProfile(studentId);
+    const studentId = parseInt(id);
 
+    // Phase 1: instant render from cache
+    const cached = cacheGet<StudentProfile>(CACHE_STUDENT_PROFILE(studentId));
+    if (cached) {
+      setStudent(cached);
+      setLoading(false);
+    }
+
+    // Phase 2: background refresh
+    getStudentProfile(studentId, true)
+      .then(studentData => {
         if (studentData) {
           setStudent(studentData);
-        } else {
+        } else if (!cached) {
           setError(`Student with ID ${studentId} not found`);
         }
-      } catch (err) {
-        console.error("Error fetching student profile:", err);
-        setError("Failed to load student profile. Please try again.");
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchStudentData();
+      })
+      .catch((err: unknown) => {
+        console.error("Error fetching student profile:", err);
+        if (!cached) setError("Failed to load student profile. Please try again.");
+        setLoading(false);
+      });
   }, [id]);
 
-  const handleApprove = () => {
+  const confirmDelete = async () => {
     if (!student) return;
-    
-    // Dummy approve functionality
-    console.log(`Dummy approving student ${student.userId}`);
-    setIsApproved(true);
-    setShowApproveSuccess(true);
-    
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      setShowApproveSuccess(false);
-    }, 3000);
-  };
-
-  const handleDelete = () => {
-    if (!student) return;
-    
-    // Dummy delete functionality
-    console.log(`Dummy deleting student ${student.userId}`);
-    setActionError("This is a dummy delete. Student not actually deleted.");
+    setDeleteLoading(true);
+    setActionError(null);
+    try {
+      const { deleteStudent } = await import('../api/admin_students_review');
+      const success = await deleteStudent(student.userId);
+      if (success) {
+        setShowDeleteConfirm(false);
+        navigate('/admin/students');
+      } else {
+        setActionError('Student not found or already deleted.');
+        setShowDeleteConfirm(false);
+      }
+    } catch {
+      setActionError('Failed to delete student. Please try again.');
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const formatSemester = (semester: number): string => {
@@ -957,28 +961,18 @@ const AdminStudentProfile: React.FC = () => {
   // Show only error on full page if there's a critical error
   if (error && !loading) {
     return (
-      <div>
-        {/* NAVBAR */}
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-user-shield"></i> FastStay Admin
-          </div>
-          <div className={styles.navLinks}>
-            <Link to="/admin">Dashboard</Link>
-            <Link to="/admin/hostels">Hostels</Link>
-            <Link to="/admin/students" className={styles.active}>Students</Link>
-            <Link to="/admin/managers">Managers</Link>
-            <Link to="/admin/logout">Logout</Link>
-          </div>
-        </nav>
-        
+      <>
+        {/* ADMIN SIDE NAVBAR */}
+        <AdminSideNavbar active="students" />
+
+        <div className={styles.mainContent}>
         <div className={styles.container}>
           <div className={studentStyles.errorContainer}>
             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
             <h2>Error Loading Student</h2>
             <p>{error || "Student not found"}</p>
-            <button 
-              className={studentStyles.backButton} 
+            <button
+              className={studentStyles.backButton}
               onClick={() => navigate("/admin/students")}
               style={{ marginTop: "20px" }}
             >
@@ -986,61 +980,65 @@ const AdminStudentProfile: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-user-shield"></i> FastStay Admin
-        </div>
-        <div className={styles.navLinks}>
-          <Link to="/admin">Dashboard</Link>
-          <Link to="/admin/hostels">Hostels</Link>
-          <Link to="/admin/students" className={styles.active}>Students</Link>
-          <Link to="/admin/managers">Managers</Link>
-          <Link to="/admin/logout">Logout</Link>
-        </div>
-      </nav>
+    <>
+      {/* ADMIN SIDE NAVBAR */}
+      <AdminSideNavbar active="students" />
 
+      <div className={styles.mainContent}>
       {/* PAGE CONTENT */}
       <div className={styles.container}>
         {/* Loading state within the profile card */}
-        {loading ? (
+        {loading && !student ? (
           <div className={studentStyles.studentProfileCard}>
             <div className={studentStyles.profileHeader}>
               <div>
                 <h2 className={styles.pageTitle}>
                   <i className="fa-solid fa-user-graduate"></i> Student Profile
                 </h2>
-                <p className={styles.subtitle}>Loading student details...</p>
+                <SkeletonBlock width="220px" height="16px" />
               </div>
-              <button 
-                className={studentStyles.backButton} 
-                onClick={() => navigate("/admin/students")}
-              >
+              <button className={studentStyles.backButton} onClick={() => navigate("/admin/students")}>
                 <i className="fas fa-arrow-left"></i> Back to List
               </button>
             </div>
 
-            <div style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
-              justifyContent: "center",
-              padding: "60px 20px",
-              textAlign: "center"
-            }}>
-              <i className="fa-solid fa-spinner fa-spin" style={{ 
-                fontSize: "32px", 
-                marginBottom: "20px",
-                color: "#5c3d2e"
-              }}></i>
-              <h3 style={{ marginBottom: "10px", color: "#5c3d2e" }}>Loading student profile...</h3>
-              <p style={{ color: "#666" }}>Please wait while we fetch the student information</p>
+            <div className={studentStyles.studentSummary}>
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className={studentStyles.summaryItem}>
+                  <SkeletonBlock width="70px" height="12px" />
+                  <SkeletonBlock width="50px" height="24px" />
+                </div>
+              ))}
+            </div>
+
+            <div className={studentStyles.infoGrid}>
+              {[...Array(14)].map((_, i) => (
+                <div key={i} className={studentStyles.infoItem}>
+                  <SkeletonBlock width="120px" height="13px" />
+                  <SkeletonBlock width="90%" height="18px" />
+                </div>
+              ))}
+            </div>
+
+            <div className={studentStyles.preferencesSection}>
+              <h3 className={studentStyles.sectionTitle}>
+                <i className="fas fa-star"></i> Accommodation Preferences
+              </h3>
+              <div className={studentStyles.preferencesGrid}>
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className={studentStyles.preferenceItem}>
+                    <SkeletonBlock width="40px" height="40px" />
+                    <SkeletonBlock width="80px" height="13px" />
+                    <SkeletonBlock width="100px" height="18px" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : !student ? (
@@ -1052,24 +1050,24 @@ const AdminStudentProfile: React.FC = () => {
                 </h2>
                 <p className={styles.subtitle}>Student not found</p>
               </div>
-              <button 
-                className={studentStyles.backButton} 
+              <button
+                className={studentStyles.backButton}
                 onClick={() => navigate("/admin/students")}
               >
                 <i className="fas fa-arrow-left"></i> Back to List
               </button>
             </div>
 
-            <div style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               justifyContent: "center",
               padding: "60px 20px",
               textAlign: "center"
             }}>
-              <i className="fas fa-user-slash" style={{ 
-                fontSize: "48px", 
+              <i className="fas fa-user-slash" style={{
+                fontSize: "48px",
                 marginBottom: "20px",
                 color: "#999"
               }}></i>
@@ -1084,24 +1082,11 @@ const AdminStudentProfile: React.FC = () => {
               <div>
                 <h2 className={styles.pageTitle}>
                   <i className="fa-solid fa-user-graduate"></i> Student Profile
-                  {isApproved && (
-                    <span style={{
-                      marginLeft: "15px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      padding: "5px 15px",
-                      borderRadius: "20px",
-                      fontSize: "14px",
-                      fontWeight: "normal"
-                    }}>
-                      <i className="fa-solid fa-check" style={{ marginRight: "5px" }}></i> Approved
-                    </span>
-                  )}
                 </h2>
                 <p className={styles.subtitle}>Complete demographic details of {student.fullName}</p>
               </div>
-              <button 
-                className={studentStyles.backButton} 
+              <button
+                className={studentStyles.backButton}
                 onClick={() => navigate("/admin/students")}
               >
                 <i className="fas fa-arrow-left"></i> Back to List
@@ -1109,22 +1094,6 @@ const AdminStudentProfile: React.FC = () => {
             </div>
 
             {/* Action Messages */}
-            {showApproveSuccess && (
-              <div style={{
-                backgroundColor: "#d4edda",
-                color: "#155724",
-                padding: "15px",
-                borderRadius: "8px",
-                marginBottom: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px"
-              }}>
-                <i className="fa-solid fa-check-circle" style={{ fontSize: "18px" }}></i>
-                <span>Student approved successfully!</span>
-              </div>
-            )}
-
             {actionError && (
               <div style={{
                 backgroundColor: "#f8d7da",
@@ -1332,98 +1301,49 @@ const AdminStudentProfile: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div style={{ 
-              display: "flex", 
-              gap: "15px", 
+            <div style={{
+              display: "flex",
+              justifyContent: "flex-start",
               marginTop: "30px",
               padding: "20px",
               borderTop: "1px solid #eaeaea"
             }}>
-              {!isApproved ? (
-                <>
-                  <button 
-                    style={{
-                      padding: "12px 25px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      transition: "all 0.3s"
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = "#218838";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = "#28a745";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                    onClick={handleApprove}
-                  >
-                    <i className="fa-solid fa-check"></i> Approve Student
-                  </button>
-                  
-                  <button 
-                    style={{
-                      padding: "12px 25px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      transition: "all 0.3s",
-                      marginLeft: "auto"
-
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = "#c82333";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = "#dc3545";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                    onClick={() => setShowDeleteConfirm(true)}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <>
-                        <i className="fa-solid fa-spinner fa-spin"></i> Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-trash"></i> Delete Student
-                      </>
-                    )}
-                  </button>
-                </>
-              ) : (
-                <div style={{
-                  backgroundColor: "#d4edda",
-                  color: "#155724",
-                  padding: "15px",
+              <button
+                style={{
+                  padding: "12px 28px",
+                  background: "linear-gradient(135deg, #dc3545, #c82333)",
+                  color: "white",
+                  border: "none",
                   borderRadius: "8px",
+                  cursor: deleteLoading ? "not-allowed" : "pointer",
+                  fontSize: "16px",
+                  fontWeight: "600",
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
-                  width: "100%",
-                  justifyContent: "center"
-                }}>
-                  <i className="fa-solid fa-check-circle"></i>
-                  <span>This student has been approved</span>
-                </div>
-              )}
+                  transition: "all 0.3s",
+                  boxShadow: "0 4px 12px rgba(220, 53, 69, 0.3)",
+                  opacity: deleteLoading ? 0.7 : 1
+                }}
+                onMouseOver={(e) => {
+                  if (!deleteLoading) {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 6px 16px rgba(220, 53, 69, 0.45)";
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(220, 53, 69, 0.3)";
+                }}
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <><i className="fa-solid fa-spinner fa-spin"></i> Deleting...</>
+                ) : (
+                  <><i className="fa-solid fa-trash"></i> Delete Student</>
+                )}
+              </button>
             </div>
           </div>
         )}
@@ -1456,26 +1376,26 @@ const AdminStudentProfile: React.FC = () => {
               alignItems: "center",
               marginBottom: "15px"
             }}>
-              <i className="fa-solid fa-exclamation-triangle" style={{ 
-                color: "#dc3545", 
+              <i className="fa-solid fa-exclamation-triangle" style={{
+                color: "#dc3545",
                 marginRight: "10px",
                 fontSize: "24px"
               }}></i>
-              <h3 style={{ 
+              <h3 style={{
                 margin: 0,
                 color: "#dc3545",
                 fontSize: "20px"
               }}>Confirm Delete</h3>
             </div>
             <div style={{ marginBottom: "25px" }}>
-              <p style={{ 
+              <p style={{
                 marginBottom: "10px",
                 fontSize: "16px",
                 lineHeight: "1.5"
               }}>
                 Are you sure you want to delete <strong>{student?.fullName}</strong>?
               </p>
-              <p style={{ 
+              <p style={{
                 color: "#dc3545",
                 backgroundColor: "#f8d7da",
                 padding: "10px",
@@ -1494,7 +1414,7 @@ const AdminStudentProfile: React.FC = () => {
               gap: "15px",
               justifyContent: "flex-end"
             }}>
-              <button 
+              <button
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#6c757d",
@@ -1517,7 +1437,7 @@ const AdminStudentProfile: React.FC = () => {
               >
                 Cancel
               </button>
-              <button 
+              <button
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#dc3545",
@@ -1538,7 +1458,7 @@ const AdminStudentProfile: React.FC = () => {
                 onMouseOut={(e) => {
                   e.currentTarget.style.backgroundColor = "#dc3545";
                 }}
-                onClick={handleDelete}
+                onClick={confirmDelete}
                 disabled={deleteLoading}
               >
                 {deleteLoading ? (
@@ -1557,11 +1477,12 @@ const AdminStudentProfile: React.FC = () => {
       )}
 
       {/* Font Awesome Icons */}
-      <link 
-        rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       />
     </div>
+    </>
   );
 };
 

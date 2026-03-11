@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { getAllStudentsTableData, type StudentTableRow } from "../api/admin_student";
-import styles from "../styles/admin_student.module.css";
+import AdminSideNavbar from "../components/AdminSideNavbar";
+import { getAllStudentsTableData, CACHE_STUDENTS, type StudentTableRow } from "../api/admin_student";
+import { cacheGet } from "../utils/cache";
+import { SkeletonBlock } from "../components/SkeletonRow";
+import styles from "../styles/admin_dashboard.module.css";
 
 const AdminViewStudents: React.FC = () => {
     const [students, setStudents] = useState<StudentTableRow[]>([]);
@@ -12,19 +15,24 @@ const AdminViewStudents: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                setLoading(true);
-                const result = await getAllStudentsTableData();
+        // Phase 1: instant render from cache
+        const cached = cacheGet<StudentTableRow[]>(CACHE_STUDENTS);
+        if (cached) {
+            setStudents(cached);
+            setLoading(false);
+        }
+
+        // Phase 2: background refresh
+        getAllStudentsTableData(true)
+            .then(result => {
                 setStudents(result);
                 setLoading(false);
-            } catch (err) {
+            })
+            .catch((err: unknown) => {
                 console.error(err);
-                setError("Failed to load students data. Please try again later.");
+                if (!cached) setError("Failed to load students data. Please try again later.");
                 setLoading(false);
-            }
-        };
-        loadData();
+            });
     }, []);
 
     // Get unique cities and genders from data
@@ -43,7 +51,7 @@ const AdminViewStudents: React.FC = () => {
         return students.filter(s => {
             // Search filter
             const searchTerm = search.toLowerCase();
-            const matchesSearch = searchTerm === "" || 
+            const matchesSearch = searchTerm === "" ||
                 s.name.toLowerCase().includes(searchTerm) ||
                 s.city.toLowerCase().includes(searchTerm);
 
@@ -57,19 +65,6 @@ const AdminViewStudents: React.FC = () => {
         });
     }, [students, search, cityFilter, genderFilter]);
 
-    // Calculate statistics
-    const stats = useMemo(() => {
-        if (filteredStudents.length === 0) return null;
-        
-        const averageAge = filteredStudents.reduce((sum, s) => sum + s.age, 0) / filteredStudents.length;
-        const genderCount = filteredStudents.reduce((acc, s) => {
-            acc[s.gender] = (acc[s.gender] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-        
-        return { averageAge, genderCount };
-    }, [filteredStudents]);
-
     // Show only error on full page if there's a critical error
     if (error) {
         return (
@@ -80,380 +75,245 @@ const AdminViewStudents: React.FC = () => {
     }
 
     return (
-        <div className={styles.body}>
-            
-            {/* NAVBAR */}
-            <nav className={styles.navbar}>
-                <div className={styles.logo}>
-                    <i className="fa-solid fa-user-shield"></i> FastStay Admin
-                </div>
+        <>
+            {/* ADMIN SIDE NAVBAR */}
+            <AdminSideNavbar active="students" />
 
-                <div className={styles.navLinks}>
-                    <Link to="/admin" className={styles.navLink}>Dashboard</Link>
-                    <Link to="/admin/hostels" className={styles.navLink}>Hostels</Link>
-                    <Link to="/admin/students" className={`${styles.navLink} ${styles.activeNavLink}`}>Students</Link>
-                    <Link to="/admin/managers" className={styles.navLink}>Managers</Link>
-                    <Link to="/admin/logout" className={styles.navLink}>Logout</Link>
-                </div>
-            </nav>
-
-            {/* MAIN */}
+            <div className={styles.mainContent}>
             <div className={styles.container}>
-                <h2 className={styles.pageTitle}><i className="fa-solid fa-user-graduate"></i> All Students</h2>
+                <h2 className={styles.pageTitle}>
+                    <i className="fa-solid fa-user-graduate" style={{ color: '#2980b9', marginRight: '10px' }}></i>All Students
+                </h2>
                 <p className={styles.subtitle}>View and manage student accounts registered on FastStay.</p>
 
-                {/* RESULTS SUMMARY */}
-                {!loading && (
-                    <div style={{ 
-                        marginBottom: "15px", 
-                        color: "#666", 
-                        fontSize: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px"
-                    }}>
-                        <i className="fa-solid fa-info-circle"></i>
-                        <span>
-                            Showing {filteredStudents.length} of {students.length} student(s)
-                            {(cityFilter !== "All" || genderFilter !== "All" || search) && " (filtered)"}
-                        </span>
+                {/* STUDENT OVERVIEW TILES */}
+                <div style={{ background: '#f8f3e7', borderRadius: '16px', boxShadow: '0 6px 20px rgba(0,0,0,0.22)', marginBottom: '24px', overflow: 'hidden' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #1a3a5f 0%, #2980b9 100%)', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <i className="fa-solid fa-chart-pie" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
+                        <span style={{ color: '#f8f3e7', fontWeight: 700, fontSize: '15px' }}>Student Overview</span>
                     </div>
-                )}
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {/* Total */}
+                        <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #2980b9, #1a3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <i className="fa-solid fa-users" style={{ color: '#f8f3e7', fontSize: '18px' }}></i>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '12px', color: '#8d7060', fontWeight: 500, margin: 0 }}>Total Students</p>
+                                    <p style={{ fontSize: '26px', fontWeight: 700, color: '#2b211c', lineHeight: 1, margin: 0 }}>
+                                        {loading ? <SkeletonBlock width="50px" height="26px" /> : students.length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Male */}
+                        <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #1565c0, #2980b9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <i className="fa-solid fa-mars" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '12px', color: '#8d7060', fontWeight: 500, margin: 0 }}>Male</p>
+                                    <p style={{ fontSize: '26px', fontWeight: 700, color: '#2b211c', lineHeight: 1, margin: 0 }}>
+                                        {loading ? <SkeletonBlock width="50px" height="26px" /> : students.filter(s => s.gender === 'Male').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Female */}
+                        <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #9b59b6, #6c3483)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <i className="fa-solid fa-venus" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '12px', color: '#8d7060', fontWeight: 500, margin: 0 }}>Female</p>
+                                    <p style={{ fontSize: '26px', fontWeight: 700, color: '#2b211c', lineHeight: 1, margin: 0 }}>
+                                        {loading ? <SkeletonBlock width="50px" height="26px" /> : students.filter(s => s.gender === 'Female').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Showing */}
+                        <div style={{ flex: '1 1 160px', padding: '20px 24px', borderBottom: '1px solid #ede4d8' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #2e86a0, #1a3a5f)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <i className="fa-solid fa-filter" style={{ color: '#f8f3e7', fontSize: '15px' }}></i>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '12px', color: '#8d7060', fontWeight: 500, margin: 0 }}>Showing</p>
+                                    <p style={{ fontSize: '26px', fontWeight: 700, color: '#2b211c', lineHeight: 1, margin: 0 }}>
+                                        {loading ? <SkeletonBlock width="50px" height="26px" /> : filteredStudents.length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* SEARCH + FILTER BAR */}
-                <div className={styles.topBar} style={{ marginBottom: "20px" }}>
-                    <div className={styles.searchBox} style={{ flex: 1 }}>
-                        <input 
-                            type="text"
-                            placeholder="Search by name or city..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={styles.searchInput}
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+                    <input
+                        type="text"
+                        placeholder="Search by name or city..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        disabled={loading}
+                        style={{
+                            padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd',
+                            backgroundColor: loading ? '#d6c4a1' : '#f5e9d2',
+                            color: loading ? '#7a6648' : '#4c3f30',
+                            fontSize: '14px', minWidth: '280px', flex: '1 1 280px',
+                        }}
+                    />
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <select
+                            value={cityFilter}
+                            onChange={e => setCityFilter(e.target.value)}
                             disabled={loading}
-                            style={{
-                                backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                                color: loading ? "#7a6648" : "#4c3f30",            // deep brown text shades
-                                width: "40%"
-                            }}
-                        />
-                    </div>
-
-                    <div className={styles.filters} style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: "150px" }}>
-                            <label style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
-                                Filter by City
-                            </label>
-                            <select 
-                                className={styles.select}
-                                value={cityFilter}
-                                onChange={(e) => setCityFilter(e.target.value)}
-                                disabled={loading}
-                                style={{
-                                backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                                color: loading ? "#7a6648" : "#4c3f30",  
-                                }}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
+                        >
+                            <option value="All">All Cities ({students.length})</option>
+                            {cityOptions.map(c => <option key={c} value={c}>{c} ({students.filter(s => s.city === c).length})</option>)}
+                        </select>
+                        <select
+                            value={genderFilter}
+                            onChange={e => setGenderFilter(e.target.value)}
+                            disabled={loading}
+                            style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
+                        >
+                            <option value="All">All Genders ({students.length})</option>
+                            {genderOptions.map(g => <option key={g} value={g}>{g} ({students.filter(s => s.gender === g).length})</option>)}
+                        </select>
+                        {(search || cityFilter !== 'All' || genderFilter !== 'All') && (
+                            <button
+                                onClick={() => { setSearch(''); setCityFilter('All'); setGenderFilter('All'); }}
+                                style={{ padding: '8px 16px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}
                             >
-                                <option value="All">All Cities ({students.length})</option>
-                                {cityOptions.map((city) => (
-                                    <option key={city} value={city}>
-                                        {city} ({students.filter(s => s.city === city).length})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: "150px" }}>
-                            <label style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
-                                Filter by Gender
-                            </label>
-                            <select 
-                                className={styles.select}
-                                value={genderFilter}
-                                onChange={(e) => setGenderFilter(e.target.value)}
-                                disabled={loading}
-                                style={{
-                                backgroundColor: loading ? "#d6c4a1" : "#f5e9d2",  // light muted brown tones
-                                color: loading ? "#7a6648" : "#4c3f30",  
-                                }}
-                            >
-                                <option value="All">All Genders ({students.length})</option>
-                                {genderOptions.map((gender) => (
-                                    <option key={gender} value={gender}>
-                                        {gender} ({students.filter(s => s.gender === gender).length})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {(search || cityFilter !== "All" || genderFilter !== "All") && (
-                            <div style={{ alignSelf: "flex-end" }}>
-                                <button 
-                                    onClick={() => {
-                                        setSearch("");
-                                        setCityFilter("All");
-                                        setGenderFilter("All");
-                                    }}
-                                    style={{
-                                        padding: "8px 16px",
-                                        backgroundColor: "#e74c3c",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        cursor: "pointer",
-                                        fontSize: "14px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "5px",
-                                        height: "38px"
-                                    }}
-                                >
-                                    <i className="fa-solid fa-times"></i>
-                                    Clear Filters
-                                </button>
-                            </div>
+                                <i className="fa-solid fa-times"></i> Clear
+                            </button>
                         )}
                     </div>
                 </div>
 
-                {/* STATISTICS BAR */}
-                {!loading && filteredStudents.length > 0 && stats && (
-                    <div style={{ 
-                        marginBottom: "20px",
-                        padding: "15px",
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: "8px",
-                        border: "1px solid #e9ecef",
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                        gap: "15px",
-                        fontSize: "14px",
-                        color: "#666"
-                    }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <i className="fa-solid fa-users" style={{ color: "#3498db" }}></i>
-                            <div>
-                                <div style={{ fontWeight: "600", color: "#2c3e50" }}>
-                                    {filteredStudents.length} Students
-                                </div>
-                                <div style={{ fontSize: "12px" }}>
-                                    Average Age: <strong>{stats.averageAge.toFixed(1)}</strong>
-                                </div>
-                            </div>
+                {/* STUDENTS PANEL */}
+                <div style={{ background: '#f8f3e7', borderRadius: '16px', boxShadow: '0 6px 20px rgba(0,0,0,0.22)', marginBottom: '28px', overflow: 'hidden' }}>
+                    {/* Panel header */}
+                    <div style={{ background: 'linear-gradient(135deg, #1a3a5f 0%, #2980b9 100%)', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <i className="fa-solid fa-user-graduate" style={{ color: '#f8f3e7', fontSize: '15px' }}></i>
+                            <span style={{ color: '#f8f3e7', fontWeight: 700, fontSize: '15px' }}>All Students</span>
                         </div>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <i className="fa-solid fa-venus-mars" style={{ color: "#9b59b6" }}></i>
-                            <div>
-                                <div style={{ fontWeight: "600", color: "#2c3e50" }}>Gender Distribution</div>
-                                <div style={{ fontSize: "12px" }}>
-                                    {Object.entries(stats.genderCount).map(([gender, count]) => (
-                                        <span key={gender} style={{ marginRight: "10px" }}>
-                                            {gender}: <strong>{count}</strong>
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                            <i className="fa-solid fa-city" style={{ color: "#e74c3c" }}></i>
-                            <div>
-                                <div style={{ fontWeight: "600", color: "#2c3e50" }}>Top Cities</div>
-                                <div style={{ fontSize: "12px" }}>
-                                    {cityOptions.slice(0, 2).map(city => (
-                                        <span key={city} style={{ marginRight: "10px" }}>
-                                            {city}: <strong>{students.filter(s => s.city === city).length}</strong>
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                        {!loading && (
+                            <span style={{ background: 'rgba(255,255,255,0.18)', color: '#f8f3e7', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: 600 }}>
+                                {filteredStudents.length} of {students.length}
+                            </span>
+                        )}
                     </div>
-                )}
 
-                {/* TABLE */}
-                <div className={styles.tableCard}>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Age</th>
-                                <th>City</th>
-                                <th>Gender</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                    {/* Column headers */}
+                    <div style={{
+                        display: 'grid', gridTemplateColumns: '2fr 80px 140px 120px 90px',
+                        padding: '8px 20px', background: '#f0f5fb', borderBottom: '1px solid #d0e4f7',
+                        fontSize: '11px', fontWeight: 700, color: '#1a3a5f', textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}>
+                        <span>Student</span><span>Age</span><span>City</span>
+                        <span>Gender</span><span style={{ textAlign: 'right' }}>Action</span>
+                    </div>
 
-                        <tbody>
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={5} className={styles.loadingRow}>
-                                        <div className={styles.loadingContainer}>
-                                            <i className="fa-solid fa-spinner fa-spin" 
-                                               style={{ marginRight: "10px", fontSize: "18px" }}></i>
-                                            Loading students data...
-                                        </div>
-                                    </td>
-                                </tr>
-                            ) : filteredStudents.length > 0 ? (
-                                filteredStudents.map(student => (
-                                    <tr key={student.id} className={styles.tableRow}>
-                                        <td>
-                                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                                <span style={{ fontWeight: "600", color: "#2c3e50" }}>
-                                                    {student.name}
-                                                </span>
-                                                <span style={{ fontSize: "12px", color: "#666" }}>
-                                                    ID: {student.id}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                display: "inline-block",
-                                                padding: "4px 10px",
-                                                borderRadius: "12px",
-                                                backgroundColor: 
-                                                    student.age < 20 ? "#e8f5e8" : 
-                                                    student.age < 25 ? "#e8f4fd" : "#fef5e7",
-                                                color: 
-                                                    student.age < 20 ? "#27ae60" : 
-                                                    student.age < 25 ? "#2980b9" : "#d35400",
-                                                fontWeight: "bold",
-                                                fontSize: "13px"
-                                            }}>
-                                                {student.age}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                display: "inline-block",
-                                                padding: "4px 8px",
-                                                borderRadius: "4px",
-                                                fontSize: "12px",
-                                                fontWeight: "500",
-                                                backgroundColor: "#f8f9fa",
-                                                color: "#2c3e50",
-                                                border: "1px solid #e9ecef"
-                                            }}>
-                                                {student.city}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                display: "inline-block",
-                                                padding: "4px 12px",
-                                                borderRadius: "12px",
-                                                fontSize: "12px",
-                                                fontWeight: "bold",
-                                                backgroundColor: 
-                                                    student.gender === "Male" ? "#e8f4fd" : 
-                                                    student.gender === "Female" ? "#fde8f8" : "#f5f5f5",
-                                                color: 
-                                                    student.gender === "Male" ? "#2980b9" : 
-                                                    student.gender === "Female" ? "#9b59b6" : "#666",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "5px"
-                                            }}>
-                                                <i className={`fa-solid ${
-                                                    student.gender === "Male" ? "fa-mars" : 
-                                                    student.gender === "Female" ? "fa-venus" : "fa-genderless"
-                                                }`}></i>
-                                                {student.gender}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <Link 
-                                                to={`/admin/students/${student.id}`}
-                                                className={styles.actionBtn}
-                                                style={{ 
-                                                    display: "flex", 
-                                                    alignItems: "center", 
-                                                    gap: "5px",
-                                                    padding: "8px 16px",
-                                                    backgroundColor: "#3498db",
-                                                    color: "white",
-                                                    border: "none",
-                                                    borderRadius: "4px",
-                                                    cursor: "pointer",
-                                                    textDecoration: "none",
-                                                    textAlign: "center",
-                                                    width: "60%",
-                                                    justifyContent: "center"
-                                                }}
-                                            >
-                                                <i className="fa-solid fa-eye"></i>
-                                                View Details
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className={styles.noDataRow}>
-                                        <div style={{ 
-                                            display: "flex", 
-                                            flexDirection: "column",
-                                            alignItems: "center", 
-                                            justifyContent: "center",
-                                            padding: "40px 20px",
-                                            gap: "15px"
-                                        }}>
-                                            <i className="fa-solid fa-user-graduate" style={{ 
-                                                fontSize: "48px",
-                                                color: "#ddd"
-                                            }}></i>
-                                            <div style={{ textAlign: "center" }}>
-                                                <h4 style={{ marginBottom: "5px", color: "#666" }}>
-                                                    No students found
-                                                </h4>
-                                                <p style={{ 
-                                                    margin: 0, 
-                                                    fontSize: "14px", 
-                                                    color: "#999", 
-                                                    maxWidth: "400px",
-                                                    lineHeight: "1.5"
-                                                }}>
-                                                    {search || cityFilter !== "All" || genderFilter !== "All" 
-                                                        ? "No students match your current filters. Try adjusting your search criteria."
-                                                        : "There are no students registered in the system yet."}
-                                                </p>
-                                                {(search || cityFilter !== "All" || genderFilter !== "All") && (
-                                                    <button 
-                                                        onClick={() => {
-                                                            setSearch("");
-                                                            setCityFilter("All");
-                                                            setGenderFilter("All");
-                                                        }}
-                                                        style={{
-                                                            marginTop: "15px",
-                                                            padding: "8px 16px",
-                                                            backgroundColor: "#3498db",
-                                                            color: "white",
-                                                            border: "none",
-                                                            borderRadius: "4px",
-                                                            cursor: "pointer",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            gap: "5px",
-                                                            margin: "0 auto"
-                                                        }}
-                                                    >
-                                                        <i className="fa-solid fa-times"></i>
-                                                        Clear all filters
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                    {/* Loading skeleton */}
+                    {loading ? (
+                        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <SkeletonBlock width="42px" height="42px" />
+                                    <SkeletonBlock width="160px" height="16px" />
+                                    <SkeletonBlock width="60px" height="14px" />
+                                    <SkeletonBlock width="90px" height="14px" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : filteredStudents.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '50px 20px' }}>
+                            <i className="fa-solid fa-user-graduate" style={{ fontSize: '40px', marginBottom: '14px', display: 'block', color: '#c9b8a8' }}></i>
+                            <p style={{ fontWeight: 600, color: '#4b3a32', marginBottom: '6px' }}>No students found</p>
+                            <p style={{ fontSize: '13px', color: '#a89080' }}>
+                                {search || cityFilter !== 'All' || genderFilter !== 'All'
+                                    ? 'No students match your filters.'
+                                    : 'There are no students registered in the system yet.'}
+                            </p>
+                            {(search || cityFilter !== 'All' || genderFilter !== 'All') && (
+                                <button
+                                    onClick={() => { setSearch(''); setCityFilter('All'); setGenderFilter('All'); }}
+                                    style={{ marginTop: '14px', padding: '8px 18px', background: '#1a3a5f', color: '#f8f3e7', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}
+                                >Clear filters</button>
                             )}
-                        </tbody>
-                    </table>
+                        </div>
+                    ) : (
+                        filteredStudents.map((s, i) => (
+                            <div key={s.id} style={{
+                                display: 'grid', gridTemplateColumns: '2fr 80px 140px 120px 90px',
+                                alignItems: 'center', padding: '13px 20px',
+                                borderBottom: i < filteredStudents.length - 1 ? '1px solid #d9e8f5' : 'none',
+                                transition: 'background 0.15s',
+                            }}
+                                onMouseEnter={e => (e.currentTarget.style.background = '#f0f5fb')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                            >
+                                {/* Avatar + Name */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', flexShrink: 0, background: 'linear-gradient(135deg, #2980b9, #1a3a5f)', color: '#f8f3e7', fontWeight: 700, fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {(s.name || 'S').charAt(0).toUpperCase()}
+                                    </div>
+                                    <div style={{ minWidth: 0 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '14px', color: '#2b211c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                                        <div style={{ fontSize: '11px', color: '#a89080' }}>ID #{s.id}</div>
+                                    </div>
+                                </div>
+                                {/* Age */}
+                                <div>
+                                    <span style={{
+                                        display: 'inline-block', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 700,
+                                        backgroundColor: s.age < 20 ? '#e8f5e8' : s.age < 25 ? '#e8f4fd' : '#fef5e7',
+                                        color: s.age < 20 ? '#2e7d32' : s.age < 25 ? '#1565c0' : '#d35400',
+                                    }}>{s.age}</span>
+                                </div>
+                                {/* City */}
+                                <div>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, backgroundColor: '#f0f5fb', color: '#1a3a5f', border: '1px solid #c8dff5' }}>
+                                        <i className="fa-solid fa-location-dot" style={{ fontSize: '10px' }}></i>
+                                        {s.city}
+                                    </span>
+                                </div>
+                                {/* Gender */}
+                                <div>
+                                    <span style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                                        backgroundColor: s.gender === 'Male' ? '#e8f4fd' : s.gender === 'Female' ? '#fde8f8' : '#f5f5f5',
+                                        color: s.gender === 'Male' ? '#1565c0' : s.gender === 'Female' ? '#9b59b6' : '#666',
+                                    }}>
+                                        <i className={`fa-solid ${s.gender === 'Male' ? 'fa-mars' : s.gender === 'Female' ? 'fa-venus' : 'fa-genderless'}`}></i>
+                                        {s.gender}
+                                    </span>
+                                </div>
+                                {/* Action */}
+                                <div style={{ textAlign: 'right' }}>
+                                    <Link to={`/admin/students/${s.id}`} style={{
+                                        display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                        padding: '7px 14px', background: '#1a3a5f', color: '#f8f3e7',
+                                        borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: 600,
+                                    }}>
+                                        <i className="fa-solid fa-eye"></i> View
+                                    </Link>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 };
 

@@ -30,7 +30,7 @@ def validate_age(age: int) -> bool:
     return 18 <= age <= 120
 
 
-def validate_signup_data(data: dict) -> tuple[bool, str|None]:
+def validate_signup_data(data: dict):
     required_fields = ['email', 'password', 'fname', 'lname', 'usertype', 'gender', 'city', 'age']
 
     for field in required_fields:

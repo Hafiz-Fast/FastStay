@@ -4,7 +4,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from faststay_app.views import SignupView
 from faststay_app.views import Add_App_Suggestion_view, Display_Ratings_View, Display_User_Suggestions_View
-from faststay_app.views import Student_Detail_Entry_view, Update_Student_Detail_view, Display_Student_View, Display_All_Students_View
+from faststay_app.views import Student_Detail_Entry_view, Update_Student_Detail_view, Display_Student_View, Display_All_Students_View, Delete_Student_View
 from faststay_app.views import Add_Manager_Details_view, Update_Manager_Details_view, delete_Hostel_Manager_view, Display_Manager_View, Display_All_Managers_View
 from faststay_app.views import Add_Hostel_Details_view, Update_Hostel_Details_view, Display_Hostel_View
 from faststay_app.views import Add_Kitchen_Details_view, Update_Kitchen_Details_view
@@ -13,7 +13,8 @@ from faststay_app.views import Add_Room_View, Update_Room_View, Delete_Room_View
 from faststay_app.views import Add_Expenses_View, AddExpenses_RoomIncluded_View, Update_Expenses_View, Delete_Expenses_View, Display_Expenses_View
 from faststay_app.views.signup_view import SignupView
 from faststay_app.views.get_all_users_view import GetAllUsersView
-from faststay_app.views.login_view import LoginView 
+from faststay_app.views.login_view import LoginView
+from faststay_app.views.admin_access_view import AdminAccessView
 from faststay_app.views.delete_hostel_details import DeleteHostelDetailsView
 from faststay_app.views.add_hostel_pics_view import AddHostelPics
 from faststay_app.views.add_room_pics_view import AddRoomPics
@@ -29,6 +30,8 @@ from faststay_app.views.rating_views.update import UpdateHostelRatingView
 from faststay_app.views.rating_views.delete import DeleteHostelRatingView
 from faststay_app.views.rating_views.display import DisplayRatingsView
 from faststay_app.views.display_views.detail_all_hostels import DisplayAllHostelsView
+from faststay_app.views.approve_hostel_view import ApproveHostelView
+from faststay_app.views.disapprove_hostel_view import DisapproveHostelView
 from faststay_app.views.display_views.details_hostel_mess import DetailsHostelMess
 from faststay_app.views.display_views.details_kitchen import DetailsKitchen
 from faststay_app.views.display_views.hostel_pic import HostelPicView
@@ -51,6 +54,7 @@ urlpatterns=[
     path('UserDetail/update/', Update_Student_Detail_view.as_view(), name='UpdateStudentDetail'),
     path('UserDetail/display/', Display_Student_View.as_view(), name='Display_Student_Details'),
     path('UserDetail/display/all/', Display_All_Students_View.as_view(), name='Display_All_Students_Details'),
+    path('UserDetail/delete/', Delete_Student_View.as_view(), name='Delete_Student'),
     path('AppSuggestion/add/', Add_App_Suggestion_view.as_view(), name='Add_App_Suggestion'),
     path('AppSuggestion/display/', Display_User_Suggestions_View.as_view(), name='Display_User_Suggestions'),
     path('HostelRating/display/', Display_Ratings_View.as_view(), name='Display_hostel_Ratings'),
@@ -80,6 +84,9 @@ urlpatterns=[
     path("Expenses/display/", Display_Expenses_View.as_view(), name='Display_Expenses'),
     path('users/all/', GetAllUsersView.as_view(), name='get_all_users'),
     path('login/', LoginView.as_view(), name='login'),
+    path('admin/verify-access/', AdminAccessView.as_view(), name='admin_verify_access'),
+    path('hosteldetails/approve', ApproveHostelView.as_view(), name='approve_hostel_details'),
+    path('hosteldetails/disapprove', DisapproveHostelView.as_view(), name='disapprove_hostel_details'),
     path('hosteldetails/delete', DeleteHostelDetailsView.as_view(), name='delete_hostel_details'),
     path('hostel_pics/add', AddHostelPics.as_view(), name='add_hostel_pics'),
     path('room_pics/add', AddRoomPics.as_view(), name='add_room_pics'),

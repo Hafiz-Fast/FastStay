@@ -1,6 +1,10 @@
 import axios, { AxiosError } from 'axios';
+import { cacheGet, cacheSet } from '../utils/cache';
+import { CACHE_ALL_USERS_RAW, CACHE_ALL_MANAGERS_RAW } from './admin_dashboard';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
+
+export const CACHE_MANAGER_PROFILE = (id: number) => `cache:admin:manager:profile:${id}`;
 
 // ---- RAW Response Interfaces ----
 interface RawManager {
@@ -50,7 +54,7 @@ export interface ManagerTableRow {
 export const deleteManager = async (managerId: number): Promise<boolean> => {
     try {
         console.log(`Attempting to delete manager with ID: ${managerId}`);
-        
+
         const response = await axios.delete(
             `${API_BASE_URL}/faststay_app/ManagerDetails/delete/`,
             {
@@ -60,18 +64,18 @@ export const deleteManager = async (managerId: number): Promise<boolean> => {
                 }
             }
         );
-        
+
         console.log("Delete Manager API Response:", response.data);
-        
+
         // Check response format based on your backend
         if (response.data.result !== undefined) {
             return response.data.result === true || response.data.result === "true";
         } else if (response.data.success !== undefined) {
             return response.data.success === true;
         }
-        
+
         return false;
-        
+
     } catch (error: unknown) {
         console.error(`Error deleting manager ${managerId}:`, error);
         if (axios.isAxiosError(error)) {
@@ -116,7 +120,7 @@ export const getAllManagersTableData = async (): Promise<ManagerTableRow[]> => {
 
     } catch (error: unknown) {
         console.error("Error fetching manager data:", error);
-        
+
         if (axios.isAxiosError(error)) {
             const err = error as AxiosError;
             console.error("Axios error details:", {
@@ -131,11 +135,15 @@ export const getAllManagersTableData = async (): Promise<ManagerTableRow[]> => {
 
 // 2. Get only managers data
 export const getAllManagers = async (): Promise<RawManager[]> => {
+    const cached = cacheGet<RawManager[]>(CACHE_ALL_MANAGERS_RAW);
+    if (cached) return cached;
     try {
         const response = await axios.get<ManagerApiResponse>(
             `${API_BASE_URL}/faststay_app/ManagerDetails/display/all`
         );
-        return response.data.result || [];
+        const managers = response.data.result || [];
+        cacheSet(CACHE_ALL_MANAGERS_RAW, managers);
+        return managers;
     } catch (error: unknown) {
         console.error("Error fetching managers:", error);
         if (axios.isAxiosError(error)) {
@@ -147,11 +155,15 @@ export const getAllManagers = async (): Promise<RawManager[]> => {
 
 // 3. Get only users data
 export const getAllUsers = async (): Promise<RawUser[]> => {
+    const cached = cacheGet<RawUser[]>(CACHE_ALL_USERS_RAW);
+    if (cached) return cached;
     try {
         const response = await axios.get<UsersApiResponse>(
             `${API_BASE_URL}/faststay_app/users/all`
         );
-        return response.data.users || [];
+        const users = response.data.users || [];
+        cacheSet(CACHE_ALL_USERS_RAW, users);
+        return users;
     } catch (error: unknown) {
         console.error("Error fetching users:", error);
         if (axios.isAxiosError(error)) {
@@ -164,19 +176,18 @@ export const getAllUsers = async (): Promise<RawUser[]> => {
 // 4. Get manager by ID with user details
 export const getManagerById = async (managerId: number): Promise<ManagerTableRow | null> => {
     try {
-        const [managersRes, usersRes] = await Promise.all([
-            axios.get<ManagerApiResponse>(`${API_BASE_URL}/faststay_app/ManagerDetails/display/all`),
-            axios.get<UsersApiResponse>(`${API_BASE_URL}/faststay_app/users/all`)
+        const [managers, users] = await Promise.all([
+            getAllManagers(),
+            getAllUsers(),
         ]);
 
-        const manager = managersRes.data.result?.find(m => m.p_ManagerId === managerId);
-        
+        const manager = managers.find(m => m.p_ManagerId === managerId);
+
         if (!manager) {
             console.warn(`Manager with ID ${managerId} not found`);
             return null;
         }
 
-        const users = usersRes.data.users || [];
         const matchedUser = users.find(user => user.userid === managerId);
 
         return {
@@ -201,14 +212,8 @@ export const getManagerById = async (managerId: number): Promise<ManagerTableRow
 // 5. Get user details for a specific manager
 export const getUserForManager = async (managerId: number): Promise<RawUser | null> => {
     try {
-        const response = await axios.get<UsersApiResponse>(
-            `${API_BASE_URL}/faststay_app/users/all`
-        );
-        
-        const users = response.data.users || [];
-        const user = users.find(u => u.userid === managerId);
-        
-        return user || null;
+        const users = await getAllUsers();
+        return users.find(u => u.userid === managerId) || null;
     } catch (error: unknown) {
         console.error(`Error fetching user for manager ID ${managerId}:`, error);
         if (axios.isAxiosError(error)) {
@@ -218,14 +223,37 @@ export const getUserForManager = async (managerId: number): Promise<RawUser | nu
     }
 };
 
+// ---- Prefetchable Manager Profile (used by dashboard for recent managers) ----
+export const getManagerProfile = async (
+    managerId: number,
+    bypassCache = false
+): Promise<{ manager: ManagerTableRow; userDetails: RawUser | null } | null> => {
+    if (!bypassCache) {
+        const cached = cacheGet<{ manager: ManagerTableRow; userDetails: RawUser | null }>(CACHE_MANAGER_PROFILE(managerId));
+        if (cached) return cached;
+    }
+    try {
+        const [managerData, userData] = await Promise.all([
+            getManagerById(managerId),
+            getUserForManager(managerId)
+        ]);
+        if (!managerData) return null;
+        const result = { manager: managerData, userDetails: userData };
+        cacheSet(CACHE_MANAGER_PROFILE(managerId), result);
+        return result;
+    } catch {
+        return null;
+    }
+};
+
 // Example usage function
 export const fetchAndDisplayManagers = async () => {
     try {
         const managersData = await getAllManagersTableData();
-        
+
         console.log("Managers Table Data:", managersData);
         // You can now use this data in your React component
-        
+
         return managersData;
     } catch (error) {
         console.error("Failed to fetch managers:", error);

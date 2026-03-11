@@ -8,7 +8,7 @@
 // // const AdminManagerProfile: React.FC = () => {
 // //   const { id } = useParams<{ id: string }>();
 // //   const navigate = useNavigate();
-  
+
 // //   const [manager, setManager] = useState<ManagerTableRow | null>(null);
 // //   const [userDetails, setUserDetails] = useState<RawUser | null>(null);
 // //   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@
 // //       try {
 // //         setLoading(true);
 // //         const managerId = parseInt(id);
-        
+
 // //         // Fetch manager details and user details in parallel
 // //         const [managerData, userData] = await Promise.all([
 // //           getManagerById(managerId),
@@ -51,13 +51,13 @@
 
 // //   const handleDelete = async () => {
 // //     if (!manager) return;
-    
+
 // //     if (window.confirm(`Are you sure you want to delete ${manager.name}? This action cannot be undone.`)) {
 // //       try {
 // //         // Add your delete API call here
 // //         console.log("Deleting manager:", manager.id);
 // //         // await deleteManager(manager.id);
-        
+
 // //         // Navigate back to managers list after deletion
 // //         navigate("/admin/managers");
 // //       } catch (err) {
@@ -71,7 +71,7 @@
 // //     // Assuming operating hours is a number representing total hours per day
 // //     if (hours === 24) return "24 hours";
 // //     if (hours <= 12) return `${hours} hours`;
-    
+
 // //     // Convert to 12-hour format if needed
 // //     const start = 9; // Default start time
 // //     const end = start + hours;
@@ -94,7 +94,7 @@
 // //             <Link to="/logout">Logout</Link>
 // //           </div>
 // //         </nav>
-        
+
 // //         <div className={styles.container}>
 // //           <div className={managerStyles.loadingContainer}>
 // //             <i className="fas fa-spinner fa-spin" style={{ marginRight: "10px" }}></i>
@@ -121,14 +121,14 @@
 // //             <Link to="/logout">Logout</Link>
 // //           </div>
 // //         </nav>
-        
+
 // //         <div className={styles.container}>
 // //           <div className={managerStyles.errorContainer}>
 // //             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
 // //             <h2>Error Loading Manager</h2>
 // //             <p>{error || "Manager not found"}</p>
-// //             <button 
-// //               className={managerStyles.backButton} 
+// //             <button
+// //               className={managerStyles.backButton}
 // //               onClick={() => navigate("/admin/managers")}
 // //               style={{ marginTop: "20px" }}
 // //             >
@@ -167,8 +167,8 @@
 // //               </h2>
 // //               <p className={styles.subtitle}>Complete details of {manager.name}</p>
 // //             </div>
-// //             <button 
-// //               className={managerStyles.backButton} 
+// //             <button
+// //               className={managerStyles.backButton}
 // //               onClick={() => navigate("/admin/managers")}
 // //             >
 // //               <i className="fas fa-arrow-left"></i> Back to List
@@ -180,9 +180,9 @@
 // //             {/* Profile Image */}
 // //             <div>
 // //               <div className={managerStyles.photoLabel}>Profile Photo</div>
-// //               <img 
-// //                 src={manager.photoLink || "https://via.placeholder.com/180"} 
-// //                 alt={manager.name} 
+// //               <img
+// //                 src={manager.photoLink || "https://via.placeholder.com/180"}
+// //                 alt={manager.name}
 // //                 className={managerStyles.profileImg}
 // //                 onError={(e) => {
 // //                   e.currentTarget.src = "https://via.placeholder.com/180";
@@ -278,7 +278,7 @@
 
 // //           {/* Action Buttons */}
 // //           <div className={managerStyles.managerActions}>
-// //             <button 
+// //             <button
 // //               className={managerStyles.primaryButton}
 // //               onClick={() => {
 // //                 // Navigate to hostels managed by this manager
@@ -288,7 +288,7 @@
 // //               <i className="fa-solid fa-building"></i> View Hostels Managed
 // //             </button>
 
-// //             <button 
+// //             <button
 // //               className={managerStyles.secondaryButton}
 // //               onClick={() => {
 // //                 // Edit manager functionality
@@ -299,7 +299,7 @@
 // //               <i className="fas fa-edit"></i> Edit Profile
 // //             </button>
 
-// //             <button 
+// //             <button
 // //               className={managerStyles.dangerButton}
 // //               onClick={handleDelete}
 // //             >
@@ -310,9 +310,9 @@
 // //       </div>
 
 // //       {/* Font Awesome Icons */}
-// //       <link 
-// //         rel="stylesheet" 
-// //         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+// //       <link
+// //         rel="stylesheet"
+// //         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 // //       />
 // //     </div>
 // //   );
@@ -334,7 +334,7 @@
 // const AdminManagerProfile: React.FC = () => {
 //   const { id } = useParams<{ id: string }>();
 //   const navigate = useNavigate();
-  
+
 //   const [manager, setManager] = useState<ManagerTableRow | null>(null);
 //   const [userDetails, setUserDetails] = useState<RawUser | null>(null);
 //   const [loading, setLoading] = useState(true);
@@ -351,7 +351,7 @@
 //       try {
 //         setLoading(true);
 //         const managerId = parseInt(id);
-        
+
 //         // Fetch manager details and user details in parallel
 //         const [managerData, userData] = await Promise.all([
 //           getManagerById(managerId),
@@ -377,13 +377,13 @@
 
 //   const handleDelete = async () => {
 //     if (!manager) return;
-    
+
 //     if (window.confirm(`Are you sure you want to delete ${manager.name}? This action cannot be undone.`)) {
 //       try {
 //         // Add your delete API call here
 //         console.log("Deleting manager:", manager.id);
 //         // await deleteManager(manager.id);
-        
+
 //         // Navigate back to managers list after deletion
 //         navigate("/admin/managers");
 //       } catch (err) {
@@ -397,7 +397,7 @@
 //     // Assuming operating hours is a number representing total hours per day
 //     if (hours === 24) return "24 hours";
 //     if (hours <= 12) return `${hours} hours`;
-    
+
 //     // Convert to 12-hour format if needed
 //     const start = 9; // Default start time
 //     const end = start + hours;
@@ -421,14 +421,14 @@
 //             <Link to="/admin/logout">Logout</Link>
 //           </div>
 //         </nav>
-        
+
 //         <div className={styles.container}>
 //           <div className={managerStyles.errorContainer}>
 //             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
 //             <h2>Error Loading Manager</h2>
 //             <p>{error || "Manager not found"}</p>
-//             <button 
-//               className={managerStyles.backButton} 
+//             <button
+//               className={managerStyles.backButton}
 //               onClick={() => navigate("/admin/managers")}
 //               style={{ marginTop: "20px" }}
 //             >
@@ -468,25 +468,25 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Loading manager details...</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div className={managerStyles.profileBox} style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div className={managerStyles.profileBox} style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center",
 //               minHeight: "400px"
 //             }}>
-//               <i className="fa-solid fa-spinner fa-spin" style={{ 
-//                 fontSize: "32px", 
+//               <i className="fa-solid fa-spinner fa-spin" style={{
+//                 fontSize: "32px",
 //                 marginBottom: "20px",
 //                 color: "#5c3d2e"
 //               }}></i>
@@ -503,25 +503,25 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Manager not found</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div className={managerStyles.profileBox} style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div className={managerStyles.profileBox} style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center",
 //               minHeight: "400px"
 //             }}>
-//               <i className="fas fa-user-slash" style={{ 
-//                 fontSize: "48px", 
+//               <i className="fas fa-user-slash" style={{
+//                 fontSize: "48px",
 //                 marginBottom: "20px",
 //                 color: "#999"
 //               }}></i>
@@ -539,8 +539,8 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Complete details of {manager.name}</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
@@ -552,9 +552,9 @@
 //               {/* Profile Image */}
 //               <div>
 //                 <div className={managerStyles.photoLabel}>Profile Photo</div>
-//                 <img 
-//                   src={manager.photoLink || "https://via.placeholder.com/180"} 
-//                   alt={manager.name} 
+//                 <img
+//                   src={manager.photoLink || "https://via.placeholder.com/180"}
+//                   alt={manager.name}
 //                   className={managerStyles.profileImg}
 //                   onError={(e) => {
 //                     e.currentTarget.src = "https://via.placeholder.com/180";
@@ -650,7 +650,7 @@
 
 //             {/* Action Buttons */}
 //             <div className={managerStyles.managerActions}>
-//               <button 
+//               <button
 //                 className={managerStyles.primaryButton}
 //                 onClick={() => {
 //                   // Navigate to hostels managed by this manager
@@ -660,7 +660,7 @@
 //                 <i className="fa-solid fa-building"></i> View Hostels Managed
 //               </button>
 
-//               <button 
+//               <button
 //                 className={managerStyles.secondaryButton}
 //                 onClick={() => {
 //                   // Edit manager functionality
@@ -671,7 +671,7 @@
 //                 <i className="fas fa-edit"></i> Edit Profile
 //               </button>
 
-//               <button 
+//               <button
 //                 className={managerStyles.dangerButton}
 //                 onClick={handleDelete}
 //               >
@@ -683,9 +683,9 @@
 //       </div>
 
 //       {/* Font Awesome Icons */}
-//       <link 
-//         rel="stylesheet" 
-//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+//       <link
+//         rel="stylesheet"
+//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 //       />
 //     </div>
 //   );
@@ -708,7 +708,7 @@
 // const AdminManagerProfile: React.FC = () => {
 //   const { id } = useParams<{ id: string }>();
 //   const navigate = useNavigate();
-  
+
 //   const [manager, setManager] = useState<ManagerTableRow | null>(null);
 //   const [userDetails, setUserDetails] = useState<RawUser | null>(null);
 //   const [loading, setLoading] = useState(true);
@@ -729,7 +729,7 @@
 //       try {
 //         setLoading(true);
 //         const managerId = parseInt(id);
-        
+
 //         // Fetch manager details and user details in parallel
 //         const [managerData, userData] = await Promise.all([
 //           getManagerById(managerId),
@@ -755,25 +755,25 @@
 
 //   const handleDelete = async () => {
 //     if (!manager) return;
-    
+
 //     setShowDeleteConfirm(true);
 //   };
 
 //   const confirmDelete = async () => {
 //     if (!manager) return;
-    
+
 //     try {
 //       setDeleteLoading(true);
 //       setActionMessage(null);
-      
+
 //       console.log(`Deleting manager: ${manager.name} (ID: ${manager.id})`);
 //       const success = await deleteManager(manager.id);
-      
+
 //       if (success) {
 //         console.log("Manager deleted successfully!");
 //         setDeleteSuccess(true);
 //         setActionMessage("Manager deleted successfully!");
-        
+
 //         // Wait 2 seconds then redirect to managers list
 //         setTimeout(() => {
 //           navigate("/admin/managers");
@@ -794,7 +794,7 @@
 //   const formatOperatingHours = (hours: number) => {
 //     if (hours === 24) return "24 hours";
 //     if (hours <= 12) return `${hours} hours`;
-    
+
 //     const start = 9;
 //     const end = start + hours;
 //     return `${start}:00 AM - ${end % 12 || 12}:00 ${end < 12 ? 'AM' : 'PM'}`;
@@ -817,16 +817,16 @@
 //             <Link to="/admin/logout">Logout</Link>
 //           </div>
 //         </nav>
-        
+
 //         <div className={styles.container}>
-//           <div className="custom-card" style={{ 
-//             maxWidth: "500px", 
+//           <div className="custom-card" style={{
+//             maxWidth: "500px",
 //             margin: "50px auto",
 //             textAlign: "center",
 //             padding: "40px 20px"
 //           }}>
-//             <i className="fa-solid fa-check-circle" style={{ 
-//               fontSize: "48px", 
+//             <i className="fa-solid fa-check-circle" style={{
+//               fontSize: "48px",
 //               color: "#28a745",
 //               marginBottom: "20px"
 //             }}></i>
@@ -836,7 +836,7 @@
 //               <i className="fa-solid fa-spinner"></i>
 //             </div>
 //             <div style={{ marginTop: "30px" }}>
-//               <Link 
+//               <Link
 //                 to="/admin/managers"
 //                 style={{
 //                   display: "inline-flex",
@@ -875,14 +875,14 @@
 //             <Link to="/admin/logout">Logout</Link>
 //           </div>
 //         </nav>
-        
+
 //         <div className={styles.container}>
 //           <div className={managerStyles.errorContainer}>
 //             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
 //             <h2>Error Loading Manager</h2>
 //             <p>{error || "Manager not found"}</p>
-//             <button 
-//               className={managerStyles.backButton} 
+//             <button
+//               className={managerStyles.backButton}
 //               onClick={() => navigate("/admin/managers")}
 //               style={{ marginTop: "20px" }}
 //             >
@@ -930,25 +930,25 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Loading manager details...</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div className={managerStyles.profileBox} style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div className={managerStyles.profileBox} style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center",
 //               minHeight: "400px"
 //             }}>
-//               <i className="fa-solid fa-spinner fa-spin" style={{ 
-//                 fontSize: "32px", 
+//               <i className="fa-solid fa-spinner fa-spin" style={{
+//                 fontSize: "32px",
 //                 marginBottom: "20px",
 //                 color: "#5c3d2e"
 //               }}></i>
@@ -965,25 +965,25 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Manager not found</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
 //               </button>
 //             </div>
 
-//             <div className={managerStyles.profileBox} style={{ 
-//               display: "flex", 
-//               flexDirection: "column", 
-//               alignItems: "center", 
+//             <div className={managerStyles.profileBox} style={{
+//               display: "flex",
+//               flexDirection: "column",
+//               alignItems: "center",
 //               justifyContent: "center",
 //               padding: "60px 20px",
 //               textAlign: "center",
 //               minHeight: "400px"
 //             }}>
-//               <i className="fas fa-user-slash" style={{ 
-//                 fontSize: "48px", 
+//               <i className="fas fa-user-slash" style={{
+//                 fontSize: "48px",
 //                 marginBottom: "20px",
 //                 color: "#999"
 //               }}></i>
@@ -1001,8 +1001,8 @@
 //                 </h2>
 //                 <p className={styles.subtitle}>Complete details of {manager.name}</p>
 //               </div>
-//               <button 
-//                 className={managerStyles.backButton} 
+//               <button
+//                 className={managerStyles.backButton}
 //                 onClick={() => navigate("/admin/managers")}
 //               >
 //                 <i className="fas fa-arrow-left"></i> Back to List
@@ -1014,9 +1014,9 @@
 //               {/* Profile Image */}
 //               <div>
 //                 <div className={managerStyles.photoLabel}>Profile Photo</div>
-//                 <img 
-//                   src={manager.photoLink || "https://via.placeholder.com/180"} 
-//                   alt={manager.name} 
+//                 <img
+//                   src={manager.photoLink || "https://via.placeholder.com/180"}
+//                   alt={manager.name}
 //                   className={managerStyles.profileImg}
 //                   onError={(e) => {
 //                     e.currentTarget.src = "https://via.placeholder.com/180";
@@ -1112,7 +1112,7 @@
 
 //             {/* Action Buttons */}
 //             <div className={managerStyles.managerActions}>
-//               <button 
+//               <button
 //                 className={managerStyles.primaryButton}
 //                 onClick={() => {
 //                   navigate(`/admin/hostels?manager=${manager.id}`);
@@ -1121,7 +1121,7 @@
 //                 <i className="fa-solid fa-building"></i> View Hostels Managed
 //               </button>
 
-//               <button 
+//               <button
 //                 className={managerStyles.secondaryButton}
 //                 onClick={() => {
 //                   // Edit manager functionality
@@ -1132,7 +1132,7 @@
 //                 <i className="fas fa-edit"></i> Edit Profile
 //               </button>
 
-//               <button 
+//               <button
 //                 className={managerStyles.dangerButton}
 //                 onClick={handleDelete}
 //                 disabled={deleteLoading}
@@ -1169,14 +1169,14 @@
 //               </p>
 //             </div>
 //             <div className="custom-modal-footer">
-//               <button 
+//               <button
 //                 className="custom-btn custom-btn-cancel"
 //                 onClick={() => setShowDeleteConfirm(false)}
 //                 disabled={deleteLoading}
 //               >
 //                 Cancel
 //               </button>
-//               <button 
+//               <button
 //                 className="custom-btn custom-btn-confirm-delete"
 //                 onClick={confirmDelete}
 //                 disabled={deleteLoading}
@@ -1197,9 +1197,9 @@
 //       )}
 
 //       {/* Font Awesome Icons */}
-//       <link 
-//         rel="stylesheet" 
-//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+//       <link
+//         rel="stylesheet"
+//         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 //       />
 //     </div>
 //   );
@@ -1215,96 +1215,87 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getManagerById, getUserForManager, deleteManager, type ManagerTableRow } from "../api/admin_manager_review";
+import { getManagerById, getUserForManager, deleteManager, CACHE_MANAGER_PROFILE, type ManagerTableRow } from "../api/admin_manager_review";
 import type { RawUser } from "../api/admin_manager_review";
+import { cacheGet, cacheSet } from "../utils/cache";
+import { SkeletonBlock } from "../components/SkeletonRow";
 import styles from "../styles/admin_dashboard.module.css";
 import managerStyles from "../styles/admin_manager_profile.module.css";
+import AdminSideNavbar from "../components/AdminSideNavbar";
 
 const AdminManagerProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const [manager, setManager] = useState<ManagerTableRow | null>(null);
   const [userDetails, setUserDetails] = useState<RawUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isApproved, setIsApproved] = useState(false);
-  const [showApproveSuccess, setShowApproveSuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchManagerData = async () => {
-      if (!id) {
-        setError("Manager ID is missing");
-        setLoading(false);
-        return;
-      }
+    if (!id) {
+      setError("Manager ID is missing");
+      setLoading(false);
+      return;
+    }
 
-      try {
-        setLoading(true);
-        const managerId = parseInt(id);
-        
-        // Fetch manager details and user details in parallel
-        const [managerData, userData] = await Promise.all([
-          getManagerById(managerId),
-          getUserForManager(managerId)
-        ]);
+    const managerId = parseInt(id);
 
+    // Phase 1: instant render from cache
+    const cached = cacheGet<{ manager: ManagerTableRow; userDetails: RawUser | null }>(CACHE_MANAGER_PROFILE(managerId));
+    if (cached) {
+      setManager(cached.manager);
+      setUserDetails(cached.userDetails);
+      setLoading(false);
+    }
+
+    // Phase 2: background refresh
+    Promise.all([
+      getManagerById(managerId),
+      getUserForManager(managerId)
+    ])
+      .then(([managerData, userData]) => {
         if (managerData) {
           setManager(managerData);
           setUserDetails(userData);
-        } else {
+          cacheSet(CACHE_MANAGER_PROFILE(managerId), { manager: managerData, userDetails: userData });
+        } else if (!cached) {
           setError(`Manager with ID ${managerId} not found`);
         }
-      } catch (err) {
-        console.error("Error fetching manager profile:", err);
-        setError("Failed to load manager profile. Please try again.");
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchManagerData();
+      })
+      .catch((err: unknown) => {
+        console.error("Error fetching manager profile:", err);
+        if (!cached) setError("Failed to load manager profile. Please try again.");
+        setLoading(false);
+      });
   }, [id]);
-
-  const handleApprove = () => {
-    if (!manager) return;
-    
-    // Dummy approve functionality
-    console.log(`Dummy approving manager ${manager.id}`);
-    setIsApproved(true);
-    setShowApproveSuccess(true);
-    
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      setShowApproveSuccess(false);
-    }, 3000);
-  };
 
   const handleDelete = async () => {
     if (!manager) return;
-    
+
     setShowDeleteConfirm(true);
   };
 
   const confirmDelete = async () => {
     if (!manager) return;
-    
+
     try {
       setDeleteLoading(true);
       setActionMessage(null);
-      
+
       console.log(`Deleting manager: ${manager.name} (ID: ${manager.id})`);
       const success = await deleteManager(manager.id);
-      
+
       if (success) {
         console.log("Manager deleted successfully!");
         setDeleteSuccess(true);
         setActionMessage("Manager deleted successfully! Redirecting...");
-        
+
         // Wait 2 seconds then redirect to managers list
         setTimeout(() => {
           navigate("/admin/managers");
@@ -1325,7 +1316,7 @@ const AdminManagerProfile: React.FC = () => {
   const formatOperatingHours = (hours: number) => {
     if (hours === 24) return "24 hours";
     if (hours <= 12) return `${hours} hours`;
-    
+
     const start = 9;
     const end = start + hours;
     return `${start}:00 AM - ${end % 12 || 12}:00 ${end < 12 ? 'AM' : 'PM'}`;
@@ -1334,30 +1325,20 @@ const AdminManagerProfile: React.FC = () => {
   // If delete was successful and we're about to redirect
   if (deleteSuccess) {
     return (
-      <div>
-        {/* NAVBAR */}
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-user-shield"></i> FastStay Admin
-          </div>
-          <div className={styles.navLinks}>
-            <Link to="/admin">Dashboard</Link>
-            <Link to="/admin/hostels">Hostels</Link>
-            <Link to="/admin/students">Students</Link>
-            <Link to="/admin/managers" className={styles.active}>Managers</Link>
-            <Link to="/admin/logout">Logout</Link>
-          </div>
-        </nav>
-        
+      <>
+        {/* ADMIN SIDE NAVBAR */}
+        <AdminSideNavbar active="managers" />
+
+        <div className={styles.mainContent}>
         <div className={styles.container}>
-          <div className="custom-card" style={{ 
-            maxWidth: "500px", 
+          <div className="custom-card" style={{
+            maxWidth: "500px",
             margin: "50px auto",
             textAlign: "center",
             padding: "40px 20px"
           }}>
-            <i className="fa-solid fa-check-circle" style={{ 
-              fontSize: "48px", 
+            <i className="fa-solid fa-check-circle" style={{
+              fontSize: "48px",
               color: "#28a745",
               marginBottom: "20px"
             }}></i>
@@ -1367,7 +1348,7 @@ const AdminManagerProfile: React.FC = () => {
               <i className="fa-solid fa-spinner"></i>
             </div>
             <div style={{ marginTop: "30px" }}>
-              <Link 
+              <Link
                 to="/admin/managers"
                 style={{
                   display: "inline-flex",
@@ -1385,35 +1366,26 @@ const AdminManagerProfile: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   // Show only error on full page if there's a critical error
   if (error && !loading) {
     return (
-      <div>
-        {/* NAVBAR */}
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <i className="fa-solid fa-user-shield"></i> FastStay Admin
-          </div>
-          <div className={styles.navLinks}>
-            <Link to="/admin">Dashboard</Link>
-            <Link to="/admin/hostels">Hostels</Link>
-            <Link to="/admin/students">Students</Link>
-            <Link to="/admin/managers" className={styles.active}>Managers</Link>
-            <Link to="/admin/logout">Logout</Link>
-          </div>
-        </nav>
-        
+      <>
+        {/* ADMIN SIDE NAVBAR */}
+        <AdminSideNavbar active="managers" />
+
+        <div className={styles.mainContent}>
         <div className={styles.container}>
           <div className={managerStyles.errorContainer}>
             <i className="fas fa-exclamation-triangle" style={{ fontSize: "48px", marginBottom: "20px" }}></i>
             <h2>Error Loading Manager</h2>
             <p>{error || "Manager not found"}</p>
-            <button 
-              className={managerStyles.backButton} 
+            <button
+              className={managerStyles.backButton}
               onClick={() => navigate("/admin/managers")}
               style={{ marginTop: "20px" }}
             >
@@ -1421,45 +1393,19 @@ const AdminManagerProfile: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div>
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>
-          <i className="fa-solid fa-user-shield"></i> FastStay Admin
-        </div>
-        <div className={styles.navLinks}>
-          <Link to="/admin">Dashboard</Link>
-          <Link to="/admin/hostels">Hostels</Link>
-          <Link to="/admin/students">Students</Link>
-          <Link to="/admin/managers" className={styles.active}>Managers</Link>
-          <Link to="/admin/logout">Logout</Link>
-        </div>
-      </nav>
+    <>
+      {/* ADMIN SIDE NAVBAR */}
+      <AdminSideNavbar active="managers" />
 
+      <div className={styles.mainContent}>
       {/* PAGE CONTENT */}
       <div className={styles.container}>
-        {/* Action Messages */}
-        {showApproveSuccess && (
-          <div style={{
-            backgroundColor: "#d4edda",
-            color: "#155724",
-            padding: "15px",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px"
-          }}>
-            <i className="fa-solid fa-check-circle" style={{ fontSize: "18px" }}></i>
-            <span>Manager approved successfully!</span>
-          </div>
-        )}
-
         {actionMessage && (
           <div style={{
             backgroundColor: actionMessage.includes("successfully") ? "#d4edda" : "#f8d7da",
@@ -1480,39 +1426,32 @@ const AdminManagerProfile: React.FC = () => {
         )}
 
         {/* Loading state within the profile card */}
-        {loading ? (
+        {loading && !manager ? (
           <div className={managerStyles.managerProfileCard}>
             <div className={managerStyles.profileHeader}>
               <div>
                 <h2 className={styles.pageTitle}>
                   <i className="fa-solid fa-user-tie"></i> Manager Profile
                 </h2>
-                <p className={styles.subtitle}>Loading manager details...</p>
+                <SkeletonBlock width="200px" height="16px" />
               </div>
-              <button 
-                className={managerStyles.backButton} 
-                onClick={() => navigate("/admin/managers")}
-              >
+              <button className={managerStyles.backButton} onClick={() => navigate("/admin/managers")}>
                 <i className="fas fa-arrow-left"></i> Back to List
               </button>
             </div>
 
-            <div className={managerStyles.profileBox} style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
-              justifyContent: "center",
-              padding: "60px 20px",
-              textAlign: "center",
-              minHeight: "400px"
-            }}>
-              <i className="fa-solid fa-spinner fa-spin" style={{ 
-                fontSize: "32px", 
-                marginBottom: "20px",
-                color: "#5c3d2e"
-              }}></i>
-              <h3 style={{ marginBottom: "10px", color: "#5c3d2e" }}>Loading manager profile...</h3>
-              <p style={{ color: "#666" }}>Please wait while we fetch the manager information</p>
+            <div className={managerStyles.profileBox}>
+              <div>
+                <SkeletonBlock width="180px" height="180px" />
+              </div>
+              <div className={managerStyles.profileInfo}>
+                {[...Array(10)].map((_, i) => (
+                  <div key={i} className={managerStyles.infoItem}>
+                    <SkeletonBlock width="110px" height="13px" />
+                    <SkeletonBlock width="90%" height="20px" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : !manager ? (
@@ -1524,25 +1463,25 @@ const AdminManagerProfile: React.FC = () => {
                 </h2>
                 <p className={styles.subtitle}>Manager not found</p>
               </div>
-              <button 
-                className={managerStyles.backButton} 
+              <button
+                className={managerStyles.backButton}
                 onClick={() => navigate("/admin/managers")}
               >
                 <i className="fas fa-arrow-left"></i> Back to List
               </button>
             </div>
 
-            <div className={managerStyles.profileBox} style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
+            <div className={managerStyles.profileBox} style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               justifyContent: "center",
               padding: "60px 20px",
               textAlign: "center",
               minHeight: "400px"
             }}>
-              <i className="fas fa-user-slash" style={{ 
-                fontSize: "48px", 
+              <i className="fas fa-user-slash" style={{
+                fontSize: "48px",
                 marginBottom: "20px",
                 color: "#999"
               }}></i>
@@ -1557,24 +1496,11 @@ const AdminManagerProfile: React.FC = () => {
               <div>
                 <h2 className={styles.pageTitle}>
                   <i className="fa-solid fa-user-tie"></i> Manager Profile
-                  {isApproved && (
-                    <span style={{
-                      marginLeft: "15px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      padding: "5px 15px",
-                      borderRadius: "20px",
-                      fontSize: "14px",
-                      fontWeight: "normal"
-                    }}>
-                      <i className="fa-solid fa-check" style={{ marginRight: "5px" }}></i> Approved
-                    </span>
-                  )}
                 </h2>
                 <p className={styles.subtitle}>Complete details of {manager.name}</p>
               </div>
-              <button 
-                className={managerStyles.backButton} 
+              <button
+                className={managerStyles.backButton}
                 onClick={() => navigate("/admin/managers")}
               >
                 <i className="fas fa-arrow-left"></i> Back to List
@@ -1586,9 +1512,9 @@ const AdminManagerProfile: React.FC = () => {
               {/* Profile Image */}
               <div>
                 <div className={managerStyles.photoLabel}>Profile Photo</div>
-                <img 
-                  src={manager.photoLink || "https://via.placeholder.com/180"} 
-                  alt={manager.name} 
+                <img
+                  src={manager.photoLink || "https://via.placeholder.com/180"}
+                  alt={manager.name}
                   className={managerStyles.profileImg}
                   onError={(e) => {
                     e.currentTarget.src = "https://via.placeholder.com/180";
@@ -1682,98 +1608,84 @@ const AdminManagerProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Action Buttons - Simplified like other pages */}
-            <div style={{ 
-              display: "flex", 
-              gap: "15px", 
+            {/* Action Buttons */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "12px",
               marginTop: "30px",
               padding: "20px",
               borderTop: "1px solid #eaeaea"
             }}>
-              {!isApproved ? (
-                <>
-                  <button 
-                    style={{
-                      padding: "12px 25px",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      transition: "all 0.3s"
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = "#218838";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = "#28a745";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                    onClick={handleApprove}
-                  >
-                    <i className="fa-solid fa-check"></i> Approve Manager
-                  </button>
-                  
-                  <button 
-                    style={{
-                      marginLeft: "auto",
-                      padding: "12px 25px",
-                      backgroundColor: "#dc3545",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      transition: "all 0.3s"
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = "#c82333";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = "#dc3545";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                    onClick={handleDelete}
-                    disabled={deleteLoading}
-                  >
-                    {deleteLoading ? (
-                      <>
-                        <i className="fa-solid fa-spinner fa-spin"></i> Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-trash"></i> Delete Manager
-                      </>
-                    )}
-                  </button>
-                </>
-              ) : (
-                <div style={{
-                  backgroundColor: "#d4edda",
-                  color: "#155724",
-                  padding: "15px",
+              {/* View Managed Hostels */}
+              <Link
+                to={`/admin/managers/${id}/hostels`}
+                style={{
+                  padding: "12px 28px",
+                  background: "linear-gradient(135deg, #5c3d2e, #8d5f3a)",
+                  color: "#f8f3e7",
+                  border: "none",
                   borderRadius: "8px",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  textDecoration: "none",
+                  boxShadow: "0 4px 12px rgba(92, 61, 46, 0.25)",
+                  transition: "all 0.3s",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 6px 16px rgba(92, 61, 46, 0.4)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(92, 61, 46, 0.25)";
+                }}
+              >
+                <i className="fa-solid fa-building"></i> View Managed Hostels
+              </Link>
+
+              {/* Delete Manager */}
+              <button
+                style={{
+                  padding: "12px 28px",
+                  background: "linear-gradient(135deg, #dc3545, #c82333)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: deleteLoading ? "not-allowed" : "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
-                  width: "100%",
-                  justifyContent: "center"
-                }}>
-                  <i className="fa-solid fa-check-circle"></i>
-                  <span>This manager has been approved</span>
-                </div>
-              )}
+                  transition: "all 0.3s",
+                  boxShadow: "0 4px 12px rgba(220, 53, 69, 0.3)",
+                  opacity: deleteLoading ? 0.7 : 1
+                }}
+                onMouseOver={(e) => {
+                  if (!deleteLoading) {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 6px 16px rgba(220, 53, 69, 0.45)";
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(220, 53, 69, 0.3)";
+                }}
+                onClick={handleDelete}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <><i className="fa-solid fa-spinner fa-spin"></i> Deleting...</>
+                ) : (
+                  <><i className="fa-solid fa-trash"></i> Delete Manager</>
+                )}
+              </button>
             </div>
           </div>
         )}
@@ -1806,26 +1718,26 @@ const AdminManagerProfile: React.FC = () => {
               alignItems: "center",
               marginBottom: "15px"
             }}>
-              <i className="fa-solid fa-exclamation-triangle" style={{ 
-                color: "#dc3545", 
+              <i className="fa-solid fa-exclamation-triangle" style={{
+                color: "#dc3545",
                 marginRight: "10px",
                 fontSize: "24px"
               }}></i>
-              <h3 style={{ 
+              <h3 style={{
                 margin: 0,
                 color: "#dc3545",
                 fontSize: "20px"
               }}>Confirm Delete</h3>
             </div>
             <div style={{ marginBottom: "25px" }}>
-              <p style={{ 
+              <p style={{
                 marginBottom: "10px",
                 fontSize: "16px",
                 lineHeight: "1.5"
               }}>
                 Are you sure you want to delete <strong>{manager?.name}</strong>?
               </p>
-              <div style={{ 
+              <div style={{
                 backgroundColor: "#f8f9fa",
                 padding: "12px",
                 borderRadius: "6px",
@@ -1841,7 +1753,7 @@ const AdminManagerProfile: React.FC = () => {
                   <strong>Type:</strong> {manager?.type}
                 </p>
               </div>
-              <p style={{ 
+              <p style={{
                 color: "#dc3545",
                 backgroundColor: "#f8d7da",
                 padding: "10px",
@@ -1860,7 +1772,7 @@ const AdminManagerProfile: React.FC = () => {
               gap: "15px",
               justifyContent: "flex-end"
             }}>
-              <button 
+              <button
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#6c757d",
@@ -1883,7 +1795,7 @@ const AdminManagerProfile: React.FC = () => {
               >
                 Cancel
               </button>
-              <button 
+              <button
                 style={{
                   padding: "10px 20px",
                   backgroundColor: "#dc3545",
@@ -1923,11 +1835,12 @@ const AdminManagerProfile: React.FC = () => {
       )}
 
       {/* Font Awesome Icons */}
-      <link 
-        rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" 
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       />
     </div>
+    </>
   );
 };
 

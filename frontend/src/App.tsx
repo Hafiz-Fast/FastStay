@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { isAdminAuthenticated, clearAuthenticatedUser } from "./utils/auth";
 import StudentProfile from "./pages/Student_Profile";
 import EditProfile from "./pages/Edit_Profile";
 import Suggestions from "./pages/Suggestions";
@@ -11,8 +13,11 @@ import AdminViewStudents from './pages/admin_student';
 import AdminViewManagers from './pages/admin_manager';
 import ViewHostels from './pages/admin_hostels';
 import AdminManagerProfile from './pages/admin_manager_review';
+import AdminManagerHostels from './pages/admin_manager_hostels';
 import AdminStudentProfile from './pages/admin_students_review';
 import AdminViewHostels from './pages/admin_hostels_review';
+import AdminPendingHostels from './pages/admin_pending_hostels';
+import AdminSuggestions from './pages/admin_suggestions';
 import LogoutConfirm from './pages/admin_signout';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -25,7 +30,18 @@ import Profile from "./pages/Profile";
 import ManagerAnalytics from "./pages/ManagerAnalytics";
 import DirectionsMap from "./pages/DirectionsMap";
 
-localStorage.clear();
+const AdminLayout: React.FC = () => {
+  useEffect(() => {
+    const handleBeforeUnload = () => clearAuthenticatedUser();
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearAuthenticatedUser();
+    };
+  }, []);
+
+  return isAdminAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
+};
 
 function App() {
   return (
@@ -39,14 +55,19 @@ function App() {
         <Route path="/student/ownerDetails" element={<OwnerDetails/>}/>
         <Route path="/student/rooms" element={<Rooms/>}/>
         <Route path="/student/directions" element={<DirectionsMap />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="admin/logout" element={<LogoutConfirm />} />
-        <Route path="/admin/hostels" element={<ViewHostels />} />
-        <Route path="/admin/students" element={<AdminViewStudents />} />
-        <Route path="/admin/managers" element={<AdminViewManagers />} />
-        <Route path="/admin/hostels/:id" element={<AdminViewHostels />} />
-        <Route path="/admin/managers/:id" element={<AdminManagerProfile />} />
-        <Route path="/admin/students/:id" element={<AdminStudentProfile />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/logout" element={<LogoutConfirm />} />
+          <Route path="/admin/hostels" element={<ViewHostels />} />
+          <Route path="/admin/hostels/pending" element={<AdminPendingHostels />} />
+          <Route path="/admin/suggestions" element={<AdminSuggestions />} />
+          <Route path="/admin/students" element={<AdminViewStudents />} />
+          <Route path="/admin/managers" element={<AdminViewManagers />} />
+          <Route path="/admin/hostels/:id" element={<AdminViewHostels />} />
+          <Route path="/admin/managers/:id" element={<AdminManagerProfile />} />
+          <Route path="/admin/managers/:id/hostels" element={<AdminManagerHostels />} />
+          <Route path="/admin/students/:id" element={<AdminStudentProfile />} />
+        </Route>
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
         <Route path="/" element={<Login />} />
         <Route path="/manager/dashboard" element={<HostelDashboard />} />

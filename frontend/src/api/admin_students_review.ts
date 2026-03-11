@@ -1,6 +1,10 @@
 import axios, { AxiosError } from 'axios';
+import { cacheGet, cacheSet } from '../utils/cache';
+import { CACHE_ALL_USERS_RAW } from './admin_dashboard';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
+
+export const CACHE_STUDENT_PROFILE = (id: number) => `cache:admin:student:profile:${id}`;
 
 // --- RAW API RESPONSE INTERFACES ---
 
@@ -59,7 +63,7 @@ export interface StudentProfile {
     age: number;
     gender: string;
     city: string;
-    
+
     // From DisplayStudent API
     semester: number;
     department: string;
@@ -103,14 +107,14 @@ export const getStudentDetailsById = async (studentId: number): Promise<RawStude
             `${API_BASE_URL}/faststay_app/UserDetail/display/`,
             { p_StudentId: studentId }
         );
-        
+
         if (response.data.success && response.data.result) {
             return response.data.result;
         }
         return null;
     } catch (error: unknown) {
         console.error(`Error fetching student details for ID ${studentId}:`, error);
-        
+
         if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
             console.error("Axios error:", {
@@ -128,14 +132,17 @@ export const getStudentDetailsById = async (studentId: number): Promise<RawStude
  * @returns Promise with array of all users
  */
 export const getAllUsers = async (): Promise<RawUser[]> => {
+    const cached = cacheGet<RawUser[]>(CACHE_ALL_USERS_RAW);
+    if (cached) return cached;
     try {
         const response = await axios.get<UsersApiResponse>(
             `${API_BASE_URL}/faststay_app/users/all/`
         );
-        return response.data.users || [];
+        const users = response.data.users || [];
+        cacheSet(CACHE_ALL_USERS_RAW, users);
+        return users;
     } catch (error: unknown) {
         console.error("Error fetching users:", error);
-        
         if (axios.isAxiosError(error)) {
             console.error("Axios error:", error.response?.data);
         }
@@ -177,7 +184,11 @@ export const getAllStudents = async (): Promise<RawUser[]> => {
  * @param studentId - The ID of the student
  * @returns Promise with complete student profile or null if not found
  */
-export const getStudentProfile = async (studentId: number): Promise<StudentProfile | null> => {
+export const getStudentProfile = async (studentId: number, bypassCache = false): Promise<StudentProfile | null> => {
+    if (!bypassCache) {
+        const cached = cacheGet<StudentProfile>(CACHE_STUDENT_PROFILE(studentId));
+        if (cached) return cached;
+    }
     try {
         const [userData, studentDetails] = await Promise.all([
             getUserById(studentId),
@@ -196,7 +207,7 @@ export const getStudentProfile = async (studentId: number): Promise<StudentProfi
         }
 
         // Combine the data
-        return {
+        const profile: StudentProfile = {
             // User data
             userId: userData.userid,
             loginId: userData.loginid,
@@ -207,7 +218,7 @@ export const getStudentProfile = async (studentId: number): Promise<StudentProfi
             age: userData.age,
             gender: userData.gender,
             city: userData.city,
-            
+
             // Student details
             semester: studentDetails.p_Semester,
             department: studentDetails.p_Department,
@@ -219,9 +230,48 @@ export const getStudentProfile = async (studentId: number): Promise<StudentProfi
             bedType: studentDetails.p_BedType,
             washroomType: studentDetails.p_WashroomType
         };
+        cacheSet(CACHE_STUDENT_PROFILE(studentId), profile);
+        return profile;
     } catch (error) {
         console.error(`Error fetching complete student profile for ID ${studentId}:`, error);
         return null;
+    }
+};
+
+/**
+ * Deletes a student by student ID
+ * @param studentId - The ID of the student to delete
+ * @returns Promise<boolean> - true on success, false on not found, throws on server error
+ */
+export const deleteStudent = async (studentId: number): Promise<boolean> => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/faststay_app/UserDetail/delete/`,
+            { p_StudentId: studentId }
+        );
+        return response.status === 200;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 404) return false;
+        }
+        throw error;
+    }
+};
+
+/**
+ * Prefetches all student profiles in parallel batches.
+ * Skips profiles already in cache. Safe to call fire-and-forget.
+ * @param studentIds - Array of student IDs to prefetch
+ * @param concurrency - Max simultaneous requests (default: 3)
+ */
+export const prefetchAllStudentProfiles = async (
+    studentIds: number[],
+    concurrency = 3
+): Promise<void> => {
+    const uncached = studentIds.filter(id => !cacheGet<StudentProfile>(CACHE_STUDENT_PROFILE(id)));
+    for (let i = 0; i < uncached.length; i += concurrency) {
+        const batch = uncached.slice(i, i + concurrency);
+        await Promise.allSettled(batch.map(id => getStudentProfile(id)));
     }
 };
 
@@ -233,11 +283,11 @@ export const getAllStudentsTableData = async (): Promise<StudentTableRow[]> => {
     try {
         // Get all students (users with usertype = 'Student')
         const students = await getAllStudents();
-        
+
         // Fetch details for each student in parallel
         const studentPromises = students.map(async (student) => {
             const details = await getStudentDetailsById(student.userid);
-            
+
             if (!details) {
                 // Return minimal info if details not found
                 return {
@@ -293,10 +343,10 @@ export const searchStudents = async (searchTerm: string): Promise<StudentTableRo
     try {
         const allStudents = await getAllStudentsTableData();
         const term = searchTerm.toLowerCase().trim();
-        
+
         if (!term) return allStudents;
-        
-        return allStudents.filter(student => 
+
+        return allStudents.filter(student =>
             student.name.toLowerCase().includes(term) ||
             student.department.toLowerCase().includes(term) ||
             student.city.toLowerCase().includes(term) ||
@@ -318,7 +368,7 @@ export const searchStudents = async (searchTerm: string): Promise<StudentTableRo
 export const getStudentsByDepartment = async (department: string): Promise<StudentTableRow[]> => {
     try {
         const allStudents = await getAllStudentsTableData();
-        return allStudents.filter(student => 
+        return allStudents.filter(student =>
             student.department.toLowerCase() === department.toLowerCase()
         );
     } catch (error) {
@@ -334,12 +384,12 @@ export const getStudentsByDepartment = async (department: string): Promise<Stude
  * @returns Promise with array of students in the semester range
  */
 export const getStudentsBySemesterRange = async (
-    minSemester: number, 
+    minSemester: number,
     maxSemester: number
 ): Promise<StudentTableRow[]> => {
     try {
         const allStudents = await getAllStudentsTableData();
-        return allStudents.filter(student => 
+        return allStudents.filter(student =>
             student.semester >= minSemester && student.semester <= maxSemester
         );
     } catch (error) {
@@ -385,7 +435,7 @@ export const getStudentsByMessRequirement = async (hasMess: boolean): Promise<St
 export const getStudentStatistics = async () => {
     try {
         const students = await getAllStudentsTableData();
-        
+
         if (students.length === 0) {
             return {
                 totalStudents: 0,
@@ -407,7 +457,7 @@ export const getStudentStatistics = async () => {
         const totalSemester = students.reduce((sum, student) => sum + student.semester, 0);
         const totalRoommateCount = students.reduce((sum, student) => sum + student.roommateCount, 0);
         const totalDistance = students.reduce((sum, student) => sum + student.universityDistance, 0);
-        
+
         // Count preferences
         const acRoomCount = students.filter(student => student.hasAcRoom).length;
         const messCount = students.filter(student => student.hasMess).length;

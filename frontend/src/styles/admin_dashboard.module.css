@@ -11,42 +11,33 @@
   color: #f8f3e7;
 }
 
-/* ----------- NAVBAR ----------- */
-.navbar {
-  width: 100%;
-  padding: 15px 35px;
-  background: #2b211c;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.3);
-  position: sticky;
-  top: 0;
-  z-index: 99;
-}
+/* ----------- SIDE NAVBAR LAYOUT ----------- */
+/* .navbar / .navLinks / .logo kept as legacy stubs to avoid breaking
+   any remaining references during migration */
+.navbar { display: none; }
+.logo   { display: none; }
+.navLinks { display: none; }
+.active { color: #d4b498; }
 
-.logo {
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.navLinks a {
-  margin-left: 25px;
-  text-decoration: none;
-  font-size: 15px;
-  color: #f8f3e7;
-}
-
-.navLinks a:hover,
-.active {
-  color: #d4b498;
+/* Wrapper pushed right of the 240 px sidebar */
+.mainContent {
+  margin-left: 240px;
+  min-height: 100vh;
 }
 
 /* ----------- CONTAINER ----------- */
 .container {
   max-width: 1200px;
-  margin: auto;
+  margin: 0 auto;
   padding: 30px;
+}
+
+/* ----------- MOBILE ----------- */
+@media (max-width: 768px) {
+  .mainContent {
+    margin-left: 0;
+    padding-top: 62px;
+  }
 }
 
 .pageTitle {
@@ -144,9 +135,161 @@ tr:hover {
   background: #704729;
 }
 
-/* ----------- MOBILE ----------- */
 @media (max-width: 768px) {
   .cards {
     flex-direction: column;
+  }
+
+  .container {
+    padding: 16px;
+  }
+}
+
+/* ----------- SUGGESTIONS PAGE (admin_suggestions.tsx) ----------- */
+.suggestFilterBar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.suggestSearchInput {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.suggestFilterGroup {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .suggestFilterBar   { flex-direction: column; }
+  .suggestSearchInput { width: 100%; }
+  .suggestFilterGroup { width: 100%; }
+  .suggestFilterGroup select { width: 100%; }
+
+  /* TABLE → CARD on mobile */
+  .suggestTable thead { display: none; }
+
+  .suggestTable tbody tr {
+    display: block;
+    border-radius: 10px;
+    border: 1px solid #dfd6cb;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .suggestTable td {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    border-bottom: 1px solid #ede4d8;
+    max-width: 100%;
+  }
+
+  .suggestTable td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    color: #8d7060;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* Hide # counter column */
+  .suggestTable td:first-child { display: none; }
+
+  .suggestTable td:last-child { border-bottom: none; }
+}
+
+/* ----------- MANAGER LIST GRID (admin_manager.tsx) ----------- */
+.mgrColHeader {
+  display: grid;
+  grid-template-columns: 2fr 130px 110px 160px 120px 80px;
+}
+
+.mgrGridRow {
+  display: grid;
+  grid-template-columns: 2fr 130px 110px 160px 120px 80px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .mgrColHeader {
+    display: none;
+  }
+
+  .mgrGridRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .mgrCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
+  .mgrCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
+  .mgrCellPhone  { flex: 0 0 auto; order: 3; }
+  .mgrCellType   { flex: 0 0 auto; order: 4; }
+  .mgrCellHours  { flex: 0 0 auto; order: 5; }
+  .mgrCellEdu    { flex: 1 1 100%; order: 6; }
+
+  .mgrFilterGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .mgrFilterGroup select {
+    width: 100%;
+  }
+}
+
+/* ----------- HOSTEL LIST GRID (admin_hostels.tsx) ----------- */
+.hostelColHeader {
+  display: grid;
+  grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
+}
+
+.hostelGridRow {
+  display: grid;
+  grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .hostelColHeader {
+    display: none;
+  }
+
+  .hostelGridRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Name + Action share the first "row" of the card */
+  .hostelCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
+  .hostelCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
+
+  /* Middle detail badges sit on the next line */
+  .hostelCellLoc    { flex: 0 0 auto; order: 3; }
+  .hostelCellType   { flex: 0 0 auto; order: 4; }
+  .hostelCellRooms  { flex: 0 0 auto; order: 5; }
+
+  /* Manager and amenities each take full width */
+  .hostelCellMgr    { flex: 1 1 100%; order: 6; }
+  .hostelCellAmen   { flex: 1 1 100%; order: 7; }
+
+  /* Search / filter bar: stack filters below the input */
+  .hostelFilterGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hostelFilterGroup select {
+    width: 100%;
   }
 }
