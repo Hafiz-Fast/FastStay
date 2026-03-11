@@ -594,7 +594,7 @@ const ViewHostels: React.FC = () => {
               fontSize: '14px', minWidth: '280px', flex: '1 1 280px',
             }}
           />
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className={styles.hostelFilterGroup} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               value={blockFilter}
               onChange={e => setBlockFilter(e.target.value)}
@@ -640,8 +640,7 @@ const ViewHostels: React.FC = () => {
           </div>
 
           {/* Column headers */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '2fr 110px 110px 110px 170px 130px 100px',
+          <div className={styles.hostelColHeader} style={{
             padding: '8px 20px', background: '#f3f8f3', borderBottom: '1px solid #deeade',
             fontSize: '11px', fontWeight: 700, color: '#5a7060', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
@@ -680,9 +679,8 @@ const ViewHostels: React.FC = () => {
             </div>
           ) : (
             filteredHostels.map((h, i) => (
-              <div key={h.id} style={{
-                display: 'grid', gridTemplateColumns: '2fr 110px 110px 110px 170px 130px 100px',
-                alignItems: 'center', padding: '13px 20px',
+              <div key={h.id} className={styles.hostelGridRow} style={{
+                padding: '13px 20px',
                 borderBottom: i < filteredHostels.length - 1 ? '1px solid #e8f0e8' : 'none',
                 transition: 'background 0.15s',
               }}
@@ -690,7 +688,7 @@ const ViewHostels: React.FC = () => {
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 {/* Name */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                <div className={styles.hostelCellName} style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '10px', flexShrink: 0, background: 'linear-gradient(135deg, #6d8c6d, #3a5f3a)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <i className="fa-solid fa-hotel" style={{ color: '#f8f3e7', fontSize: '17px' }}></i>
                   </div>
@@ -710,13 +708,13 @@ const ViewHostels: React.FC = () => {
                   </div>
                 </div>
                 {/* Location */}
-                <div>
+                <div className={styles.hostelCellLoc}>
                   <span style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, backgroundColor: '#e8f2fb', color: '#1565c0' }}>
                     {h.blockHouse || '—'}
                   </span>
                 </div>
                 {/* Type */}
-                <div>
+                <div className={styles.hostelCellType}>
                   <span style={{
                     display: 'inline-block', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700,
                     backgroundColor: h.type === 'Portion' ? '#e8f5e8' : h.type === 'Building' ? '#f0e8ff' : '#f5f0e8',
@@ -724,7 +722,7 @@ const ViewHostels: React.FC = () => {
                   }}>{h.type || '—'}</span>
                 </div>
                 {/* Rooms / Floors */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <div className={styles.hostelCellRooms} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <div style={{ fontSize: '12px', color: '#6d5d52', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <i className="fa-solid fa-door-closed" style={{ color: '#8d7060', fontSize: '10px' }}></i>
                     <span><strong>{h.rooms}</strong> rooms</span>
@@ -735,7 +733,7 @@ const ViewHostels: React.FC = () => {
                   </div>
                 </div>
                 {/* Manager */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                <div className={styles.hostelCellMgr} style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, background: 'linear-gradient(135deg, #8B7355, #5c3d2e)', color: '#f8f3e7', fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {(h.managerName || 'U').charAt(0).toUpperCase()}
                   </div>
@@ -745,7 +743,7 @@ const ViewHostels: React.FC = () => {
                   </div>
                 </div>
                 {/* Amenities */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                <div className={styles.hostelCellAmen} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                   {h.messProvide && (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '2px 7px', borderRadius: '10px', fontSize: '10px', fontWeight: 600, background: '#e8f5e8', color: '#2e7d32' }}>
                       <i className="fa-solid fa-utensils"></i> Mess
@@ -766,7 +764,7 @@ const ViewHostels: React.FC = () => {
                   )}
                 </div>
                 {/* Action */}
-                <div style={{ textAlign: 'right' }}>
+                <div className={styles.hostelCellAction} style={{ textAlign: 'right' }}>
                   <Link to={`/admin/hostels/${h.id}`} style={{
                     display: 'inline-flex', alignItems: 'center', gap: '5px',
                     padding: '7px 14px', background: '#3a5f3a', color: '#f8f3e7',

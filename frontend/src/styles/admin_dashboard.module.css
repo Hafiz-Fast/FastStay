@@ -139,4 +139,56 @@ tr:hover {
   .cards {
     flex-direction: column;
   }
+
+  .container {
+    padding: 16px;
+  }
+}
+
+/* ----------- HOSTEL LIST GRID (admin_hostels.tsx) ----------- */
+.hostelColHeader {
+  display: grid;
+  grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
+}
+
+.hostelGridRow {
+  display: grid;
+  grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .hostelColHeader {
+    display: none;
+  }
+
+  .hostelGridRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Name + Action share the first "row" of the card */
+  .hostelCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
+  .hostelCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
+
+  /* Middle detail badges sit on the next line */
+  .hostelCellLoc    { flex: 0 0 auto; order: 3; }
+  .hostelCellType   { flex: 0 0 auto; order: 4; }
+  .hostelCellRooms  { flex: 0 0 auto; order: 5; }
+
+  /* Manager and amenities each take full width */
+  .hostelCellMgr    { flex: 1 1 100%; order: 6; }
+  .hostelCellAmen   { flex: 1 1 100%; order: 7; }
+
+  /* Search / filter bar: stack filters below the input */
+  .hostelFilterGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hostelFilterGroup select {
+    width: 100%;
+  }
 }
