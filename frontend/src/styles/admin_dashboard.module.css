@@ -215,34 +215,93 @@ tr:hover {
   display: grid;
   grid-template-columns: 2fr 130px 110px 160px 120px 80px;
   align-items: center;
+  padding: 13px 20px;
+  margin: 0 12px 8px;
+  border: 1px solid #ede4d8;
+  border-radius: 10px;
+  background: #fffdf9;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+/* ----------- MANAGER OVERVIEW TILES (admin_manager.tsx) ----------- */
+.mgrOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.mgrOverviewGrid > div {
+  border-right: 1px solid #ede4d8;
+  border-bottom: 1px solid #ede4d8;
+}
+
+.mgrOverviewGrid > div:last-child {
+  border-right: none;
 }
 
 @media (max-width: 768px) {
-  .mgrColHeader {
-    display: none;
+  .mgrOverviewGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
+
+  .mgrOverviewGrid > div:nth-child(2) {
+    border-right: none;
+  }
+
+  .mgrOverviewGrid > div:nth-child(3),
+  .mgrOverviewGrid > div:nth-child(4) {
+    border-top: none;
+  }
+
+  .mgrOverviewGrid > div:nth-child(4) {
+    border-right: none;
+  }
+
+  .mgrColHeader { display: none; }
 
   .mgrGridRow {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name   action"
+      "phone  type"
+      "hours  hours"
+      "edu    edu";
+    column-gap: 8px;
+    row-gap: 6px;
+    padding: 12px 14px;
+    margin: 0 8px 8px;
+  }
+
+  .mgrCellName   { grid-area: name;   min-width: 0; }
+  .mgrCellAction { grid-area: action; align-self: start; }
+  .mgrCellPhone  { grid-area: phone;  align-self: center; }
+  .mgrCellType   { grid-area: type;   align-self: center; justify-self: end; }
+  .mgrCellHours  { grid-area: hours;  align-self: center; }
+  .mgrCellEdu    { grid-area: edu;    min-width: 0; align-self: center; }
+
+  /* Search on its own row, filters on second row */
+  .mgrFilterBar {
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 8px;
+    gap: 6px !important;
   }
 
-  .mgrCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
-  .mgrCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
-  .mgrCellPhone  { flex: 0 0 auto; order: 3; }
-  .mgrCellType   { flex: 0 0 auto; order: 4; }
-  .mgrCellHours  { flex: 0 0 auto; order: 5; }
-  .mgrCellEdu    { flex: 1 1 100%; order: 6; }
-
-  .mgrFilterGroup {
-    flex-direction: column;
-    width: 100%;
+  .mgrFilterBar input {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
   }
 
-  .mgrFilterGroup select {
-    width: 100%;
+  .mgrFilterBar select {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .mgrFilterBar button {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
   }
 }
 
