@@ -18,7 +18,7 @@ const useAuthGuard = (options?: { allowGuest?: boolean }): string => {
 
   useEffect(() => {
     if (!userId) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -30,7 +30,7 @@ const useAuthGuard = (options?: { allowGuest?: boolean }): string => {
     if (userId !== "guest") {
       const storedUser = sessionStorage.getItem("authenticated_user");
       if (storedUser && storedUser !== userId) {
-        navigate("/login");
+        navigate("/");
       }
     }
   }, [userId, navigate, allowGuest]);

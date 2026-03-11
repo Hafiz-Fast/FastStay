@@ -1015,6 +1015,11 @@
 
   .pageTitle {
     font-size: 22px;
+    text-align: center;
+  }
+
+  .pageTitle i{
+    display: none;
   }
 
   .sectionHeader {

@@ -1036,41 +1036,126 @@
 }
 
 @media (max-width: 600px) {
-  .searchBar {
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-  }
-  
-  .searchBar input,
-  .searchBtn {
-    width: 100%;
-  }
-  
-  .filterGroup {
-    min-width: 100%;
-  }
-  
-  .checkboxLabel {
-    justify-content: flex-start;
-  }
-  
-  .cardStats {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  
-  .noResultsActions {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .resetBtn,
-  .suggestionsLinkBtn {
-    width: 100%;
+  .searchSection {
+    padding: 14px 10px;
   }
 
-  /* Reduce animation intensity on mobile for performance */
+  .searchSection h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .searchContainer {
+    margin: 0 auto 15px;
+  }
+
+  .searchBar {
+    flex-direction: row;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  .searchBar i {
+    font-size: 14px;
+    margin-right: 6px;
+  }
+
+  .searchBar input {
+    font-size: 12px;
+    padding: 3px 0;
+  }
+
+  .searchBtn {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 9px;
+    white-space: nowrap;
+  }
+
+  /* Filters: 2 per row */
+  .filtersSection {
+    padding: 12px 10px;
+    margin: 12px auto 15px;
+  }
+
+  .filterRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* Checkboxes row: all in one row */
+  .filterRow:nth-child(2) {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+  }
+
+  .filterRow:nth-child(2) .filterGroup:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .filterGroup {
+    min-width: unset;
+  }
+
+  .filterGroup label {
+    font-size: 11px;
+    margin-bottom: 5px;
+  }
+
+  .filterGroup input[type="number"],
+  .filterGroup select {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 9px;
+  }
+
+  .checkboxLabel {
+    padding: 7px 8px;
+    font-size: 8px;
+    gap: 5px;
+    border-radius: 9px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .checkboxLabel input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+  }
+
+  .checkboxLabel span {
+    bottom: 0 !important;
+  }
+
+  .clearBtn {
+    margin-top: 0;
+    padding: 8px 14px;
+    font-size: 12px;
+    bottom: 0 !important;
+  }
+
+  .resultsInfo {
+    font-size: 12px;
+    padding: 0 5px;
+  }
+
+  /* Hostel Grid - reduced width, centered */
+  .hostelGrid {
+    grid-template-columns: 1fr;
+    padding: 10px 22px;
+    gap: 35px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Hostel Card */
   .hostelCard {
     animation-duration: 0.4s;
   }
@@ -1082,6 +1167,69 @@
       0px 8px 20px rgba(0, 0, 0, 0.4),
       0 0 6px rgba(212, 168, 92, 0.4),
       0 0 15px rgba(212, 168, 92, 0.2);
+  }
+
+  .cardImage {
+    height: 150px;
+  }
+
+  .cardContent {
+    padding: 12px;
+  }
+
+  .cardContent h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .cardAddress {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .cardStats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  .statItem i {
+    font-size: 13px;
+    width: 18px;
+  }
+
+  .statLabel {
+    font-size: 10px;
+  }
+
+  .statValue {
+    font-size: 12px;
+  }
+
+  .cardButtons {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .viewBtn,
+  .ownerBtn {
+    padding: 8px 0;
+    font-size: 12px;
+    border-radius: 8px;
+    gap: 4px;
+  }
+
+  .noResultsActions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .resetBtn,
+  .suggestionsLinkBtn {
+    width: 100%;
+    padding: 10px 18px;
+    font-size: 13px;
   }
 }
 
@@ -1102,8 +1250,18 @@
     height: 160px;
   }
   
+  .cardStats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
   .cardButtons {
-    flex-direction: column;
+    flex-direction: row;
+  }
+  
+  .viewBtn,
+  .ownerBtn {
+    padding: 7px 0;
+    font-size: 11px;
   }
 }
 

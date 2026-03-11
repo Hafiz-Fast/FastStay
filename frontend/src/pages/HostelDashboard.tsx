@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/HostelDashboard.module.css";
 import { Link, useNavigate } from "react-router-dom";
+import ManagerSidenav from "../components/ManagerSidenav";
 
 interface Hostel {
     p_HostelId: number;
@@ -206,6 +207,8 @@ export default function HostelDashboard() {
 
     return (
         <>
+            <ManagerSidenav managerId={managerId} activePage="dashboard" />
+
             {/* Delete Confirmation Modal */}
             {showDeleteModal && (
                 <div className={styles.modalOverlay}>

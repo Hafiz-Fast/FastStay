@@ -73,10 +73,21 @@ Alter table hostel
 Alter column BlockNo Type varchar(100);
 
 Alter table hostel
-Alter column HouseNo Type varchar(100);
+Alter column watertimings Type int;
 
 Alter table hostel
-Add column Name text default 'Student Hostel';
+Alter column HouseNo Type varchar(100);
+
+ALTER TABLE hostel
+ALTER COLUMN watertimings TYPE INT
+USING extract(hour from watertimings);
+
+Alter table hostel
+Add column Latitude Decimal(9,6) NULL,
+Add column Longitude Decimal(9,6) NULL;
+
+Select * from hostel;
+Select * from users;
 
 Create Table HostelPics(
   PicId Serial,
@@ -91,6 +102,11 @@ Create Table HostelPics(
 Alter Table HostelPics
 Add Column isHostelPic boolean,
 Add Column RoomSeaterNo int Default -1;
+
+ALTER TABLE hostelpics
+ADD COLUMN roomno int NULL;
+
+Select * from hostelpics;
 
 Create Table MessDetails(
   MessId int Primary Key references Hostel(HostelId) On delete cascade On update cascade,
@@ -132,6 +148,10 @@ Create Table SecurityInfo(
   isOutsiderVerification boolean
 );
 
+Alter Table securityinfo
+Alter column gatetimings type int
+USING extract(hour from gatetimings);
+
 -- If Manager selects Expenses included in room rent, then just show room and security charges
 -- and other are by default 0, else other are inputted by manager and are displayed also
 Create Table Expenses(
@@ -147,6 +167,8 @@ Create Table Expenses(
   ElectricitybillType Text CHECK(ElectricitybillType in ('RoomMeterFull','RoomMeterACOnly','ACSubmeter','UnitBased')),
   ElectricityCharges float Default 0
 );
+
+Select * from expenses;
 
 Create Table HostelRating(
   RatingId Serial,
@@ -271,6 +293,10 @@ Begin
     Return false;
   End if;
 
+  if exists(Select 1 from studentdemographics S where S.studentid = EnterStudentDetails.UserId) then
+    Return false;
+  End if;
+
   if (Semester>=1 AND Semester<=8) AND (RoomateCount>=1 AND RoomateCount<=6)
      AND BedType in ('Bed','Mattress','Anyone') AND WashroomType in ('RoomAttached','Community') then
 
@@ -284,7 +310,7 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
-Select * from enterstudentdetails(1,5,'CS','2023',3,20.5,true,false,'Bed','RoomAttached');
+Select * from enterstudentdetails(2,5,'CS','2023',3,20.5,true,false,'Bed','RoomAttached');
 Select * from studentdemographics;
 
 -- 5, Update Student DemoGraphics
@@ -437,13 +463,17 @@ Create or Replace function AddHostelDetails(
   p_isParking boolean,
   p_NumRooms int,
   p_NumFloors int,
-  p_WaterTimings Time,
+  p_WaterTimings int,            -- In Hours
   p_CleanlinessTenure int,       -- In Days
   p_IssueResolvingTenure int,    -- In Days
   p_MessProvide boolean,
   p_GeezerFlag boolean,
-  p_name text
+  p_name text,
+  p_Latitude Decimal(9,6),
+  p_Longitude Decimal(9,6)
 ) Returns int as $$
+Declare
+  p_HostelId int;
 Begin
   if not exists(Select 1 from HostelManager where Managerid = p_ManagerId) then
     return 0;           -- Error: Manager with this id does not exists
@@ -454,9 +484,11 @@ Begin
   End if;
 
   if p_HostelType in ('Portion','Building') then
-    Insert into Hostel(managerid, blockno, houseno, hosteltype, isparking, numrooms, numfloors, watertimings, cleanlinesstenure, issueresolvingtenure, messprovide, geezerflag, name)
-    values(p_ManagerId, p_BlockNo, p_HouseNo, p_HostelType, p_isParking, p_NumRooms, p_NumFloors, p_WaterTimings,       p_CleanlinessTenure, p_IssueResolvingTenure, p_MessProvide, p_GeezerFlag, p_name);
-    return 1;           -- Hostel Added Successfully
+    Insert into Hostel(managerid, blockno, houseno, hosteltype, isparking, numrooms, numfloors, watertimings, cleanlinesstenure, issueresolvingtenure, messprovide, geezerflag, name, latitude, longitude)
+    values(p_ManagerId, p_BlockNo, p_HouseNo, p_HostelType, p_isParking, p_NumRooms, p_NumFloors, p_WaterTimings,       p_CleanlinessTenure, p_IssueResolvingTenure, p_MessProvide, p_GeezerFlag, p_name, p_Latitude, p_Longitude)
+    Returning hostelid into p_HostelId;
+
+    return p_HostelId;  -- Hostel Added Successfully
   End if;
 
   return -2;            -- Error: Invalid Hostel Type
@@ -475,12 +507,14 @@ Create or Replace function UpdateHostelDetails(
   p_isParking boolean,
   p_NumRooms int,
   p_NumFloors int,
-  p_WaterTimings Time,
+  p_WaterTimings int,           -- In Hours
   p_CleanlinessTenure int,      -- In Days
   p_IssueResolvingTenure int,   -- In Days
   p_MessProvide boolean,
   p_GeezerFlag boolean,
-  p_name text
+  p_name text,
+  p_Latitude Decimal(9,6),
+  p_Longitude Decimal(9,6)
 ) Returns boolean as $$
 Begin
   if not exists(Select 1 from hostel where hostelid = p_HostelId) then
@@ -500,7 +534,9 @@ Begin
         issueresolvingtenure = COALESCE(p_IssueResolvingTenure, issueresolvingtenure),
         messprovide = COALESCE(p_MessProvide, messprovide),
         geezerflag =  COALESCE(p_GeezerFlag, geezerflag),
-        name = COALESCE(p_name, name)
+        name = COALESCE(p_name, name),
+        latitude = coalesce(p_Latitude, latitude),
+        longitude = coalesce(p_Longitude, longitude)
     where hostelid = p_HostelId;
     return true;
   End if;
@@ -545,26 +581,33 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
+Select * from addhostelpics(6, 'https://www.travelanddestinations.com/wp-content/uploads/2017/10/hostel-room-pixabay-182965_1280.jpg');
+Select * from hostelpics;
+
 --14, Add Room Pictures (Manager can specify room seaterno and add its pictures)
-Create or Replace function AddRoomPics(
-  p_HostelId int,
-  p_PhotoLink text,
-  p_RoomSeaterNo int        --Range from 1 to 6
-) Returns boolean as $$
-Declare
-  p_isHostelPic boolean;
-Begin
-  if not exists(Select 1 from hostel where hostelid = p_HostelId) then
-    return false;
-  End if;
+CREATE OR REPLACE FUNCTION AddRoomPics(
+  p_HostelId INT,
+  p_PhotoLink TEXT,
+  p_RoomSeaterNo INT,       -- 0 for specific room, 1-6 for seater type
+  p_RoomNo INT DEFAULT NULL -- NULL for seater-based, room number for specific room
+) RETURNS BOOLEAN AS $$
+DECLARE
+  p_isHostelPic BOOLEAN;
+BEGIN
+  IF NOT EXISTS(SELECT 1 FROM hostel WHERE hostelid = p_HostelId) THEN
+    RETURN FALSE;
+  END IF;
 
-  p_isHostelPic := false;
-  Insert into HostelPics(hostelid, photolink, ishostelpic, roomseaterno)
-  values(p_HostelId, p_PhotoLink, p_isHostelPic, p_RoomSeaterNo);
+  p_isHostelPic := FALSE;
+  
+  INSERT INTO HostelPics(hostelid, photolink, ishostelpic, roomseaterno, roomno)
+  VALUES(p_HostelId, p_PhotoLink, p_isHostelPic, p_RoomSeaterNo, p_RoomNo);
 
-  return true;
-End;
+  RETURN TRUE;
+END;
 $$ LANGUAGE plpgsql;
+
+Select * from hostelpics;
 
 --15, Delete Hostel Picture (Manager can Delete hostel pictures)
 Create or Replace function DeleteHostelPic(
@@ -612,6 +655,8 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
+Select * from messdetails;
+
 --17, Update Mess Details (Manager can Update Mess Details)
 Create or Replace function UpdateMessDetails(
   p_MessId int,
@@ -626,7 +671,7 @@ Begin
   if p_MessTimeCount>=1 and p_MessTimeCount<=3 then
     Update MessDetails
     set messmeals = COALESCE(p_MessTimeCount, messmeals),
-        dishes = COALESCE(p_Dishes, messmeals)
+        dishes = COALESCE(p_Dishes, dishes)
     where messid = p_MessId;
     return 1;     -- Mess Details Updated Successfuly
   End if;
@@ -688,6 +733,8 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
+Select * from kitchendetails;
+
 --21, Update Kitchen Details (Hostel Manager can update Kitchen Details)
 Create or Replace function UpdateKitchenDetails(
   p_KitchenId int,
@@ -748,7 +795,7 @@ Begin
     return 0;       -- Error: Hostel does not exists
   End if;
 
-  if exists(Select 1 from RoomInfo where roomid = p_RoomNo) then
+  if exists(Select 1 from RoomInfo where roomid = p_RoomNo and hostelid = p_HostelId) then
     return -1;      -- Error: Room with this id already exists
   End if;
 
@@ -776,6 +823,8 @@ Begin
   return -2;       -- Error: Invalid Data Types
 End;
 $$ LANGUAGE plpgsql;
+
+Select * from roominfo;
 
 --24, Update Room Details
 Create or Replace function UpdateRoom(
@@ -910,7 +959,7 @@ Select * from displayallrooms();
 --29, Add Security Details of a Hostel
 Create or Replace function AddSecurityInfo(
   p_HostelId int,
-  p_GateTimings Time,
+  p_GateTimings int,
   p_isCameras boolean,
   p_isGuard boolean,
   p_isOutsiderVerification boolean
@@ -927,10 +976,12 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
+Select * from securityinfo;
+
 --30, Update Security Details of Hostel
 Create or Replace function UpdateSecurityInfo(
   p_SecurityId int,
-  p_GateTimings Time,
+  p_GateTimings int,
   p_isCameras boolean,
   p_isGuard boolean,
   p_isOutsiderVerification boolean
@@ -972,19 +1023,20 @@ Create or Replace function DisplayHostelSecurityInfo(
   p_HostelId int
 )
 Returns Table(
-  p_GateTimings Time,
+  p_SecurityId int,
+  p_GateTimings int,
   p_isCameras boolean,
   p_isGuard boolean,
   p_isOutsiderVerification boolean
 ) as $$
 Begin
   Return Query
-  Select gatetimings, iscameras, isguard, isoutsiderverification from SecurityInfo
+  Select securityid, gatetimings, iscameras, isguard, isoutsiderverification from SecurityInfo
   where securityid = p_HostelId;
 End;
 $$ LANGUAGE plpgsql;
 
-Select * from displayhostelsecurityinfo(1);
+Select * from displayhostelsecurityinfo(6);
 
 -- Manager can Add Expenses Details of Hostel
 --33, This function will be called when manager selects Expenses included in RoomRent
@@ -1053,6 +1105,12 @@ Begin
 End;
 $$ LANGUAGE plpgsql;
 
+Select * from expenses;
+
+Update expenses
+set roomcharges = Array[15000]
+where expenseid = 5;
+
 --35, Update Hostel Expenses
 Create or Replace function UpdateHostelExpenses(
   p_ExpenseId int,
@@ -1074,7 +1132,6 @@ Begin
   if p_ElectricitybillType in ('RoomMeterFull','RoomMeterACOnly','ACSubmeter','UnitBased') then
     Update Expenses
     set isincludedinroomcharges = coalesce(p_isIncludedInRoomCharges, isincludedinroomcharges),
-        roomcharges = coalesce(p_RoomCharges, roomcharges),
         securitycharges = coalesce(p_SecurityCharges, securitycharges),
         messcharges = coalesce(p_MessCharges, messcharges),
         kitchencharges = coalesce(p_KitchenCharges, kitchencharges),
@@ -1111,6 +1168,7 @@ Create or Replace function DisplayExpenses(
   p_HostelId int
 )
 Returns Table(
+  p_ExpenseId int,
   p_isIncludedInRoomCharges boolean,
   p_RoomCharges float[],
   p_SecurityCharges float,
@@ -1123,13 +1181,13 @@ Returns Table(
 ) as $$
 Begin
   Return Query
-  Select isincludedinroomcharges, roomcharges, securitycharges, messcharges, kitchencharges, internetcharges,
+  Select expenseid, isincludedinroomcharges, roomcharges, securitycharges, messcharges, kitchencharges, internetcharges,
          acservicecharges, electricitybilltype, electricitycharges from Expenses
   where expenseid = p_HostelId;
 End;
 $$ LANGUAGE plpgsql;
 
-Select * from displayexpenses(5);
+Select * from displayexpenses(6);
 
 --38, Students can Add Ratings on hostel
 Create or Replace function AddHostelRating(
@@ -1352,17 +1410,19 @@ Returns Table(
   p_isParking boolean,
   p_NumRooms int,
   p_NumFloors int,
-  p_WaterTimings Time,
+  p_WaterTimings int,
   p_CleanlinessTenure int,      -- In Days
   p_IssueResolvingTenure int,   -- In Days
   p_MessProvide boolean,
   p_GeezerFlag boolean,
-  p_name text
+  p_name text,
+  p_Latitude Decimal(9,6),
+  p_Longitude Decimal(9,6)
 ) as $$
 Begin
   Return Query
   Select blockno, houseno, hosteltype, isparking, numrooms, numfloors, watertimings, cleanlinesstenure, issueresolvingtenure,
-  messprovide, geezerflag, name from hostel
+  messprovide, geezerflag, name, latitude, longitude from hostel
   where hostelid = p_HostelId;
 End;
 $$ LANGUAGE plpgsql;
@@ -1372,13 +1432,15 @@ Select * from displayhostel(5);
 --48, Display Details of All Hostels
 Create or Replace function DisplayAllHostels()
 Returns Table(
+  p_HostelId int,
+  p_ManagerId int,
   p_BlockNo varchar(100),
   p_HouseNo varchar(100),
   p_HostelType varchar(50),
   p_isParking boolean,
   p_NumRooms int,
   p_NumFloors int,
-  p_WaterTimings Time,
+  p_WaterTimings int,
   p_CleanlinessTenure int,      -- In Days
   p_IssueResolvingTenure int,   -- In Days
   p_MessProvide boolean,
@@ -1387,12 +1449,13 @@ Returns Table(
 ) as $$
 Begin
   Return Query
-  Select blockno, houseno, hosteltype, isparking, numrooms, numfloors, watertimings, cleanlinesstenure, issueresolvingtenure,
+  Select hostelid, managerid, blockno, houseno, hosteltype, isparking, numrooms, numfloors, watertimings, cleanlinesstenure, issueresolvingtenure,
   messprovide, geezerflag, name from hostel;
 End;
 $$ LANGUAGE plpgsql;
 
 Select * from displayallhostels();
+Select * from hostel;
 
 --49, Display Pics of a Hostel
 Create or Replace function DisplayHostelPics(
@@ -1411,53 +1474,126 @@ $$ LANGUAGE plpgsql;
 Select * from displayhostelpics(5);
 
 --50, Display pics of a Room
-Create or Replace function DisplayRoomPics(
+CREATE OR REPLACE FUNCTION DisplayRoomPics(
   p_HostelId int
 )
-Returns Table(
+RETURNS TABLE(
   p_PhotoLink text,
+  p_RoomNo int,
   p_RoomSeaterNo int
-) as $$
-Begin
-  Return Query
-  Select photolink, roomseaterno from hostelpics
-  where hostelid = p_HostelId and ishostelpic = false;
-End;
+)
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    photolink AS "p_PhotoLink",
+    roomno AS "p_RoomNo",
+    roomseaterno AS "p_RoomSeaterNo"
+  FROM hostelpics
+  WHERE hostelid = p_HostelId;
+END;
 $$ LANGUAGE plpgsql;
 
 Select * from displayroompics(5);
+Select * from hostelpics;
 
 --51, Display Details of a HostelMess
-Create or Replace function DisplayMessInfo(
+CREATE OR REPLACE FUNCTION DisplayMessInfo(
   p_HostelId int
 )
-Returns Table(
+RETURNS TABLE(
+  p_MessId int,
   p_MessTimeCount int,
   p_Dishes text[]
-) as $$
-Begin
-  Return Query
-  Select messmeals, dishes from messdetails
-  where messid = p_HostelId;
-End;
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT messid, messmeals, dishes 
+  FROM messdetails
+  WHERE messid = p_HostelId;
+END;
 $$ LANGUAGE plpgsql;
 
-Select * from displaymessinfo(5);
+Select * from displaymessinfo(6);
 
 --52, Display Kitchen Details
 Create or Replace function DisplayKitchenDetails(
   p_HostelId int
 )
 Returns Table(
+  p_KitchenId int,
   p_isFridge boolean,
   p_isMicrowave boolean,
   p_isGas boolean
 ) as $$
 Begin
   Return Query
-  Select isfridge, ismicrowave, isgas from kitchendetails
+  Select kitchenid, isfridge, ismicrowave, isgas from kitchendetails
   where kitchenid = p_HostelId;
 End;
 $$ LANGUAGE plpgsql;
 
-Select * from displaykitchendetails(5);
+Select * from displaykitchendetails(6);
+
+-- 53, Display Hostel, HostelRating and Hostel Expenses for Student HomePage
+Create or Replace function DisplayStudentHome()
+Returns Table(
+  p_HostelId int,
+  p_ManagerId int,
+  p_BlockNo varchar(100),
+  p_HouseNo varchar(100),
+  p_HostelType varchar(50),
+  p_isParking boolean,
+  p_NumRooms int,
+  p_NumFloors int,
+  p_WaterTimings int,
+  p_CleanlinessTenure int,      -- In Days
+  p_IssueResolvingTenure int,   -- In Days
+  p_MessProvide boolean,
+  p_GeezerFlag boolean,
+  p_name text,
+  p_Latitude Decimal(9,6),
+  p_Longitude Decimal(9,6),
+  p_PhotoLinks text,
+  p_RatingStar int,
+  p_RoomCharges float[]
+) as $$
+Begin
+  Return Query
+  SELECT DISTINCT ON (H.hostelid)
+    H.hostelid,
+    H.managerid,
+    H.blockno,
+    H.houseno,
+    H.hosteltype,
+    H.isparking,
+    H.numrooms,
+    H.numfloors,
+    H.watertimings,
+    H.cleanlinesstenure,
+    H.issueresolvingtenure,
+    H.messprovide,
+    H.geezerflag,
+    H.name,
+    H.latitude,
+    H.longitude,
+    P.photolink,
+    R.ratingstar,
+    E.roomcharges
+    FROM hostel H
+    LEFT JOIN hostelpics P 
+        ON H.hostelid = P.hostelid AND P.ishostelpic = true
+    LEFT JOIN hostelrating R 
+        ON H.hostelid = R.hostelid
+    LEFT JOIN expenses E 
+        ON H.hostelid = E.expenseid
+    ORDER BY H.hostelid, P.photolink;
+End
+$$ LANGUAGE plpgsql;
+
+Select * from displaystudenthome();
+
+Select * from expenses;
+Select * from hostel;
+Select * from hostelpics;
+Select * from hostelrating;

@@ -872,4 +872,8 @@
     .navLinks a {
         margin-left: 0;
     }
+
+    .navLinks {
+        display: none;
+    }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "../styles/AddRoom.module.css";
 import { Link } from "react-router-dom";
+import ManagerSidenav from "../components/ManagerSidenav";
 
 interface Hostel {
     p_HostelId: number;
@@ -554,6 +555,8 @@ export default function AddRoom() {
 
     return (
         <>
+            <ManagerSidenav managerId={managerId} activePage="add_room" />
+
             {/* NAVBAR */}
             <nav className={styles.navbar}>
                 <div className={styles.logo}>

@@ -610,6 +610,10 @@ button:disabled:hover {
         font-size: 13px;
         padding: 5px 10px;
     }
+
+    .navLinks {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {

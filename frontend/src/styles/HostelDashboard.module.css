@@ -668,6 +668,10 @@
         min-width: 100%;
         margin: 0;
     }
+
+    .navLinks {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
