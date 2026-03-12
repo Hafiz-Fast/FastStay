@@ -374,7 +374,7 @@ const handleDelete = async () => {
               </p>
 
               {/* TAB NAVIGATION */}
-              <div style={{ display: 'flex', gap: '4px', marginBottom: '22px', background: '#f0e7dc', borderRadius: '10px', padding: '5px' }}>
+              <div className="review-tab-bar" style={{ display: 'flex', gap: '4px', marginBottom: '22px', background: '#f0e7dc', borderRadius: '10px', padding: '5px' }}>
                 {([
                   { key: 'overview' as const, label: 'Overview', icon: 'fa-building' },
                   { key: 'expenses' as const, label: 'Expenses', icon: 'fa-money-bill-wave' },

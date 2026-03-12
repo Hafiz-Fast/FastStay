@@ -142,7 +142,7 @@ const AdminSuggestions: React.FC = () => {
         </div>
 
         {/* TABS */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "12px", flexWrap: "wrap" }}>
+        <div className={styles.suggestTabs} style={{ display: "flex", gap: "10px", marginBottom: "12px", flexWrap: "wrap" }}>
           {(["all", "improvements", "defects"] as const).map((tab) => (
             <button
               key={tab}
@@ -167,7 +167,7 @@ const AdminSuggestions: React.FC = () => {
         </div>
 
         {/* STATUS FILTER */}
-        <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <div className={styles.suggestTabs} style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
           {(["all", "unresolved", "resolved"] as const).map((sf) => (
             <button
               key={sf}
@@ -217,7 +217,6 @@ const AdminSuggestions: React.FC = () => {
             }}
           />
           <div className={styles.suggestFilterGroup}>
-            <span style={{ color: "#d6c7ba", fontSize: "14px" }}>Filter by type:</span>
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
@@ -239,25 +238,25 @@ const AdminSuggestions: React.FC = () => {
                 </option>
               ))}
             </select>
-            {(search || typeFilter !== "All") && (
-              <button
-                onClick={() => { setSearch(""); setTypeFilter("All"); }}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#e74c3c",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                <i className="fa-solid fa-times"></i> Clear
-              </button>
-            )}
+            <button
+              onClick={() => { setSearch(""); setTypeFilter("All"); }}
+              disabled={!search && typeFilter === "All"}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: (search || typeFilter !== "All") ? "#e74c3c" : "#ddd",
+                color: (search || typeFilter !== "All") ? "white" : "#999",
+                border: "none",
+                borderRadius: "6px",
+                cursor: (search || typeFilter !== "All") ? "pointer" : "default",
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <i className="fa-solid fa-times"></i> Clear
+            </button>
           </div>
         </div>
 

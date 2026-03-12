@@ -132,6 +132,106 @@
   }
 }
 
+/* ---- MOBILE RESPONSIVE ---- */
+@media (max-width: 768px) {
+  .custom-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .custom-approved-badge {
+    font-size: 12px;
+    padding: 3px 10px;
+    margin-left: 0;
+  }
+
+  .custom-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .custom-section-title {
+    font-size: 16px;
+    margin: 14px 0 10px;
+  }
+
+  .custom-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .custom-info-label {
+    font-size: 11px;
+  }
+
+  .custom-info-value {
+    font-size: 14px;
+  }
+
+  /* Tab nav bar — 3+2 wrap grid on mobile */
+  .review-tab-bar {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    gap: 4px !important;
+    padding: 5px !important;
+  }
+
+  .review-tab-bar button {
+    flex: 1 1 calc(33% - 4px) !important;
+    min-width: 0;
+    padding: 9px 6px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Action buttons */
+  .custom-btn-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .custom-btn-row > * {
+    width: 100%;
+  }
+
+  .custom-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .custom-btn-row > div {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Modals */
+  .custom-modal {
+    width: 94%;
+  }
+
+  .custom-modal-body {
+    padding: 20px 16px;
+  }
+
+  .custom-modal-footer {
+    gap: 10px;
+  }
+
+  .custom-modal-footer .custom-btn {
+    flex: 1;
+  }
+}
+
 
 
 

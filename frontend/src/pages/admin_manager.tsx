@@ -377,9 +377,9 @@ const AdminViewManagers: React.FC = () => {
             <i className="fa-solid fa-chart-pie" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
             <span style={{ color: '#f8f3e7', fontWeight: 700, fontSize: '15px' }}>Manager Overview</span>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+          <div className={styles.mgrOverviewGrid}>
             {/* Total */}
-            <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+            <div style={{ padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #8d5f3a, #5c3d2e)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-user-tie" style={{ color: '#f8f3e7', fontSize: '18px' }}></i>
@@ -393,7 +393,7 @@ const AdminViewManagers: React.FC = () => {
               </div>
             </div>
             {/* Owners */}
-            <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+            <div style={{ padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #2e7d32, #388e3c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-crown" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
@@ -407,7 +407,7 @@ const AdminViewManagers: React.FC = () => {
               </div>
             </div>
             {/* Employees */}
-            <div style={{ flex: '1 1 160px', padding: '20px 24px', borderRight: '1px solid #ede4d8', borderBottom: '1px solid #ede4d8' }}>
+            <div style={{ padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #1565c0, #1976d2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-briefcase" style={{ color: '#f8f3e7', fontSize: '16px' }}></i>
@@ -421,7 +421,7 @@ const AdminViewManagers: React.FC = () => {
               </div>
             </div>
             {/* Showing */}
-            <div style={{ flex: '1 1 160px', padding: '20px 24px', borderBottom: '1px solid #ede4d8' }}>
+            <div style={{ padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'linear-gradient(135deg, #7D5D4E, #5c3d2e)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-filter" style={{ color: '#f8f3e7', fontSize: '15px' }}></i>
@@ -438,7 +438,7 @@ const AdminViewManagers: React.FC = () => {
         </div>
 
         {/* SEARCH + FILTER BAR */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className={styles.mgrFilterBar} style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '8px' }}>
           <input
             type="text"
             placeholder="Search by name, phone, or education..."
@@ -446,31 +446,36 @@ const AdminViewManagers: React.FC = () => {
             onChange={e => setSearch(e.target.value)}
             disabled={loading}
             style={{
+              flex: '1 1 auto', minWidth: 0,
               padding: '10px 14px', borderRadius: '8px', border: '1px solid #ddd',
               backgroundColor: loading ? '#d6c4a1' : '#f5e9d2',
               color: loading ? '#7a6648' : '#4c3f30',
-              fontSize: '14px', minWidth: '280px', flex: '1 1 280px',
+              fontSize: '14px',
             }}
           />
-          <div className={styles.mgrFilterGroup} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <select
-              value={filterType}
-              onChange={e => setFilterType(e.target.value)}
-              disabled={loading}
-              style={{ padding: '10px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
-            >
-              <option value="All">All Types ({managers.length})</option>
-              {managerTypes.map(t => <option key={t} value={t}>{t} ({managers.filter(m => m.type === t).length})</option>)}
-            </select>
-            {(search || filterType !== 'All') && (
-              <button
-                onClick={() => { setSearch(''); setFilterType('All'); }}
-                style={{ padding: '8px 16px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px' }}
-              >
-                <i className="fa-solid fa-times"></i> Clear
-              </button>
-            )}
-          </div>
+          <select
+            value={filterType}
+            onChange={e => setFilterType(e.target.value)}
+            disabled={loading}
+            style={{ padding: '10px 6px', borderRadius: '8px', border: '1px solid #ddd', backgroundColor: loading ? '#d6c4a1' : '#f5e9d2', color: loading ? '#7a6648' : '#4c3f30', fontSize: '14px' }}
+          >
+            <option value="All">All Types ({managers.length})</option>
+            {managerTypes.map(t => <option key={t} value={t}>{t} ({managers.filter(m => m.type === t).length})</option>)}
+          </select>
+          <button
+            onClick={() => { setSearch(''); setFilterType('All'); }}
+            disabled={!search && filterType === 'All'}
+            style={{
+              padding: '8px 14px',
+              backgroundColor: (search || filterType !== 'All') ? '#e74c3c' : '#ddd',
+              color: (search || filterType !== 'All') ? 'white' : '#999',
+              border: 'none', borderRadius: '6px',
+              cursor: (search || filterType !== 'All') ? 'pointer' : 'default',
+              fontSize: '14px', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap',
+            }}
+          >
+            <i className="fa-solid fa-times"></i> Clear
+          </button>
         </div>
 
         {/* MANAGERS PANEL */}
@@ -490,7 +495,7 @@ const AdminViewManagers: React.FC = () => {
 
           {/* Column headers */}
           <div className={styles.mgrColHeader} style={{
-            padding: '8px 20px', background: '#f5ece0', borderBottom: '1px solid #e8d8c8',
+            padding: '8px 32px', background: '#f5ece0', borderBottom: '1px solid #e8d8c8',
             fontSize: '11px', fontWeight: 700, color: '#6b4c38', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
             <span>Manager</span><span>Phone</span><span>Type</span>
@@ -526,14 +531,12 @@ const AdminViewManagers: React.FC = () => {
               )}
             </div>
           ) : (
-            filteredManagers.map((m, i) => (
-              <div key={m.id} className={styles.mgrGridRow} style={{
-                padding: '13px 20px',
-                borderBottom: i < filteredManagers.length - 1 ? '1px solid #ede4d8' : 'none',
-                transition: 'background 0.15s',
-              }}
+            <div style={{ padding: '8px 0 4px' }}>
+            {filteredManagers.map((m) => (
+              <div key={m.id}
+                className={styles.mgrGridRow}
                 onMouseEnter={e => (e.currentTarget.style.background = '#fdf6ef')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                onMouseLeave={e => (e.currentTarget.style.background = '')}
               >
                 {/* Avatar + Name */}
                 <div className={styles.mgrCellName} style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
@@ -587,7 +590,8 @@ const AdminViewManagers: React.FC = () => {
                   </Link>
                 </div>
               </div>
-            ))
+            ))}
+            </div>
           )}
         </div>
       </div>

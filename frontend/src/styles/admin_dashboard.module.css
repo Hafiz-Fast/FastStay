@@ -137,8 +137,18 @@ tr:hover {
 
 @media (max-width: 768px) {
   .cards {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
+
+  .card {
+    min-width: 0;
+    padding: 16px;
+  }
+
+  .card i { font-size: 26px; }
+  .cardValue { font-size: 22px; }
 
   .container {
     padding: 16px;
@@ -148,59 +158,97 @@ tr:hover {
 /* ----------- SUGGESTIONS PAGE (admin_suggestions.tsx) ----------- */
 .suggestFilterBar {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .suggestSearchInput {
-  flex: 1 1 200px;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
 .suggestFilterGroup {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
-  .suggestFilterBar   { flex-direction: column; }
-  .suggestSearchInput { width: 100%; }
-  .suggestFilterGroup { width: 100%; }
-  .suggestFilterGroup select { width: 100%; }
+  .suggestFilterBar { flex-wrap: wrap; gap: 6px; }
+
+  .suggestSearchInput {
+    flex: 1 1 100% !important;
+    width: 100%;
+  }
+
+  .suggestFilterGroup {
+    flex: 1 1 100%;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .suggestFilterGroup select {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .suggestFilterGroup button {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Tabs row */
+  .suggestTabs { gap: 6px !important; }
+  .suggestTabs button { padding: 6px 12px !important; font-size: 13px !important; }
 
   /* TABLE → CARD on mobile */
   .suggestTable thead { display: none; }
 
   .suggestTable tbody tr {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "user   type"
+      "impr   impr"
+      "def    def"
+      "status status";
     border-radius: 10px;
     border: 1px solid #dfd6cb;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     overflow: hidden;
+    padding: 10px 12px;
+    gap: 8px;
   }
 
   .suggestTable td {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 14px;
-    border-bottom: 1px solid #ede4d8;
+    display: block;
+    padding: 0;
+    border-bottom: none;
     max-width: 100%;
+    font-size: 13px;
   }
 
   .suggestTable td::before {
     content: attr(data-label);
-    font-size: 11px;
+    display: block;
+    font-size: 10px;
     font-weight: 700;
     color: #8d7060;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
 
-  /* Hide # counter column */
-  .suggestTable td:first-child { display: none; }
+  /* Map columns to grid areas */
+  .suggestTable td:nth-child(1) { display: none; }
+  .suggestTable td:nth-child(2) { grid-area: user; }
+  .suggestTable td:nth-child(3) { grid-area: type; justify-self: end; }
+  .suggestTable td:nth-child(4) { grid-area: impr; }
+  .suggestTable td:nth-child(5) { grid-area: def; }
+  .suggestTable td:nth-child(6) { grid-area: status; }
 
   .suggestTable td:last-child { border-bottom: none; }
 }
@@ -215,34 +263,93 @@ tr:hover {
   display: grid;
   grid-template-columns: 2fr 130px 110px 160px 120px 80px;
   align-items: center;
+  padding: 13px 20px;
+  margin: 0 12px 8px;
+  border: 1px solid #ede4d8;
+  border-radius: 10px;
+  background: #fffdf9;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+/* ----------- MANAGER OVERVIEW TILES (admin_manager.tsx) ----------- */
+.mgrOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.mgrOverviewGrid > div {
+  border-right: 1px solid #ede4d8;
+  border-bottom: 1px solid #ede4d8;
+}
+
+.mgrOverviewGrid > div:last-child {
+  border-right: none;
 }
 
 @media (max-width: 768px) {
-  .mgrColHeader {
-    display: none;
+  .mgrOverviewGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
+
+  .mgrOverviewGrid > div:nth-child(2) {
+    border-right: none;
+  }
+
+  .mgrOverviewGrid > div:nth-child(3),
+  .mgrOverviewGrid > div:nth-child(4) {
+    border-top: none;
+  }
+
+  .mgrOverviewGrid > div:nth-child(4) {
+    border-right: none;
+  }
+
+  .mgrColHeader { display: none; }
 
   .mgrGridRow {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name   action"
+      "phone  type"
+      "hours  hours"
+      "edu    edu";
+    column-gap: 8px;
+    row-gap: 6px;
+    padding: 12px 14px;
+    margin: 0 8px 8px;
+  }
+
+  .mgrCellName   { grid-area: name;   min-width: 0; }
+  .mgrCellAction { grid-area: action; align-self: start; }
+  .mgrCellPhone  { grid-area: phone;  align-self: center; }
+  .mgrCellType   { grid-area: type;   align-self: center; justify-self: end; }
+  .mgrCellHours  { grid-area: hours;  align-self: center; }
+  .mgrCellEdu    { grid-area: edu;    min-width: 0; align-self: center; }
+
+  /* Search on its own row, filters on second row */
+  .mgrFilterBar {
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 8px;
+    gap: 6px !important;
   }
 
-  .mgrCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
-  .mgrCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
-  .mgrCellPhone  { flex: 0 0 auto; order: 3; }
-  .mgrCellType   { flex: 0 0 auto; order: 4; }
-  .mgrCellHours  { flex: 0 0 auto; order: 5; }
-  .mgrCellEdu    { flex: 1 1 100%; order: 6; }
-
-  .mgrFilterGroup {
-    flex-direction: column;
-    width: 100%;
+  .mgrFilterBar input {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
   }
 
-  .mgrFilterGroup select {
-    width: 100%;
+  .mgrFilterBar select {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .mgrFilterBar button {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
   }
 }
 
@@ -256,41 +363,163 @@ tr:hover {
   display: grid;
   grid-template-columns: 2fr 110px 110px 110px 170px 130px 100px;
   align-items: center;
+  padding: 13px 20px;
+  margin: 0 12px 8px;
+  border: 1px solid #deeade;
+  border-radius: 10px;
+  background: #fdfffd;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
 @media (max-width: 768px) {
-  .hostelColHeader {
-    display: none;
-  }
+  .hostelColHeader { display: none; }
 
   .hostelGridRow {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas:
+      "name  name  name   action"
+      "loc   type  rooms  rooms"
+      "mgr   mgr   amen   amen";
+    column-gap: 8px;
+    row-gap: 6px;
+    padding: 12px 14px;
+    margin: 0 8px 8px;
+  }
+
+  .hostelCellName   { grid-area: name;   min-width: 0; }
+  .hostelCellAction { grid-area: action; align-self: start; }
+  .hostelCellLoc    { grid-area: loc;    align-self: center; }
+  .hostelCellType   { grid-area: type;   align-self: center; }
+  .hostelCellRooms  { grid-area: rooms;  align-self: center;
+                      flex-direction: row !important; gap: 10px !important; }
+  .hostelCellMgr    { grid-area: mgr;    min-width: 0; align-self: center; }
+  .hostelCellAmen   { grid-area: amen;   align-self: center; justify-content: flex-end; }
+
+  /* Search on its own row, filters on second row */
+  .hostelFilterBar {
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 8px;
+    gap: 6px !important;
   }
 
-  /* Name + Action share the first "row" of the card */
-  .hostelCellName   { flex: 1 1 auto; min-width: 0; order: 1; }
-  .hostelCellAction { flex: 0 0 auto; order: 2; align-self: flex-start; }
-
-  /* Middle detail badges sit on the next line */
-  .hostelCellLoc    { flex: 0 0 auto; order: 3; }
-  .hostelCellType   { flex: 0 0 auto; order: 4; }
-  .hostelCellRooms  { flex: 0 0 auto; order: 5; }
-
-  /* Manager and amenities each take full width */
-  .hostelCellMgr    { flex: 1 1 100%; order: 6; }
-  .hostelCellAmen   { flex: 1 1 100%; order: 7; }
-
-  /* Search / filter bar: stack filters below the input */
-  .hostelFilterGroup {
-    flex-direction: column;
-    width: 100%;
+  .hostelFilterBar input {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
   }
 
-  .hostelFilterGroup select {
-    width: 100%;
+  .hostelFilterBar select {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    max-width: 130px;
+  }
+
+  .hostelFilterBar button {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ----------- STUDENT OVERVIEW TILES (admin_student.tsx) ----------- */
+.stuOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stuOverviewGrid > div {
+  border-right: 1px solid #ede4d8;
+  border-bottom: 1px solid #ede4d8;
+}
+
+.stuOverviewGrid > div:last-child {
+  border-right: none;
+}
+
+@media (max-width: 768px) {
+  .stuOverviewGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stuOverviewGrid > div:nth-child(2) {
+    border-right: none;
+  }
+
+  .stuOverviewGrid > div:nth-child(3),
+  .stuOverviewGrid > div:nth-child(4) {
+    border-top: none;
+  }
+
+  .stuOverviewGrid > div:nth-child(4) {
+    border-right: none;
+  }
+}
+
+/* ----------- STUDENT LIST GRID (admin_student.tsx) ----------- */
+.stuColHeader {
+  display: grid;
+  grid-template-columns: 1fr 80px 140px 130px 90px;
+}
+
+.stuGridRow {
+  display: grid;
+  grid-template-columns: 1fr 80px 140px 130px 90px;
+  align-items: center;
+  padding: 13px 20px;
+  margin: 0 12px 8px;
+  border: 1px solid #dce8f7;
+  border-radius: 10px;
+  background: #fdfdff;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+@media (max-width: 768px) {
+  .stuColHeader { display: none; }
+
+  .stuGridRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name   action"
+      "city   gender"
+      "age    age";
+    column-gap: 8px;
+    row-gap: 6px;
+    padding: 12px 14px;
+    margin: 0 8px 8px;
+  }
+
+  .stuCellName   { grid-area: name;   min-width: 0; }
+  .stuCellAction { grid-area: action; align-self: start; }
+  .stuCellCity   { grid-area: city;   align-self: center; }
+  .stuCellGender { grid-area: gender; align-self: center; justify-self: end; }
+  .stuCellAge    { grid-area: age;    align-self: center; }
+
+  .stuFilterBar {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .stuFilterBar input {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+  }
+
+  .stuFilterBar select {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+    max-width: 130px;
+  }
+
+  .stuFilterBar button {
+    padding: 8px 8px !important;
+    font-size: 12px !important;
   }
 }
 
