@@ -467,11 +467,6 @@ const ViewHostels: React.FC = () => {
     return Array.from(blocks).sort();
   }, [hostels]);
 
-  const typeOptions = useMemo(() => {
-    const types = new Set(hostels.map(h => h.type).filter(Boolean));
-    return Array.from(types).sort();
-  }, [hostels]);
-
   // Filter hostels based on search and filters
   const filteredHostels = useMemo(() => {
     return hostels.filter(h => {
@@ -673,7 +668,7 @@ const ViewHostels: React.FC = () => {
             </div>
           ) : (
             <div style={{ padding: '8px 0 4px' }}>
-            {filteredHostels.map((h, i) => (
+            {filteredHostels.map((h, _i) => (
               <div key={h.id} className={styles.hostelGridRow}
                 onMouseEnter={e => (e.currentTarget.style.background = '#f0faf0')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#fdfffd')}
